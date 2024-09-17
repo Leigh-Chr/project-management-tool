@@ -93,7 +93,7 @@ export class TasksPanelComponent {
   };
 
   readonly tasks = computed(() => {
-    const currentUserId = this.authService.user?.id;
+    const currentUserId = this.authService.userSignal()?.id;
     if (!currentUserId) return [];
 
     return this.taskService

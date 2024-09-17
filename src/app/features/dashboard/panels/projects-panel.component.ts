@@ -97,7 +97,7 @@ export class ProjectsPanelComponent {
   };
 
   readonly projects = computed<Project[]>(() => {
-    const currentUserId = this.authService.user?.id;
+    const currentUserId = this.authService.userSignal()?.id;
     if (!currentUserId) return [];
 
     const projects = this.projectService.projectsSignal();

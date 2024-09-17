@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { DataMockService, User } from './data-mock.service';
 
 export type RegisterParams = Pick<User, 'email' | 'password' | 'username'>;
@@ -11,10 +11,11 @@ export type LoginResponse = RegisterResponse | null;
   providedIn: 'root',
 })
 export class AuthService {
-  user: User | null;
+  readonly userSignal = signal<User | null>(null);
+  readonly isLoggedIn = computed(() => !!this.userSignal());
 
   constructor(private dataMockService: DataMockService) {
-    this.user = dataMockService.users[0];
+    this.userSignal.set(dataMockService.users[0]);
   }
 
   register(registerParams: RegisterParams): RegisterResponse {
@@ -22,11 +23,11 @@ export class AuthService {
   }
 
   login(loginParams: LoginParams): LoginResponse {
-    this.user = this.dataMockService.getUser(loginParams) ?? null;
-    return this.user;
+    this.userSignal.set(this.dataMockService.getUser(loginParams) ?? null);
+    return this.userSignal();
   }
 
   logout(): void {
-    this.user = null;
+    this.userSignal.set(null);
   }
 }

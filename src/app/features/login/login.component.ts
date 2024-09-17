@@ -65,6 +65,12 @@ export class LoginComponent {
   password = this.loginForm.get('password') as FormControl<string>;
   errorMessage: string | null = null;
 
+  constructor() {
+    if (this.authService.isLoggedIn()) {
+      this.router.navigate(['/dashboard']);
+    }
+  }
+
   onSubmit(): void {
     if (!this.loginForm.valid) return;
     const loginParams = this.loginForm.value;
