@@ -261,6 +261,10 @@ export class DataMockService {
     return this.projects;
   }
 
+  addProject(project: Project): void {
+    this.projects.push(project);
+  }
+
   getTasks(): Task[] {
     return this.tasks;
   }

@@ -4,6 +4,7 @@ import {
   Component,
   computed,
   inject,
+  signal,
 } from '@angular/core';
 import { ProjectService } from '../../../core/services/project.service';
 import { Project } from '../../../core/services/data-mock.service';
@@ -11,11 +12,17 @@ import { ButtonComponent } from '../../../ui/button.component';
 import { PaginatorComponent } from '../../../ui/paginator.component';
 import { Table } from '../../../types';
 import { AuthService } from '../../../core/services/auth.service';
+import { AddProjectPopupComponent } from '../../../shared/add-project-popup.component';
 
 @Component({
   selector: 'projects-panel',
   standalone: true,
-  imports: [PaginatorComponent, ButtonComponent, DatePipe],
+  imports: [
+    PaginatorComponent,
+    ButtonComponent,
+    DatePipe,
+    AddProjectPopupComponent,
+  ],
   host: {
     class:
       'border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]',
@@ -31,6 +38,7 @@ import { AuthService } from '../../../core/services/auth.service';
         [disabled]="false"
         icon="fi fi-rr-square-plus"
         label="Add Project"
+        (click)="showPopup()"
       />
     </div>
     <div>
@@ -73,6 +81,9 @@ import { AuthService } from '../../../core/services/auth.service';
       [totalItems]="0"
       (pageChange)="onPageChange($event)"
     />
+    @if (isPopupVisible()) {
+    <add-project-popup (close)="hidePopup()"></add-project-popup>
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -111,6 +122,16 @@ export class ProjectsPanelComponent {
       )
     );
   });
+
+  readonly isPopupVisible = signal(false);
+
+  showPopup(): void {
+    this.isPopupVisible.set(true);
+  }
+
+  hidePopup(): void {
+    this.isPopupVisible.set(false);
+  }
 
   onPageChange(page: number) {
     console.log(page);

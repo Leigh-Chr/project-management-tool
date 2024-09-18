@@ -16,11 +16,11 @@ export class ProjectService {
     this.loadProjects();
   }
 
-  refreshProjects() {
+  refreshProjects(): void {
     this.loadProjects();
   }
 
-  private loadProjects() {
+  private loadProjects(): void {
     this.projectsSignal.set(this.getProjects());
     this.projectMembersSignal.set(this.getProjectMembers());
   }
@@ -31,5 +31,10 @@ export class ProjectService {
 
   private getProjects(): Project[] {
     return this.dataMockService.getProjects();
+  }
+
+  private addProject(project: Project): void {
+    this.dataMockService.addProject(project);
+    this.projectsSignal.update((projects) => [...projects, project]);
   }
 }
