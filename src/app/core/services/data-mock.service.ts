@@ -253,6 +253,10 @@ export class DataMockService {
     );
   }
 
+  getStatuses(): Status[] {
+    return this.statuses;
+  }
+
   getProjectMembers(): ProjectMember[] {
     return this.projectMembers;
   }

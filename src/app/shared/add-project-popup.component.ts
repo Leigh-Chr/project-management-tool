@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  computed,
+  inject,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -10,6 +16,8 @@ import { CommonModule } from '@angular/common';
 import { Project } from '../core/services/data-mock.service';
 import { ButtonComponent } from '../ui/button.component';
 import { InputFieldComponent } from '../ui/input-field.component';
+import { StatusService } from '../core/services/status.service';
+import { SelectFieldComponent } from '../ui/select-field.component';
 
 @Component({
   selector: 'add-project-popup',
@@ -19,6 +27,7 @@ import { InputFieldComponent } from '../ui/input-field.component';
     ReactiveFormsModule,
     ButtonComponent,
     InputFieldComponent,
+    SelectFieldComponent,
   ],
   host: {
     class:
@@ -56,12 +65,12 @@ import { InputFieldComponent } from '../ui/input-field.component';
           label="End Date"
           type="date"
         />
-        <ui-input-field
+        <ui-select-field
           [control]="statusId"
           id="statusId"
-          label="Status ID"
-          type="number"
-          errorMessage="Status ID is required."
+          label="Status"
+          [options]="statusOptions()"
+          errorMessage="Status is required."
         />
         <div class="flex justify-end mt-4">
           <ui-button
@@ -81,17 +90,27 @@ import { InputFieldComponent } from '../ui/input-field.component';
   `,
 })
 export class AddProjectPopupComponent {
+  private readonly statusService = inject(StatusService);
+
   @Output() close = new EventEmitter<void>();
   @Output() addProject = new EventEmitter<Project>();
+
+  statuses = computed(() => this.statusService.statusesSignal());
+  statusOptions = computed(() =>
+    this.statuses().map((status) => ({
+      value: status.id,
+      label: status.name,
+    }))
+  );
 
   private readonly formBuilder = inject(FormBuilder);
 
   projectForm: FormGroup = this.formBuilder.group({
     name: ['', [Validators.required]],
     description: [''],
-    startDate: ['', [Validators.required]],
+    startDate: [new Date().toISOString().split('T')[0], [Validators.required]],
     endDate: [''],
-    statusId: ['', [Validators.required]],
+    statusId: [this.statusOptions()[0].value, [Validators.required]],
   });
 
   name = this.projectForm.get('name') as FormControl<string>;
