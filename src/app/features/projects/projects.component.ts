@@ -1,5 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
 import { Project, Status } from '../../core/services/data-mock.service';
 import { ProjectService } from '../../core/services/project.service';
@@ -52,10 +58,9 @@ import { TableComponent } from '../../ui/table.component';
           [totalItems]="0"
           (pageChange)="onPageChange($event)"
         ></ui-paginator>
-        <add-project-popup
-          *ngIf="isPopupVisible()"
-          (close)="hidePopup()"
-        ></add-project-popup>
+        @if ( isPopupVisible() ) {
+        <add-project-popup (close)="hidePopup()"></add-project-popup>
+        }
       </div>
     </default-layout>
   `,
