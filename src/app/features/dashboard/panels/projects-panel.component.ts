@@ -14,6 +14,7 @@ import { AddProjectPopupComponent } from '../../../shared/add-project-popup.comp
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../ui/button.component';
 import { PaginatorComponent } from '../../../ui/paginator.component';
+import { ProjectMemberService } from '../../../core/services/project-member.service';
 
 @Component({
   selector: 'projects-panel',
@@ -91,6 +92,7 @@ import { PaginatorComponent } from '../../../ui/paginator.component';
 export class ProjectsPanelComponent {
   private readonly authService = inject(AuthService);
   readonly projectService = inject(ProjectService);
+  readonly projectMemberService = inject(ProjectMemberService);
   readonly statusService = inject(StatusService);
 
   readonly table: Table<Project & { status: Status['name'] }> = {
@@ -117,7 +119,7 @@ export class ProjectsPanelComponent {
     if (!currentUserId) return [];
 
     const projects = this.projectService.projectsSignal();
-    const projectMembers = this.projectService.projectMembersSignal();
+    const projectMembers = this.projectMemberService.projectMembersSignal();
     const statuses = this.statusService.statusesSignal();
 
     return projects
