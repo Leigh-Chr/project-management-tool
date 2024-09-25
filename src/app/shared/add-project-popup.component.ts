@@ -1,9 +1,11 @@
+import { CommonModule } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   Component,
-  EventEmitter,
-  Output,
   computed,
+  EventEmitter,
   inject,
+  Output,
 } from '@angular/core';
 import {
   FormBuilder,
@@ -12,16 +14,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { Project } from '../core/services/data-mock.service';
+import { ProjectService } from '../core/services/project.service';
+import { StatusService } from '../core/services/status.service';
 import { ButtonComponent } from '../ui/button.component';
 import { InputFieldComponent } from '../ui/input-field.component';
-import { StatusService } from '../core/services/status.service';
 import { SelectFieldComponent } from '../ui/select-field.component';
 
 @Component({
   selector: 'add-project-popup',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -91,9 +94,9 @@ import { SelectFieldComponent } from '../ui/select-field.component';
 })
 export class AddProjectPopupComponent {
   private readonly statusService = inject(StatusService);
+  private readonly projectService = inject(ProjectService);
 
   @Output() close = new EventEmitter<void>();
-  @Output() addProject = new EventEmitter<Project>();
 
   statuses = computed(() => this.statusService.statusesSignal());
   statusOptions = computed(() =>
@@ -125,7 +128,16 @@ export class AddProjectPopupComponent {
 
   onSubmit(): void {
     if (!this.projectForm.valid) return;
-    this.addProject.emit(this.projectForm.value);
+
+    const newProject: Omit<Project, 'id'> = {
+      name: this.name.value,
+      description: this.description.value,
+      startDate: new Date(this.startDate.value),
+      endDate: this.endDate.value ? new Date(this.endDate.value) : undefined,
+      statusId: +this.statusId.value,
+    };
+
+    this.projectService.addProject(newProject);
     this.closePopup();
   }
 }

@@ -25,8 +25,8 @@ export class ProjectService {
     return this.dataMockService.getProjects();
   }
 
-  private addProject(project: Project): void {
-    this.dataMockService.addProject(project);
-    this.projectsSignal.update((projects) => [...projects, project]);
+  addProject(project: Omit<Project, 'id'>): void {
+    const newProject = this.dataMockService.addProject(project);
+    this.projectsSignal.update((projects) => [...projects, newProject]);
   }
 }

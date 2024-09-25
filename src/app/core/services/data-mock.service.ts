@@ -266,8 +266,13 @@ export class DataMockService {
     return this.projects;
   }
 
-  addProject(project: Project): void {
-    this.projects.push(project);
+  addProject(project: Omit<Project, 'id'>): Project {
+    const newProject = {
+      id: this.projects.length + 1,
+      ...project,
+    };
+    this.projects.push(newProject);
+    return newProject;
   }
 
   getTasks(): Task[] {
