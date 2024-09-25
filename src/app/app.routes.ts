@@ -4,8 +4,10 @@ import { HomeComponent } from './features/home/home.component';
 import { LoginComponent } from './features/login/login.component';
 import { ProjectsComponent } from './features/projects/projects.component';
 import { RegisterComponent } from './features/register/register.component';
+import { TasksComponent } from './features/tasks/tasks.component';
 
 export const routes: Routes = [
+  { path: 'tasks', component: TasksComponent },
   { path: 'projects', component: ProjectsComponent },
   { path: 'home', component: HomeComponent },
   { path: 'dashboard', component: DashboardComponent },
