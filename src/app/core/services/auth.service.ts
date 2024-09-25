@@ -11,7 +11,7 @@ export type LoginResponse = RegisterResponse | null;
   providedIn: 'root',
 })
 export class AuthService {
-  readonly userSignal = signal<User | null>(null);
+  readonly userSignal = signal<Omit<User, 'password'> | null>(null);
   readonly isLoggedIn = computed(() => !!this.userSignal());
 
   constructor(private dataMockService: DataMockService) {
