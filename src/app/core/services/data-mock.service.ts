@@ -42,7 +42,7 @@ export type Task = {
   description?: string;
   dueDate: Date;
   priority: number;
-  assigneeId: number;
+  assigneeId: ProjectMember['userId'];
   statusId: Status['id'];
 };
 
