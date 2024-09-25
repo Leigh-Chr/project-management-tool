@@ -27,6 +27,7 @@ import { TableComponent } from '../../../ui/table.component';
     AddProjectPopupComponent,
     TableComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
       'border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]',
@@ -61,7 +62,6 @@ import { TableComponent } from '../../../ui/table.component';
     <add-project-popup (close)="hidePopup()"></add-project-popup>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectsPanelComponent {
   private readonly authService = inject(AuthService);

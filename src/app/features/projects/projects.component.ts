@@ -21,6 +21,7 @@ import { TableComponent } from '../../ui/table.component';
     TableComponent,
   ],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <default-layout>
       <div

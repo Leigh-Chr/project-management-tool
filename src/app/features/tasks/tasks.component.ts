@@ -25,6 +25,7 @@ import { TableComponent } from '../../ui/table.component';
     DefaultLayoutComponent,
     TableComponent,
   ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <default-layout>
       <div
@@ -55,7 +56,6 @@ import { TableComponent } from '../../ui/table.component';
       />
     </default-layout>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TasksComponent {
   private readonly authService = inject(AuthService);
