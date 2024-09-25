@@ -1,6 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'default-layout',
@@ -50,7 +49,9 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
           <i class="fi fi-br-user"></i>
         </button>
       </nav>
-      <ng-content />
+      <main class="p-2">
+        <ng-content />
+      </main>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -6,13 +6,14 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { AuthService } from '../../../core/services/auth.service';
+import { Project, Status } from '../../../core/services/data-mock.service';
 import { ProjectService } from '../../../core/services/project.service';
-import { Project } from '../../../core/services/data-mock.service';
+import { StatusService } from '../../../core/services/status.service';
+import { AddProjectPopupComponent } from '../../../shared/add-project-popup.component';
+import { Table } from '../../../types';
 import { ButtonComponent } from '../../../ui/button.component';
 import { PaginatorComponent } from '../../../ui/paginator.component';
-import { Table } from '../../../types';
-import { AuthService } from '../../../core/services/auth.service';
-import { AddProjectPopupComponent } from '../../../shared/add-project-popup.component';
 
 @Component({
   selector: 'projects-panel',
@@ -90,13 +91,16 @@ import { AddProjectPopupComponent } from '../../../shared/add-project-popup.comp
 export class ProjectsPanelComponent {
   private readonly authService = inject(AuthService);
   readonly projectService = inject(ProjectService);
-  readonly table: Table<Project> = {
+  readonly statusService = inject(StatusService);
+
+  readonly table: Table<Project & { status: Status['name'] }> = {
     headers: [
       { name: 'ID', key: 'id' },
       { name: 'Name', key: 'name' },
       { name: 'Description', key: 'description' },
       { name: 'Start Date', key: 'startDate' },
       { name: 'End Date', key: 'endDate' },
+      { name: 'Status', key: 'status' },
     ],
     items: [
       { key: 'id', type: 'number' },
@@ -104,23 +108,35 @@ export class ProjectsPanelComponent {
       { key: 'description', type: 'text' },
       { key: 'startDate', type: 'date' },
       { key: 'endDate', type: 'date' },
+      { key: 'status', type: 'text' },
     ],
   };
 
-  readonly projects = computed<Project[]>(() => {
+  readonly projects = computed<(Project & { status: Status['name'] })[]>(() => {
     const currentUserId = this.authService.userSignal()?.id;
     if (!currentUserId) return [];
 
     const projects = this.projectService.projectsSignal();
     const projectMembers = this.projectService.projectMembersSignal();
+    const statuses = this.statusService.statusesSignal();
 
-    return projects.filter((project) =>
-      projectMembers.some(
-        (projectMember) =>
-          projectMember.projectId === project.id &&
-          projectMember.userId === currentUserId
+    return projects
+      .filter((project) =>
+        projectMembers.some(
+          (projectMember) =>
+            projectMember.projectId === project.id &&
+            projectMember.userId === currentUserId
+        )
       )
-    );
+      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
+      .map((project) => {
+        return {
+          ...project,
+          status:
+            statuses.find((status) => status.id === project.statusId)?.name ??
+            statuses[0].name,
+        };
+      });
   });
 
   readonly isPopupVisible = signal(false);

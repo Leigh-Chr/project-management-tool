@@ -153,11 +153,6 @@ export class DataMockService {
     },
     {
       projectId: 2,
-      userId: 1,
-      roleId: 2,
-    },
-    {
-      projectId: 2,
       userId: 3,
       roleId: 2,
     },
