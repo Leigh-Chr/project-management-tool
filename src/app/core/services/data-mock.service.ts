@@ -232,6 +232,12 @@ export class DataMockService {
     },
   ];
 
+  getUsers(): Omit<User, 'password'>[] {
+    return this.users.map(
+      ({ password: _password, ...userWithoutPassword }) => userWithoutPassword
+    );
+  }
+
   addUser(userParams: RegisterParams): RegisterResponse {
     const newUser: User = {
       id: this.users.length + 1,
