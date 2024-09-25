@@ -233,9 +233,11 @@ export class DataMockService {
   ];
 
   getUsers(): Omit<User, 'password'>[] {
-    return this.users.map(
-      ({ password: _password, ...userWithoutPassword }) => userWithoutPassword
-    );
+    return [
+      ...this.users.map(
+        ({ password: _password, ...userWithoutPassword }) => userWithoutPassword
+      ),
+    ];
   }
 
   addUser(userParams: RegisterParams): RegisterResponse {
@@ -247,23 +249,24 @@ export class DataMockService {
     return newUser;
   }
 
-  getUser(userParams: LoginParams): User | undefined {
-    return this.users.find(
+  getUser(userParams: LoginParams): Omit<User, 'password'> | null {
+    const user = this.users.find(
       (user) =>
         user.email === userParams.email && user.password === userParams.password
     );
+    return user ? { ...user } : null;
   }
 
   getStatuses(): Status[] {
-    return this.statuses;
+    return [...this.statuses];
   }
 
   getProjectMembers(): ProjectMember[] {
-    return this.projectMembers;
+    return [...this.projectMembers];
   }
 
   getProjects(): Project[] {
-    return this.projects;
+    return [...this.projects];
   }
 
   addProject(project: Omit<Project, 'id'>): Project {
@@ -276,10 +279,10 @@ export class DataMockService {
   }
 
   getTasks(): Task[] {
-    return this.tasks;
+    return [...this.tasks];
   }
 
   getTaskHistories(): TaskHistory[] {
-    return this.taskHistories;
+    return [...this.taskHistories];
   }
 }
