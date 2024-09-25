@@ -9,6 +9,7 @@ import { AddProjectPopupComponent } from '../../shared/add-project-popup.compone
 import { Table } from '../../types';
 import { ButtonComponent } from '../../ui/button.component';
 import { PaginatorComponent } from '../../ui/paginator.component';
+import { TableComponent } from '../../ui/table.component';
 
 @Component({
   imports: [
@@ -17,6 +18,7 @@ import { PaginatorComponent } from '../../ui/paginator.component';
     DatePipe,
     AddProjectPopupComponent,
     DefaultLayoutComponent,
+    TableComponent,
   ],
   standalone: true,
   template: `
@@ -35,51 +37,24 @@ import { PaginatorComponent } from '../../ui/paginator.component';
             icon="fi fi-rr-square-plus"
             label="Add Project"
             (click)="showPopup()"
-          />
+          ></ui-button>
         </div>
         <div>
-          <table
-            class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800"
-          >
-            <thead class="bg-neutral-50 dark:bg-neutral-950">
-              @for (header of table.headers; track header.key) {
-              <th
-                class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
-              >
-                {{ header.name }}
-              </th>
-              }
-            </thead>
-            <tbody
-              class="bg-white dark:bg-neutral-900 divide-y divide-neutral-200 dark:divide-neutral-800"
-            >
-              @for (project of projects(); track project.id) {
-              <tr class="hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                @for (column of table.items; track column.key) {
-                <td
-                  class="px-4 py-2 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-200 overflow-hidden text-ellipsis max-w-xs"
-                >
-                  @if (project[column.key] === undefined) {-} @else if
-                  (column.type === 'date') {
-                  {{ project[column.key] | date : 'mediumDate' }}
-                  } @else {
-                  {{ project[column.key] }}
-                  }
-                </td>
-                }
-              </tr>
-              }
-            </tbody>
-          </table>
+          <ui-table
+            [headers]="table.headers"
+            [columns]="table.items"
+            [data]="projects()"
+          ></ui-table>
         </div>
         <ui-paginator
           [pageSize]="1"
           [totalItems]="0"
           (pageChange)="onPageChange($event)"
-        />
-        @if (isPopupVisible()) {
-        <add-project-popup (close)="hidePopup()"></add-project-popup>
-        }
+        ></ui-paginator>
+        <add-project-popup
+          *ngIf="isPopupVisible()"
+          (close)="hidePopup()"
+        ></add-project-popup>
       </div>
     </default-layout>
   `,

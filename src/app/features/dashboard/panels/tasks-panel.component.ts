@@ -12,11 +12,12 @@ import { TaskService } from '../../../core/services/task.service';
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../ui/button.component';
 import { PaginatorComponent } from '../../../ui/paginator.component';
+import { TableComponent } from '../../../ui/table.component';
 
 @Component({
   selector: 'tasks-panel',
   standalone: true,
-  imports: [PaginatorComponent, ButtonComponent, DatePipe],
+  imports: [PaginatorComponent, ButtonComponent, DatePipe, TableComponent],
   host: {
     class:
       'border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]',
@@ -33,39 +34,11 @@ import { PaginatorComponent } from '../../../ui/paginator.component';
       />
     </div>
     <div>
-      <table
-        class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800"
-      >
-        <thead class="bg-neutral-50 dark:bg-neutral-950">
-          @for (header of table.headers; track header.key) {
-          <th
-            class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
-          >
-            {{ header.name }}
-          </th>
-          }
-        </thead>
-        <tbody
-          class="bg-white dark:bg-neutral-900 divide-y divide-neutral-200 dark:divide-neutral-800"
-        >
-          @for (task of tasks(); track task.projectId) {
-          <tr class="hover:bg-neutral-100 dark:hover:bg-neutral-800">
-            @for (column of table.items; track column.key) {
-            <td
-              class="px-4 py-2 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-200 overflow-hidden text-ellipsis max-w-xs"
-            >
-              @if (task[column.key] === undefined) {-} @else if (column.type ===
-              'date') {
-              {{ task[column.key] | date : 'mediumDate' }}
-              } @else {
-              {{ task[column.key] }}
-              }
-            </td>
-            }
-          </tr>
-          }
-        </tbody>
-      </table>
+      <ui-table
+        [headers]="table.headers"
+        [columns]="table.items"
+        [data]="tasks()"
+      />
     </div>
     <ui-paginator
       [pageSize]="1"

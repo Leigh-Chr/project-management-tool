@@ -6,14 +6,15 @@ import {
   inject,
 } from '@angular/core';
 import { AuthService } from '../../core/services/auth.service';
-import { Task, Project, User } from '../../core/services/data-mock.service';
+import { Project, Task, User } from '../../core/services/data-mock.service';
 import { ProjectService } from '../../core/services/project.service';
 import { TaskService } from '../../core/services/task.service';
+import { UserService } from '../../core/services/user.service';
+import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
 import { Table } from '../../types';
 import { ButtonComponent } from '../../ui/button.component';
 import { PaginatorComponent } from '../../ui/paginator.component';
-import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
-import { UserService } from '../../core/services/user.service';
+import { TableComponent } from '../../ui/table.component';
 
 @Component({
   standalone: true,
@@ -22,6 +23,7 @@ import { UserService } from '../../core/services/user.service';
     ButtonComponent,
     DatePipe,
     DefaultLayoutComponent,
+    TableComponent,
   ],
   template: `
     <default-layout>
@@ -39,39 +41,11 @@ import { UserService } from '../../core/services/user.service';
           />
         </div>
         <div>
-          <table
-            class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800"
-          >
-            <thead class="bg-neutral-50 dark:bg-neutral-950">
-              @for (header of table.headers; track header.key) {
-              <th
-                class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
-              >
-                {{ header.name }}
-              </th>
-              }
-            </thead>
-            <tbody
-              class="bg-white dark:bg-neutral-900 divide-y divide-neutral-200 dark:divide-neutral-800"
-            >
-              @for (task of tasks(); track task.projectId) {
-              <tr class="hover:bg-neutral-100 dark:hover:bg-neutral-800">
-                @for (column of table.items; track column.key) {
-                <td
-                  class="px-4 py-2 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-200 overflow-hidden text-ellipsis max-w-xs"
-                >
-                  @if (task[column.key] === undefined) {-} @else if (column.type
-                  === 'date') {
-                  {{ task[column.key] | date : 'mediumDate' }}
-                  } @else {
-                  {{ task[column.key] }}
-                  }
-                </td>
-                }
-              </tr>
-              }
-            </tbody>
-          </table>
+          <ui-table
+            [headers]="table.headers"
+            [columns]="table.items"
+            [data]="tasks()"
+          />
         </div>
       </div>
       <ui-paginator
