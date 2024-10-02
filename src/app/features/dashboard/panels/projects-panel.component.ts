@@ -53,11 +53,6 @@ import { TableComponent } from '../../../ui/table.component';
         [data]="projects()"
       />
     </div>
-    <ui-paginator
-      [pageSize]="1"
-      [totalItems]="0"
-      (pageChange)="onPageChange($event)"
-    />
     @if (isPopupVisible()) {
     <add-project-popup (close)="hidePopup()"></add-project-popup>
     }

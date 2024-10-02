@@ -40,11 +40,6 @@ import { TableComponent } from '../../../ui/table.component';
         [data]="tasks()"
       />
     </div>
-    <ui-paginator
-      [pageSize]="1"
-      [totalItems]="0"
-      (pageChange)="onPageChange($event)"
-    />
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
