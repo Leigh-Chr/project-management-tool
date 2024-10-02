@@ -49,11 +49,6 @@ import { TableComponent } from '../../ui/table.component';
           />
         </div>
       </div>
-      <ui-paginator
-        [pageSize]="1"
-        [totalItems]="0"
-        (pageChange)="onPageChange($event)"
-      />
     </default-layout>
   `,
 })
