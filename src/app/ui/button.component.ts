@@ -1,27 +1,31 @@
-import { CommonModule } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 
 @Component({
   selector: 'ui-button',
   standalone: true,
-  imports: [CommonModule],
+  imports: [NgClass],
   template: `
-    <ng-container *ngIf="isLink; else buttonTemplate">
-      <a [href]="href" [class.disabled]="disabled" [ngClass]="buttonClasses">
-        <ng-container *ngIf="icon">
-          <i class="{{ icon }}"></i>
-        </ng-container>
+    @if ( isLink ) {
+
+    <a [href]="href" [class.disabled]="disabled" [ngClass]="buttonClasses">
+      @if (icon) {
+      <i class="{{ icon }}"></i>
+      }
+      <span>
         {{ label }}
-      </a>
-    </ng-container>
-    <ng-template #buttonTemplate>
-      <button [disabled]="disabled" [ngClass]="buttonClasses">
-        <ng-container *ngIf="icon">
-          <i class="{{ icon }}"></i>
-        </ng-container>
+      </span>
+    </a>
+    } @else {
+    <button [disabled]="disabled" [ngClass]="buttonClasses">
+      @if (icon) {
+      <i class="{{ icon }}"></i>
+      }
+      <span>
         {{ label }}
-      </button>
-    </ng-template>
+      </span>
+    </button>
+    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
