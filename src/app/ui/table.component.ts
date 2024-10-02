@@ -1,55 +1,114 @@
-import { CommonModule, DatePipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import {
+  Component,
+  ContentChild,
+  Input,
+  TemplateRef,
+  computed,
+  signal,
+} from '@angular/core';
+import { PaginatorComponent } from './paginator.component';
 
 @Component({
   standalone: true,
   selector: 'ui-table',
-  imports: [CommonModule, DatePipe],
+  imports: [DatePipe, PaginatorComponent, NgTemplateOutlet],
   template: `
     <table
       class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800"
     >
       <thead class="bg-neutral-50 dark:bg-neutral-950">
         <tr>
+          @for (header of headers; track $index) {
           <th
-            *ngFor="let header of headers"
             class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
           >
             {{ header.name }}
           </th>
+          } @if (actionTemplate) {
+          <th
+            class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+          >
+            Actions
+          </th>
+          }
         </tr>
       </thead>
       <tbody
         class="bg-white dark:bg-neutral-900 divide-y divide-neutral-200 dark:divide-neutral-800"
       >
-        <tr
-          *ngFor="let item of data"
-          class="hover:bg-neutral-100 dark:hover:bg-neutral-800"
-        >
+        @for (item of paginatedData(); track item['id']) {
+        <tr class="hover:bg-neutral-100 dark:hover:bg-neutral-800">
+          @for (column of columns; track $index) {
           <td
-            *ngFor="let column of columns"
             class="px-4 py-2 whitespace-nowrap text-sm text-neutral-900 dark:text-neutral-200 overflow-hidden text-ellipsis max-w-xs"
           >
-            <ng-container [ngSwitch]="column.type">
-              <ng-container *ngSwitchCase="'date'">
-                {{
-                  item[column.key] !== undefined
-                    ? (item[column.key] | date : 'mediumDate')
-                    : '-'
-                }}
-              </ng-container>
-              <ng-container *ngSwitchDefault>
-                {{ item[column.key] !== undefined ? item[column.key] : '-' }}
-              </ng-container>
-            </ng-container>
+            @switch (column.type) { @case ('date') {
+            {{
+              item[column.key] !== undefined
+                ? (item[column.key] | date : 'mediumDate')
+                : '-'
+            }}
+            } @default {
+            {{ item[column.key] !== undefined ? item[column.key] : '-' }}
+            } }
+          </td>
+          } @if (actionTemplate) {
+          <td class="px-4 py-2 text-sm text-neutral-900 dark:text-neutral-200">
+            <ng-container
+              *ngTemplateOutlet="actionTemplate; context: { $implicit: item }"
+            ></ng-container>
+          </td>
+          }
+        </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr>
+          <td [attr.colspan]="headers.length + (actionTemplate ? 1 : 0)">
+            <ui-paginator
+              [totalItems]="data.length"
+              [pageSizeOptions]="pageSizeOptions"
+              [showTotalPages]="showTotalPages"
+              [showTotalItems]="showTotalItems"
+              [showPageSizeSelector]="showPageSizeSelector"
+              (pageChange)="onPageChange($event)"
+              (pageSizeChange)="onPageSizeChange($event)"
+            ></ui-paginator>
           </td>
         </tr>
-      </tbody>
+      </tfoot>
     </table>
   `,
 })
 export class TableComponent<T extends Record<string, string | number | Date>> {
   @Input() headers: { name: string; key: keyof T }[] = [];
-  @Input() columns: { key: keyof T; type: string }[] = [];
+  @Input() columns: { key: keyof T; type: 'text' | 'number' | 'date' }[] = [];
   @Input() data: T[] = [];
+
+  @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
+  @Input() showTotalPages = false;
+  @Input() showTotalItems = false;
+  @Input() showPageSizeSelector = false;
+
+  readonly pageSize = signal(0);
+  readonly pageIndex = signal(1);
+
+  readonly paginatedData = computed(() => {
+    const startIndex = (this.pageIndex() - 1) * this.pageSize();
+    const endIndex = startIndex + this.pageSize();
+    return this.data.slice(startIndex, endIndex);
+  });
+
+  @ContentChild('actionTemplate', { static: false })
+  actionTemplate!: TemplateRef<{ $implicit: T }>;
+
+  onPageChange(page: number): void {
+    this.pageIndex.set(page);
+  }
+
+  onPageSizeChange(newPageSize: number): void {
+    this.pageSize.set(newPageSize);
+    this.pageIndex.set(1);
+  }
 }
