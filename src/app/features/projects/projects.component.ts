@@ -44,20 +44,27 @@ import { TableComponent } from '../../ui/table.component';
             icon="fi fi-rr-square-plus"
             label="Add Project"
             (click)="showPopup()"
-          ></ui-button>
+          />
         </div>
         <div>
           <ui-table
             [headers]="table.headers"
             [columns]="table.items"
             [data]="projects()"
-          ></ui-table>
+            [pageSizeOptions]="[1, 2]"
+          >
+            <ng-template #actionTemplate let-item>
+              <div class="flex gap-2">
+                <ui-button icon="fi fi-rr-eye" (click)="viewDetails(item)" />
+                <ui-button
+                  variant="danger"
+                  icon="fi fi-rr-trash"
+                  (click)="deleteItem(item)"
+                />
+              </div>
+            </ng-template>
+          </ui-table>
         </div>
-        <ui-paginator
-          [pageSize]="1"
-          [totalItems]="0"
-          (pageChange)="onPageChange($event)"
-        ></ui-paginator>
         @if ( isPopupVisible() ) {
         <add-project-popup (close)="hidePopup()"></add-project-popup>
         }
@@ -111,6 +118,14 @@ export class ProjectsComponent {
 
   hidePopup(): void {
     this.isPopupVisible.set(false);
+  }
+
+  deleteItem(item: Project): void {
+    console.log('Delete project', item);
+  }
+
+  viewDetails(item: Project): void {
+    console.log('View project details', item);
   }
 
   onPageChange(page: number) {
