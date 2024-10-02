@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
 import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
   ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
   Validators,
+  FormControl,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService, RegisterParams } from '../../core/services/auth.service';
@@ -27,6 +27,7 @@ import { InputFieldComponent } from '../../ui/input-field.component';
           id="username"
           label="Username"
           type="text"
+          autocomplete="username"
           errorMessage="Username is required."
         />
         <ui-input-field
@@ -34,6 +35,7 @@ import { InputFieldComponent } from '../../ui/input-field.component';
           id="email"
           label="Email"
           type="email"
+          autocomplete="email"
           errorMessage="A valid email is required."
         />
         <ui-input-field
@@ -41,6 +43,7 @@ import { InputFieldComponent } from '../../ui/input-field.component';
           id="password"
           label="Password"
           type="password"
+          autocomplete="new-password"
           errorMessage="Password must be at least 8 characters long."
         />
 
