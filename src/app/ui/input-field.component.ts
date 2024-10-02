@@ -6,27 +6,29 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
   selector: 'ui-input-field',
   template: `
     <div class="mt-6">
-      <label
-        class="
+      <label>
+        <span
+          class="
         block text-sm font-medium text-neutral-700 dark:text-neutral-300
         mb-2
         "
-        [for]="id"
-      >
-        {{ label }}
+        >
+          {{ label }}
+        </span>
+        <input
+          [formControl]="control"
+          [id]="id"
+          [type]="type"
+          [autocomplete]="autocomplete"
+          class="
+          px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900 
+          border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-sm
+          focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+          dark:focus:ring-blue-600
+          w-full
+          "
+        />
       </label>
-      <input
-        [formControl]="control"
-        [id]="id"
-        [type]="type"
-        class="
-        px-4 py-2 text-sm text-neutral-700 bg-neutral-50 dark:bg-neutral-900 
-        border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-sm
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-        dark:focus:ring-blue-600
-        w-full
-        "
-      />
       @if (control.invalid && control.touched) {
       <small class="text-xs text-red-500">
         {{ errorMessage }}
@@ -42,4 +44,5 @@ export class InputFieldComponent {
   @Input() label: string = '';
   @Input() type: string = 'text';
   @Input() errorMessage: string = 'This field is required.';
+  @Input() autocomplete: string = '';
 }
