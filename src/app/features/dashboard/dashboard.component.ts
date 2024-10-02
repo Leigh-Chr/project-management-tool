@@ -16,7 +16,7 @@ import { TasksPanelComponent } from './panels/tasks-panel.component';
   ],
   template: `
     <default-layout>
-      <div class="gap-4 grid lg:grid-cols-[2fr,1fr] p-4">
+      <div class="gap-4 grid lg:grid-cols-[2fr,1fr] p-4 h-full">
         <div class="gap-4 grid lg:grid-cols-1">
           <projects-panel />
           <tasks-panel />
