@@ -16,6 +16,7 @@ import { Table } from '../../types';
 import { ButtonComponent } from '../../ui/button.component';
 import { PaginatorComponent } from '../../ui/paginator.component';
 import { TableComponent } from '../../ui/table.component';
+import { TooltipDirective } from '../../ui/tooltip.directive';
 
 @Component({
   imports: [
@@ -25,6 +26,7 @@ import { TableComponent } from '../../ui/table.component';
     AddProjectPopupComponent,
     DefaultLayoutComponent,
     TableComponent,
+    TooltipDirective,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,13 +55,20 @@ import { TableComponent } from '../../ui/table.component';
             [data]="projects()"
             [pageSizeOptions]="[1, 2]"
           >
-            <ng-template #actionTemplate let-item>
+            <ng-template #actionTemplate let-project>
               <div class="flex gap-2">
-                <ui-button icon="fi fi-rr-eye" (click)="viewDetails(item)" />
                 <ui-button
+                  label="View project"
+                  [iconOnly]="true"
+                  icon="fi fi-rr-arrow-up-from-square"
+                  (click)="goToProject(project)"
+                />
+                <ui-button
+                  label="Delete project"
+                  [iconOnly]="true"
                   variant="danger"
                   icon="fi fi-rr-trash"
-                  (click)="deleteItem(item)"
+                  (click)="deleteItem(project)"
                 />
               </div>
             </ng-template>
@@ -124,7 +133,7 @@ export class ProjectsComponent {
     console.log('Delete project', item);
   }
 
-  viewDetails(item: Project): void {
+  goToProject(item: Project): void {
     console.log('View project details', item);
   }
 
