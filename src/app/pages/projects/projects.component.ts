@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,17 +6,18 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { Project, Status } from '../../services/data-mock.service';
-import { ProjectService } from '../../services/project.service';
-import { StatusService } from '../../services/status.service';
-import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
+import { AddProjectMemberPopupComponent } from '../../components/add-project-members-popup.component';
 import { AddProjectPopupComponent } from '../../components/add-project-popup.component';
-import { Table } from '../../types';
 import { ButtonComponent } from '../../components/ui/button.component';
 import { PaginatorComponent } from '../../components/ui/paginator.component';
 import { TableComponent } from '../../components/ui/table.component';
 import { TooltipDirective } from '../../directives/tooltip.directive';
+import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
+import { Project, Status } from '../../services/data-mock.service';
+import { ProjectMemberService } from '../../services/project-member.service';
+import { ProjectService } from '../../services/project.service';
+import { StatusService } from '../../services/status.service';
+import { Table } from '../../types';
 
 @Component({
   imports: [
@@ -24,6 +25,8 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
     ButtonComponent,
     DatePipe,
     AddProjectPopupComponent,
+    AddProjectMemberPopupComponent,
+    JsonPipe,
     DefaultLayoutComponent,
     TableComponent,
     TooltipDirective,
@@ -45,7 +48,7 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
             [disabled]="false"
             icon="fi fi-rr-square-plus"
             label="Add Project"
-            (click)="showPopup()"
+            (click)="showAddProjectPopup()"
           />
         </div>
         <div>
@@ -56,12 +59,19 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
             [pageSizeOptions]="[1, 2]"
           >
             <ng-template #actionTemplate let-project>
+              @if (toProject(project); as project) {
               <div class="flex gap-2">
                 <ui-button
                   label="View project"
                   [iconOnly]="true"
                   icon="fi fi-rr-arrow-up-from-square"
                   (click)="goToProject(project)"
+                />
+                <ui-button
+                  label="Add members"
+                  [iconOnly]="true"
+                  icon="fi fi-rr-user-add"
+                  (click)="showAddMembersPopup(project.id)"
                 />
                 <ui-button
                   label="Delete project"
@@ -71,19 +81,26 @@ import { TooltipDirective } from '../../directives/tooltip.directive';
                   (click)="deleteItem(project)"
                 />
               </div>
+              }
             </ng-template>
           </ui-table>
         </div>
-        @if ( isPopupVisible() ) {
-        <add-project-popup (close)="hidePopup()"></add-project-popup>
+        @if ( isAddProjectPopupVisible() ) {
+        <add-project-popup (close)="hideAddProjectPopup()"></add-project-popup>
+        } @if ( isAddMemberPopupVisible() ) {
+        <add-project-member-popup
+          [projectId]="addMemberProjectId()!"
+          (close)="hideAddMemberPopup()"
+        ></add-project-member-popup>
         }
       </div>
+      {{ projectMembers() | json }}
     </default-layout>
   `,
 })
 export class ProjectsComponent {
-  private readonly authService = inject(AuthService);
   readonly projectService = inject(ProjectService);
+  readonly projectMembersService = inject(ProjectMemberService);
   readonly statusService = inject(StatusService);
   readonly table: Table<Project & { status: Status['name'] }> = {
     headers: [
@@ -119,14 +136,30 @@ export class ProjectsComponent {
       });
   });
 
-  readonly isPopupVisible = signal(false);
+  readonly projectMembers = computed(() => {
+    return this.projectMembersService.projectMembersSignal();
+  });
 
-  showPopup(): void {
-    this.isPopupVisible.set(true);
+  readonly addMemberProjectId = signal<null | number>(null);
+  readonly isAddMemberPopupVisible = computed(
+    () => this.addMemberProjectId() !== null
+  );
+  readonly isAddProjectPopupVisible = signal(false);
+
+  showAddProjectPopup(): void {
+    this.isAddProjectPopupVisible.set(true);
   }
 
-  hidePopup(): void {
-    this.isPopupVisible.set(false);
+  hideAddProjectPopup(): void {
+    this.isAddProjectPopupVisible.set(false);
+  }
+
+  showAddMembersPopup(projectId: number): void {
+    this.addMemberProjectId.set(projectId);
+  }
+
+  hideAddMemberPopup(): void {
+    this.addMemberProjectId.set(null);
   }
 
   deleteItem(item: Project): void {
@@ -139,5 +172,9 @@ export class ProjectsComponent {
 
   onPageChange(page: number) {
     console.log(page);
+  }
+
+  toProject(project: unknown): Project {
+    return project as Project;
   }
 }

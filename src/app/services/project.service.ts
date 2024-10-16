@@ -41,7 +41,7 @@ export class ProjectService {
     this.projectsSignal.update((projects) => [...projects, newProject]);
 
     const adminRoleId = this.roleService
-      .getRoles()
+      .rolesSignal()
       .find((role) => role.name === 'Admin')?.id;
     if (!adminRoleId) throw new Error('Admin role not found');
 
