@@ -27,11 +27,6 @@ import { TableComponent } from '../../../ui/table.component';
       class="flex justify-between items-center bg-neutral-50 dark:bg-neutral-950 shadow-sm p-4"
     >
       <h2 class="font-semibold text-lg">Tasks</h2>
-      <ui-button
-        [disabled]="false"
-        icon="fi fi-rr-square-plus"
-        label="Add Project"
-      />
     </div>
     <div>
       <ui-table

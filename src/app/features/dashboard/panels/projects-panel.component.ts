@@ -39,12 +39,6 @@ import { TableComponent } from '../../../ui/table.component';
       <h2 class="font-semibold text-lg">
         <a href="/projects" class="hover:underline">Projects</a>
       </h2>
-      <ui-button
-        [disabled]="false"
-        icon="fi fi-rr-square-plus"
-        label="Add Project"
-        (click)="showPopup()"
-      />
     </div>
     <div>
       <ui-table

@@ -5,6 +5,7 @@ import {
   computed,
   effect,
   EventEmitter,
+  input,
   Input,
   Output,
   signal,
@@ -72,7 +73,7 @@ import {
             border-neutral-200 dark:border-neutral-700
             text-sm text-neutral-700 dark:text-neutral-300"
           >
-            @for (size of pageSizeOptions; track size) {
+            @for (size of pageSizeOptions(); track size) {
             <option [value]="size">
               {{ size }}
             </option>
@@ -85,7 +86,7 @@ import {
       @if (showTotalPages || showTotalItems) {
       <div class="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
         @if (showTotalItems) {
-        <span> Total items: {{ totalItems }} </span>
+        <span> Total items: {{ totalItems() }} </span>
         } @if (showTotalPages) {
         <span class="ml-4"> Total pages: {{ totalPages() }} </span>
         }
@@ -96,8 +97,8 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginatorComponent {
-  @Input() totalItems = 0;
-  @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
+  readonly totalItems = input.required<number>();
+  readonly pageSizeOptions = input<number[]>([5, 10, 20, 50]);
   @Input() showTotalPages = false;
   @Input() showTotalItems = false;
   @Input() showPageSizeSelector = false;
@@ -108,7 +109,7 @@ export class PaginatorComponent {
   pageSize = signal(0);
   pageIndex = signal(1);
 
-  totalPages = computed(() => Math.ceil(this.totalItems / this.pageSize()));
+  totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
 
   uniqueId = `pageSizeSelect-${Math.random().toString(36).substring(2, 9)}`;
 
@@ -123,7 +124,7 @@ export class PaginatorComponent {
   }
 
   ngOnInit(): void {
-    this.pageSize.set(this.pageSizeOptions[0]);
+    this.pageSize.set(this.pageSizeOptions()[0]);
   }
 
   nextPage(): void {

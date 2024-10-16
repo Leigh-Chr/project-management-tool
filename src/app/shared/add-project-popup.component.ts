@@ -14,8 +14,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Project } from '../core/services/data-mock.service';
-import { ProjectService } from '../core/services/project.service';
+import {
+  AddProjectDto,
+  ProjectService,
+} from '../core/services/project.service';
 import { StatusService } from '../core/services/status.service';
 import { ButtonComponent } from '../ui/button.component';
 import { InputFieldComponent } from '../ui/input-field.component';
@@ -62,19 +64,6 @@ import { SelectFieldComponent } from '../ui/select-field.component';
           type="date"
           errorMessage="Start Date is required."
         />
-        <ui-input-field
-          [control]="endDate"
-          id="endDate"
-          label="End Date"
-          type="date"
-        />
-        <ui-select-field
-          [control]="statusId"
-          id="statusId"
-          label="Status"
-          [options]="statusOptions()"
-          errorMessage="Status is required."
-        />
         <div class="flex justify-end mt-4">
           <ui-button
             type="button"
@@ -112,15 +101,11 @@ export class AddProjectPopupComponent {
     name: ['', [Validators.required]],
     description: [''],
     startDate: [new Date().toISOString().split('T')[0], [Validators.required]],
-    endDate: [''],
-    statusId: [this.statusOptions()[0].value, [Validators.required]],
   });
 
   name = this.projectForm.get('name') as FormControl<string>;
   description = this.projectForm.get('description') as FormControl<string>;
   startDate = this.projectForm.get('startDate') as FormControl<string>;
-  endDate = this.projectForm.get('endDate') as FormControl<string>;
-  statusId = this.projectForm.get('statusId') as FormControl<number>;
 
   closePopup(): void {
     this.close.emit();
@@ -129,12 +114,10 @@ export class AddProjectPopupComponent {
   onSubmit(): void {
     if (!this.projectForm.valid) return;
 
-    const newProject: Omit<Project, 'id'> = {
+    const newProject: AddProjectDto = {
       name: this.name.value,
       description: this.description.value,
       startDate: new Date(this.startDate.value),
-      endDate: this.endDate.value ? new Date(this.endDate.value) : undefined,
-      statusId: +this.statusId.value,
     };
 
     this.projectService.addProject(newProject);

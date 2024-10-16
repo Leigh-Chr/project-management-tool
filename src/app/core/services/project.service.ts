@@ -1,6 +1,8 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { DataMockService, Project } from './data-mock.service';
 
+export type AddProjectDto = Pick<Project, 'name' | 'description' | 'startDate'>;
+
 @Injectable({
   providedIn: 'root',
 })
@@ -25,7 +27,7 @@ export class ProjectService {
     return this.dataMockService.getProjects();
   }
 
-  addProject(project: Omit<Project, 'id'>): void {
+  addProject(project: AddProjectDto): void {
     const newProject = this.dataMockService.addProject(project);
     this.projectsSignal.update((projects) => [...projects, newProject]);
   }

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LoginParams, RegisterParams, RegisterResponse } from './auth.service';
+import { AddProjectDto } from './project.service';
 
 export type User = {
   id: number;
@@ -269,10 +270,11 @@ export class DataMockService {
     return [...this.projects];
   }
 
-  addProject(project: Omit<Project, 'id'>): Project {
+  addProject(project: AddProjectDto): Project {
     const newProject = {
       id: this.projects.length + 1,
       ...project,
+      statusId: 1,
     };
     this.projects.push(newProject);
     return newProject;

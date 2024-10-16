@@ -1,10 +1,13 @@
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
+  ChangeDetectionStrategy,
   Component,
   ContentChild,
   Input,
   TemplateRef,
   computed,
+  effect,
+  input,
   signal,
 } from '@angular/core';
 import { PaginatorComponent } from './paginator.component';
@@ -67,7 +70,7 @@ import { PaginatorComponent } from './paginator.component';
         <tr>
           <td [attr.colspan]="headers.length + (actionTemplate ? 1 : 0)">
             <ui-paginator
-              [totalItems]="data.length"
+              [totalItems]="data().length"
               [pageSizeOptions]="pageSizeOptions"
               [showTotalPages]="showTotalPages"
               [showTotalItems]="showTotalItems"
@@ -80,11 +83,12 @@ import { PaginatorComponent } from './paginator.component';
       </tfoot>
     </table>
   `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableComponent<T extends Record<string, string | number | Date>> {
   @Input() headers: { name: string; key: keyof T }[] = [];
   @Input() columns: { key: keyof T; type: 'text' | 'number' | 'date' }[] = [];
-  @Input() data: T[] = [];
+  readonly data = input.required<T[]>();
 
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
   @Input() showTotalPages = false;
@@ -97,11 +101,17 @@ export class TableComponent<T extends Record<string, string | number | Date>> {
   readonly paginatedData = computed(() => {
     const startIndex = (this.pageIndex() - 1) * this.pageSize();
     const endIndex = startIndex + this.pageSize();
-    return this.data.slice(startIndex, endIndex);
+    return this.data().slice(startIndex, endIndex);
   });
 
   @ContentChild('actionTemplate', { static: false })
   actionTemplate!: TemplateRef<{ $implicit: T }>;
+
+  constructor() {
+    effect(() => {
+      console.log(this.data().length);
+    });
+  }
 
   onPageChange(page: number): void {
     this.pageIndex.set(page);
