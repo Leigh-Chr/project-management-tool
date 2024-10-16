@@ -1,7 +1,7 @@
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { IconComponent } from './icon.component';
-import { TooltipDirective } from './tooltip.directive';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   selector: 'ui-button',

@@ -12,9 +12,9 @@ import { TaskService } from '../../core/services/task.service';
 import { UserService } from '../../core/services/user.service';
 import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
 import { Table } from '../../types';
-import { ButtonComponent } from '../../ui/button.component';
-import { PaginatorComponent } from '../../ui/paginator.component';
-import { TableComponent } from '../../ui/table.component';
+import { ButtonComponent } from '../../components/ui/button.component';
+import { PaginatorComponent } from '../../components/ui/paginator.component';
+import { TableComponent } from '../../components/ui/table.component';
 
 @Component({
   standalone: true,

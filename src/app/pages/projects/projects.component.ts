@@ -13,10 +13,10 @@ import { StatusService } from '../../core/services/status.service';
 import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
 import { AddProjectPopupComponent } from '../../shared/add-project-popup.component';
 import { Table } from '../../types';
-import { ButtonComponent } from '../../ui/button.component';
-import { PaginatorComponent } from '../../ui/paginator.component';
-import { TableComponent } from '../../ui/table.component';
-import { TooltipDirective } from '../../ui/tooltip.directive';
+import { ButtonComponent } from '../../components/ui/button.component';
+import { PaginatorComponent } from '../../components/ui/paginator.component';
+import { TableComponent } from '../../components/ui/table.component';
+import { TooltipDirective } from '../../directives/tooltip.directive';
 
 @Component({
   imports: [

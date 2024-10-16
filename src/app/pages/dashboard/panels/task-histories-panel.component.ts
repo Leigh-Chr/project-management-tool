@@ -8,9 +8,9 @@ import {
 import { TaskHistory } from '../../../core/services/data-mock.service';
 import { TaskHistoryService } from '../../../core/services/task-history.service';
 import { Table } from '../../../types';
-import { ButtonComponent } from '../../../ui/button.component';
-import { PaginatorComponent } from '../../../ui/paginator.component';
-import { TableComponent } from '../../../ui/table.component';
+import { ButtonComponent } from '../../../components/ui/button.component';
+import { PaginatorComponent } from '../../../components/ui/paginator.component';
+import { TableComponent } from '../../../components/ui/table.component';
 
 @Component({
   selector: 'task-histories-panel',

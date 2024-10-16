@@ -10,9 +10,9 @@ import { Project, Task } from '../../../core/services/data-mock.service';
 import { ProjectService } from '../../../core/services/project.service';
 import { TaskService } from '../../../core/services/task.service';
 import { Table } from '../../../types';
-import { ButtonComponent } from '../../../ui/button.component';
-import { PaginatorComponent } from '../../../ui/paginator.component';
-import { TableComponent } from '../../../ui/table.component';
+import { ButtonComponent } from '../../../components/ui/button.component';
+import { PaginatorComponent } from '../../../components/ui/paginator.component';
+import { TableComponent } from '../../../components/ui/table.component';
 
 @Component({
   selector: 'tasks-panel',

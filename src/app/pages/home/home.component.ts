@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ButtonComponent } from '../../ui/button.component';
+import { ButtonComponent } from '../../components/ui/button.component';
 
 @Component({
   imports: [ButtonComponent],

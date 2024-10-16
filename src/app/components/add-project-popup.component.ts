@@ -19,9 +19,9 @@ import {
   ProjectService,
 } from '../core/services/project.service';
 import { StatusService } from '../core/services/status.service';
-import { ButtonComponent } from '../ui/button.component';
-import { InputFieldComponent } from '../ui/input-field.component';
-import { SelectFieldComponent } from '../ui/select-field.component';
+import { ButtonComponent } from './ui/button.component';
+import { InputFieldComponent } from './ui/input-field.component';
+import { SelectFieldComponent } from './ui/select-field.component';
 
 @Component({
   selector: 'add-project-popup',
