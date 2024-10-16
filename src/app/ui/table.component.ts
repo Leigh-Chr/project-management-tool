@@ -6,7 +6,6 @@ import {
   Input,
   TemplateRef,
   computed,
-  effect,
   input,
   signal,
 } from '@angular/core';
@@ -106,12 +105,6 @@ export class TableComponent<T extends Record<string, string | number | Date>> {
 
   @ContentChild('actionTemplate', { static: false })
   actionTemplate!: TemplateRef<{ $implicit: T }>;
-
-  constructor() {
-    effect(() => {
-      console.log(this.data().length);
-    });
-  }
 
   onPageChange(page: number): void {
     this.pageIndex.set(page);

@@ -24,4 +24,16 @@ export class ProjectMemberService {
   private getProjectMembers(): ProjectMember[] {
     return this.dataMockService.getProjectMembers();
   }
+
+  addProjectMember(projectId: number, userId: number, roleId: number): void {
+    const newProjectMember = this.dataMockService.addProjectMember({
+      projectId,
+      userId,
+      roleId,
+    });
+    this.projectMembersSignal.update((projectMembers) => [
+      ...projectMembers,
+      newProjectMember,
+    ]);
+  }
 }

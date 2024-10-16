@@ -280,11 +280,20 @@ export class DataMockService {
     return newProject;
   }
 
+  addProjectMember(projectMember: ProjectMember): ProjectMember {
+    this.projectMembers.push(projectMember);
+    return projectMember;
+  }
+
   getTasks(): Task[] {
     return [...this.tasks];
   }
 
   getTaskHistories(): TaskHistory[] {
     return [...this.taskHistories];
+  }
+
+  getRoles(): Role[] {
+    return [...this.roles];
   }
 }
