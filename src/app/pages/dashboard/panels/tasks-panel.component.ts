@@ -5,10 +5,10 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { AuthService } from '../../../core/services/auth.service';
-import { Project, Task } from '../../../core/services/data-mock.service';
-import { ProjectService } from '../../../core/services/project.service';
-import { TaskService } from '../../../core/services/task.service';
+import { AuthService } from '../../../services/auth.service';
+import { Project, Task } from '../../../services/data-mock.service';
+import { ProjectService } from '../../../services/project.service';
+import { TaskService } from '../../../services/task.service';
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../components/ui/button.component';
 import { PaginatorComponent } from '../../../components/ui/paginator.component';

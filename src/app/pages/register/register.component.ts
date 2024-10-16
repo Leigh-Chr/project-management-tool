@@ -7,7 +7,7 @@ import {
   FormControl,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, RegisterParams } from '../../core/services/auth.service';
+import { AuthService, RegisterParams } from '../../services/auth.service';
 import { ButtonComponent } from '../../components/ui/button.component';
 import { InputFieldComponent } from '../../components/ui/input-field.component';
 

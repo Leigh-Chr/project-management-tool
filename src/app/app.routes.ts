@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './features/dashboard/dashboard.component';
-import { HomeComponent } from './features/home/home.component';
-import { LoginComponent } from './features/login/login.component';
-import { ProjectsComponent } from './features/projects/projects.component';
-import { RegisterComponent } from './features/register/register.component';
-import { TasksComponent } from './features/tasks/tasks.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { HomeComponent } from './pages/home/home.component';
+import { LoginComponent } from './pages/login/login.component';
+import { ProjectsComponent } from './pages/projects/projects.component';
+import { RegisterComponent } from './pages/register/register.component';
+import { TasksComponent } from './pages/tasks/tasks.component';
 
 export const routes: Routes = [
   { path: 'tasks', component: TasksComponent },

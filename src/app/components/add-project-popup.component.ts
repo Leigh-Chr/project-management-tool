@@ -14,11 +14,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  AddProjectDto,
-  ProjectService,
-} from '../core/services/project.service';
-import { StatusService } from '../core/services/status.service';
+import { AddProjectDto, ProjectService } from '../services/project.service';
+import { StatusService } from '../services/status.service';
 import { ButtonComponent } from './ui/button.component';
 import { InputFieldComponent } from './ui/input-field.component';
 import { SelectFieldComponent } from './ui/select-field.component';

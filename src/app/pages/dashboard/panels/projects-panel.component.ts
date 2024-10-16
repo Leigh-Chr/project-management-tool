@@ -6,12 +6,12 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { AuthService } from '../../../core/services/auth.service';
-import { Project, Status } from '../../../core/services/data-mock.service';
-import { ProjectMemberService } from '../../../core/services/project-member.service';
-import { ProjectService } from '../../../core/services/project.service';
-import { StatusService } from '../../../core/services/status.service';
-import { AddProjectPopupComponent } from '../../../shared/add-project-popup.component';
+import { AuthService } from '../../../services/auth.service';
+import { Project, Status } from '../../../services/data-mock.service';
+import { ProjectMemberService } from '../../../services/project-member.service';
+import { ProjectService } from '../../../services/project.service';
+import { StatusService } from '../../../services/status.service';
+import { AddProjectPopupComponent } from '../../../components/add-project-popup.component';
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../components/ui/button.component';
 import { PaginatorComponent } from '../../../components/ui/paginator.component';

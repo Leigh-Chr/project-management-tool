@@ -5,8 +5,8 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { TaskHistory } from '../../../core/services/data-mock.service';
-import { TaskHistoryService } from '../../../core/services/task-history.service';
+import { TaskHistory } from '../../../services/data-mock.service';
+import { TaskHistoryService } from '../../../services/task-history.service';
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../components/ui/button.component';
 import { PaginatorComponent } from '../../../components/ui/paginator.component';
