@@ -20,6 +20,7 @@ import { ProjectService } from '../../services/data/project.service';
 import { StatusService } from '../../services/data/status.service';
 import { Table } from '../../types';
 import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   imports: [
@@ -70,6 +71,7 @@ import { Router } from '@angular/router';
                   icon="fi fi-rr-arrow-up-from-square"
                   (click)="goToProject(project.id)"
                 />
+                @if (isAdmin(project.id)) {
                 <ui-button
                   label="Add members"
                   [iconOnly]="true"
@@ -83,6 +85,7 @@ import { Router } from '@angular/router';
                   icon="fi fi-rr-trash"
                   (click)="showPopup('deleteProject', project.id)"
                 />
+                }
               </div>
               }
             </ng-template>
@@ -109,9 +112,10 @@ import { Router } from '@angular/router';
 })
 export class ProjectsComponent {
   private readonly router = inject(Router);
-  readonly projectService = inject(ProjectService);
-  readonly projectMembersService = inject(ProjectMemberService);
-  readonly statusService = inject(StatusService);
+  private readonly authService = inject(AuthService);
+  private readonly projectService = inject(ProjectService);
+  private readonly projectMembersService = inject(ProjectMemberService);
+  private readonly statusService = inject(StatusService);
 
   readonly table: Table<Project & { status: Status['name'] }> = {
     headers: [
@@ -173,6 +177,19 @@ export class ProjectsComponent {
 
   goToProject(projectId: number): void {
     this.router.navigate(['/projects', projectId]);
+  }
+
+  isAdmin(projectId: number): boolean {
+    const user = this.authService.userSignal();
+    if (!user) return false;
+
+    const userMember = this.projectMembersService
+      .projectMembersSignal()
+      .find((pm) => pm.projectId === projectId && pm.userId === user.id);
+    if (!userMember) return false;
+
+    const isAdmin = userMember.roleId === 1;
+    return isAdmin;
   }
 
   onPageChange(page: number) {
