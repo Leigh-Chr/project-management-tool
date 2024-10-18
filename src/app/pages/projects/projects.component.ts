@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { AddProjectMemberPopupComponent } from '../../components/add-project-members-popup.component';
 import { AddProjectPopupComponent } from '../../components/add-project-popup.component';
+import { DeleteProjectPopupComponent } from '../../components/delete-project-popup.component';
 import { ButtonComponent } from '../../components/ui/button.component';
 import { PaginatorComponent } from '../../components/ui/paginator.component';
 import { TableComponent } from '../../components/ui/table.component';
@@ -26,6 +27,7 @@ import { Table } from '../../types';
     DatePipe,
     AddProjectPopupComponent,
     AddProjectMemberPopupComponent,
+    DeleteProjectPopupComponent,
     JsonPipe,
     DefaultLayoutComponent,
     TableComponent,
@@ -78,7 +80,7 @@ import { Table } from '../../types';
                   [iconOnly]="true"
                   variant="danger"
                   icon="fi fi-rr-trash"
-                  (click)="deleteItem(project)"
+                  (click)="showDeleteProjectPopup(project.id)"
                 />
               </div>
               }
@@ -92,6 +94,11 @@ import { Table } from '../../types';
           [projectId]="addMemberProjectId()!"
           (close)="hideAddMemberPopup()"
         ></add-project-member-popup>
+        } @if (isDeleteProjectPopupVisible()) {
+        <delete-project-popup
+          [projectId]="deleteProjectId()!"
+          (close)="hideDeleteProjectPopup()"
+        ></delete-project-popup>
         }
       </div>
       {{ projectMembers() | json }}
@@ -146,6 +153,11 @@ export class ProjectsComponent {
   );
   readonly isAddProjectPopupVisible = signal(false);
 
+  readonly deleteProjectId = signal<number | null>(null);
+  readonly isDeleteProjectPopupVisible = computed(
+    () => this.deleteProjectId() !== null
+  );
+
   showAddProjectPopup(): void {
     this.isAddProjectPopupVisible.set(true);
   }
@@ -162,8 +174,12 @@ export class ProjectsComponent {
     this.addMemberProjectId.set(null);
   }
 
-  deleteItem(item: Project): void {
-    console.log('Delete project', item);
+  showDeleteProjectPopup(projectId: number): void {
+    this.deleteProjectId.set(projectId);
+  }
+
+  hideDeleteProjectPopup(): void {
+    this.deleteProjectId.set(null);
   }
 
   goToProject(item: Project): void {

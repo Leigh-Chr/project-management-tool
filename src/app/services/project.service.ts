@@ -51,4 +51,11 @@ export class ProjectService {
       adminRoleId
     );
   }
+
+  deleteProject(projectId: number): void {
+    this.dataMockService.deleteProject(projectId);
+    this.projectsSignal.update((projects) =>
+      projects.filter((project) => project.id !== projectId)
+    );
+  }
 }

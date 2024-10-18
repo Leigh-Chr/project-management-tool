@@ -280,9 +280,23 @@ export class DataMockService {
     return newProject;
   }
 
+  deleteProject(projectId: number): void {
+    this.projects.splice(
+      this.projects.findIndex((project) => project.id === projectId),
+      1
+    );
+  }
+
   addProjectMember(projectMember: ProjectMember): ProjectMember {
     this.projectMembers.push(projectMember);
     return projectMember;
+  }
+
+  deleteProjectMembers(projectId: number): void {
+    this.projectMembers.splice(
+      this.projectMembers.findIndex((pm) => pm.projectId === projectId),
+      1
+    );
   }
 
   getTasks(): Task[] {

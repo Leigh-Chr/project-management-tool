@@ -36,4 +36,11 @@ export class ProjectMemberService {
       newProjectMember,
     ]);
   }
+
+  deleteProjectMembers(projectId: number): void {
+    this.dataMockService.deleteProjectMembers(projectId);
+    this.projectMembersSignal.update((projectMembers) =>
+      projectMembers.filter((pm) => pm.projectId !== projectId)
+    );
+  }
 }
