@@ -50,7 +50,7 @@ import { Table } from '../../types';
             [disabled]="false"
             icon="fi fi-rr-square-plus"
             label="Add Project"
-            (click)="showAddProjectPopup()"
+            (click)="showPopup('addProject')"
           />
         </div>
         <div>
@@ -73,33 +73,34 @@ import { Table } from '../../types';
                   label="Add members"
                   [iconOnly]="true"
                   icon="fi fi-rr-user-add"
-                  (click)="showAddMembersPopup(project.id)"
+                  (click)="showPopup('addMembers', project.id)"
                 />
                 <ui-button
                   label="Delete project"
                   [iconOnly]="true"
                   variant="danger"
                   icon="fi fi-rr-trash"
-                  (click)="showDeleteProjectPopup(project.id)"
+                  (click)="showPopup('deleteProject', project.id)"
                 />
               </div>
               }
             </ng-template>
           </ui-table>
         </div>
-        @if ( isAddProjectPopupVisible() ) {
-        <add-project-popup (close)="hideAddProjectPopup()"></add-project-popup>
-        } @if ( isAddMemberPopupVisible() ) {
+
+        @switch (activePopup()) { @case ('addProject') {
+        <add-project-popup (close)="hidePopup()" />
+        } @case ('addMembers') {
         <add-project-member-popup
-          [projectId]="addMemberProjectId()!"
-          (close)="hideAddMemberPopup()"
-        ></add-project-member-popup>
-        } @if (isDeleteProjectPopupVisible()) {
+          [projectId]="activeProjectId()!"
+          (close)="hidePopup()"
+        />
+        } @case ('deleteProject') {
         <delete-project-popup
-          [projectId]="deleteProjectId()!"
-          (close)="hideDeleteProjectPopup()"
-        ></delete-project-popup>
-        }
+          [projectId]="activeProjectId()!"
+          (close)="hidePopup()"
+        />
+        } }
       </div>
       {{ projectMembers() | json }}
     </default-layout>
@@ -109,6 +110,7 @@ export class ProjectsComponent {
   readonly projectService = inject(ProjectService);
   readonly projectMembersService = inject(ProjectMemberService);
   readonly statusService = inject(StatusService);
+
   readonly table: Table<Project & { status: Status['name'] }> = {
     headers: [
       { name: 'ID', key: 'id' },
@@ -147,39 +149,24 @@ export class ProjectsComponent {
     return this.projectMembersService.projectMembersSignal();
   });
 
-  readonly addMemberProjectId = signal<null | number>(null);
-  readonly isAddMemberPopupVisible = computed(
-    () => this.addMemberProjectId() !== null
-  );
-  readonly isAddProjectPopupVisible = signal(false);
+  readonly activePopup = signal<
+    'addProject' | 'addMembers' | 'deleteProject' | null
+  >(null);
+  readonly activeProjectId = signal<number | null>(null);
 
-  readonly deleteProjectId = signal<number | null>(null);
-  readonly isDeleteProjectPopupVisible = computed(
-    () => this.deleteProjectId() !== null
-  );
-
-  showAddProjectPopup(): void {
-    this.isAddProjectPopupVisible.set(true);
+  showPopup(
+    popupType: 'addProject' | 'addMembers' | 'deleteProject',
+    projectId?: number
+  ): void {
+    this.activePopup.set(popupType);
+    if (projectId) {
+      this.activeProjectId.set(projectId);
+    }
   }
 
-  hideAddProjectPopup(): void {
-    this.isAddProjectPopupVisible.set(false);
-  }
-
-  showAddMembersPopup(projectId: number): void {
-    this.addMemberProjectId.set(projectId);
-  }
-
-  hideAddMemberPopup(): void {
-    this.addMemberProjectId.set(null);
-  }
-
-  showDeleteProjectPopup(projectId: number): void {
-    this.deleteProjectId.set(projectId);
-  }
-
-  hideDeleteProjectPopup(): void {
-    this.deleteProjectId.set(null);
+  hidePopup(): void {
+    this.activePopup.set(null);
+    this.activeProjectId.set(null);
   }
 
   goToProject(item: Project): void {
