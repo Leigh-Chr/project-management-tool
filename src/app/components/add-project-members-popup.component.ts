@@ -1,11 +1,9 @@
-import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
   Component,
   computed,
   EventEmitter,
   inject,
-  input,
+  Input,
   Output,
 } from '@angular/core';
 import {
@@ -20,32 +18,22 @@ import { ProjectMemberService } from '../services/project-member.service';
 import { ProjectService } from '../services/project.service';
 import { RoleService } from '../services/role.service';
 import { UserService } from '../services/user.service';
-import { ButtonComponent } from './ui/button.component';
 import { SelectFieldComponent } from './ui/select-field.component';
 import { PopupComponent } from './ui/popup.component';
 
 @Component({
   selector: 'add-project-member-popup',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    SelectFieldComponent,
-    PopupComponent,
-  ],
+  imports: [ReactiveFormsModule, SelectFieldComponent, PopupComponent],
   template: `
-    <ui-popup>
-      <h3 class="text-lg font-semibold mb-4">
-        Add Project Member -
-        <span
-          class="text-md font-normal text-neutral-500 dark:text-neutral-400"
-        >
-          {{ projectName() }}
-        </span>
-      </h3>
-      <form (ngSubmit)="onSubmit()" [formGroup]="memberForm" novalidate>
+    <ui-popup
+      title="Add Project Member - {{ projectName() }}"
+      [isSubmitDisabled]="memberForm.invalid"
+      submitLabel="Add Member"
+      (submit)="onSubmit()"
+      (close)="closePopup()"
+    >
+      <form [formGroup]="memberForm" novalidate>
         <ui-select-field
           [options]="userOptions()"
           [control]="userControl"
@@ -60,57 +48,36 @@ import { PopupComponent } from './ui/popup.component';
           label="Role"
           errorMessage="Please select a role."
         />
-        <div class="flex justify-end mt-4">
-          <ui-button
-            type="button"
-            (click)="closePopup()"
-            label="Cancel"
-            class="mr-2"
-          ></ui-button>
-          <ui-button
-            type="submit"
-            [disabled]="memberForm.invalid"
-            label="Add Member"
-          ></ui-button>
-        </div>
       </form>
     </ui-popup>
   `,
 })
 export class AddProjectMemberPopupComponent {
   private readonly projectService = inject(ProjectService);
-  readonly projectId = input.required<number>();
-  readonly projectName = computed(
-    () =>
-      this.projectService
-        .projectsSignal()
-        .find((p) => p.id === this.projectId())?.name
-  );
-
   private readonly projectMembersService = inject(ProjectMemberService);
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
 
+  @Input() projectId!: number;
   @Output() close = new EventEmitter<void>();
 
-  users = computed(() => this.userService.usersSignal());
   userOptions = computed(() =>
-    this.users().map((user) => ({
-      value: user.id,
-      label: user.username,
-    }))
+    this.userService
+      .usersSignal()
+      .map((user) => ({ value: user.id, label: user.username }))
   );
-
-  roles = computed(() => this.roleService.rolesSignal());
   roleOptions = computed(() =>
-    this.roles().map((role) => ({
-      value: role.id,
-      label: role.name,
-    }))
+    this.roleService
+      .rolesSignal()
+      .map((role) => ({ value: role.id, label: role.name }))
+  );
+  projectName = computed(
+    () =>
+      this.projectService.projectsSignal().find((p) => p.id === this.projectId)
+        ?.name
   );
 
   private readonly formBuilder = inject(FormBuilder);
-
   memberForm: FormGroup = this.formBuilder.group({
     user: ['', [Validators.required]],
     role: ['', [Validators.required]],
@@ -119,20 +86,13 @@ export class AddProjectMemberPopupComponent {
   userControl = this.memberForm.get('user') as FormControl<number>;
   roleControl = this.memberForm.get('role') as FormControl<number>;
 
-  closePopup(): void {
-    this.close.emit();
-  }
-
   onSubmit(): void {
-    if (!this.memberForm.valid) return;
-
-    const selectedUser = this.userControl.value;
-    const selectedRole = this.roleControl.value;
+    if (this.memberForm.invalid) return;
 
     const newMember: ProjectMember = {
-      projectId: this.projectId(),
-      userId: selectedUser,
-      roleId: selectedRole,
+      projectId: this.projectId,
+      userId: this.userControl.value,
+      roleId: this.roleControl.value,
     };
 
     this.projectMembersService.addProjectMember(
@@ -140,7 +100,11 @@ export class AddProjectMemberPopupComponent {
       newMember.userId,
       newMember.roleId
     );
-
     this.closePopup();
+  }
+
+  closePopup(): void {
+    this.memberForm.reset();
+    this.close.emit();
   }
 }

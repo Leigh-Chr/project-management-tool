@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { IconComponent } from './icon.component';
 import { TooltipDirective } from '../../directives/tooltip.directive';
 
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
+
 @Component({
   selector: 'ui-button',
   standalone: true,
@@ -51,7 +53,7 @@ export class ButtonComponent {
   @Input() disabled?: boolean;
   @Input() isLink?: boolean;
   @Input() href?: string;
-  @Input() variant?: 'primary' | 'secondary' | 'danger' | 'success';
+  @Input() variant?: ButtonVariant;
   @Input() class?: string;
 
   get buttonClasses(): string {

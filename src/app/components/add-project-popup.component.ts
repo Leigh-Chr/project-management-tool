@@ -1,12 +1,4 @@
-import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  EventEmitter,
-  inject,
-  Output,
-} from '@angular/core';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -14,29 +6,23 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { AddProjectDto, ProjectService } from '../services/project.service';
-import { StatusService } from '../services/status.service';
-import { ButtonComponent } from './ui/button.component';
+import { ProjectService, AddProjectDto } from '../services/project.service';
 import { InputFieldComponent } from './ui/input-field.component';
-import { SelectFieldComponent } from './ui/select-field.component';
 import { PopupComponent } from './ui/popup.component';
 
 @Component({
   selector: 'add-project-popup',
   standalone: true,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonComponent,
-    InputFieldComponent,
-    SelectFieldComponent,
-    PopupComponent,
-  ],
+  imports: [ReactiveFormsModule, InputFieldComponent, PopupComponent],
   template: `
-    <ui-popup>
-      <h3 class="text-lg font-semibold mb-4">Add New Project</h3>
-      <form (ngSubmit)="onSubmit()" [formGroup]="projectForm" novalidate>
+    <ui-popup
+      title="Add New Project"
+      [isSubmitDisabled]="projectForm.invalid"
+      submitLabel="Add Project"
+      (submit)="onSubmit()"
+      (close)="closePopup()"
+    >
+      <form [formGroup]="projectForm" novalidate>
         <ui-input-field
           [control]="name"
           id="name"
@@ -57,37 +43,12 @@ import { PopupComponent } from './ui/popup.component';
           type="date"
           errorMessage="Start Date is required."
         />
-        <div class="flex justify-end mt-4">
-          <ui-button
-            type="button"
-            (click)="closePopup()"
-            label="Cancel"
-            class="mr-2"
-          ></ui-button>
-          <ui-button
-            type="submit"
-            [disabled]="projectForm.invalid"
-            label="Add Project"
-          ></ui-button>
-        </div>
       </form>
     </ui-popup>
   `,
 })
 export class AddProjectPopupComponent {
-  private readonly statusService = inject(StatusService);
   private readonly projectService = inject(ProjectService);
-
-  @Output() close = new EventEmitter<void>();
-
-  statuses = computed(() => this.statusService.statusesSignal());
-  statusOptions = computed(() =>
-    this.statuses().map((status) => ({
-      value: status.id,
-      label: status.name,
-    }))
-  );
-
   private readonly formBuilder = inject(FormBuilder);
 
   projectForm: FormGroup = this.formBuilder.group({
@@ -100,9 +61,7 @@ export class AddProjectPopupComponent {
   description = this.projectForm.get('description') as FormControl<string>;
   startDate = this.projectForm.get('startDate') as FormControl<string>;
 
-  closePopup(): void {
-    this.close.emit();
-  }
+  @Output() close = new EventEmitter<void>();
 
   onSubmit(): void {
     if (!this.projectForm.valid) return;
@@ -115,5 +74,10 @@ export class AddProjectPopupComponent {
 
     this.projectService.addProject(newProject);
     this.closePopup();
+  }
+
+  closePopup(): void {
+    this.projectForm.reset();
+    this.close.emit();
   }
 }
