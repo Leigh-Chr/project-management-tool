@@ -27,7 +27,9 @@ import { UserService } from '../../services/data/user.service';
   template: `
     <default-layout>
       @if (project) {
-      <div class="p-6 bg-white dark:bg-neutral-900 rounded-lg shadow-md">
+      <div
+        class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900"
+      >
         <h2
           class="text-3xl font-bold mb-4 text-neutral-900 dark:text-neutral-100"
         >
@@ -40,7 +42,7 @@ import { UserService } from '../../services/data/user.service';
         <div class="grid grid-cols-2 gap-4 mb-6">
           <div>
             <p
-              class="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+              class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
             >
               Status
             </p>
@@ -50,7 +52,7 @@ import { UserService } from '../../services/data/user.service';
           </div>
           <div>
             <p
-              class="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+              class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
             >
               Start Date
             </p>
@@ -61,7 +63,7 @@ import { UserService } from '../../services/data/user.service';
           @if (project.endDate) {
           <div>
             <p
-              class="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
+              class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
             >
               End Date
             </p>
@@ -82,7 +84,7 @@ import { UserService } from '../../services/data/user.service';
           <ul class="space-y-2">
             @for (member of projectMembers(); track member.userId) {
             <li
-              class="px-4 py-2 bg-neutral-50 dark:bg-neutral-950 rounded-md shadow-sm"
+              class="px-4 py-2 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md"
             >
               <span class="font-medium text-neutral-900 dark:text-neutral-100">
                 {{ member.user.username }}
@@ -94,7 +96,7 @@ import { UserService } from '../../services/data/user.service';
             }
           </ul>
           } @else {
-          <p class="text-neutral-500 dark:text-neutral-400">
+          <p class="text-neutral-600 dark:text-neutral-400">
             No members assigned to this project.
           </p>
           }
@@ -110,7 +112,7 @@ import { UserService } from '../../services/data/user.service';
           <ul class="space-y-4">
             @for (task of projectTasks(); track task.id) {
             <li
-              class="px-4 py-3 border dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 rounded-lg shadow-sm"
+              class="px-4 py-3 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 rounded-lg"
             >
               <h4
                 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
@@ -124,7 +126,7 @@ import { UserService } from '../../services/data/user.service';
                 <strong class="text-neutral-900 dark:text-neutral-100"
                   >Due Date:</strong
                 >
-                <span class="text-neutral-700 dark:text-neutral-300">
+                <span class="text-neutral-700 dark:text-neutral-400">
                   {{ task.dueDate | date : 'longDate' }}
                 </span>
               </p>
@@ -132,7 +134,7 @@ import { UserService } from '../../services/data/user.service';
                 <strong class="text-neutral-900 dark:text-neutral-100"
                   >Assigned to:</strong
                 >
-                <span class="text-neutral-700 dark:text-neutral-300">
+                <span class="text-neutral-700 dark:text-neutral-400">
                   {{ taskAssignee(task.assigneeId)?.username }}
                 </span>
               </p>
@@ -140,7 +142,7 @@ import { UserService } from '../../services/data/user.service';
                 <strong class="text-neutral-900 dark:text-neutral-100"
                   >Priority:</strong
                 >
-                <span class="text-neutral-700 dark:text-neutral-300">{{
+                <span class="text-neutral-700 dark:text-neutral-400">{{
                   task.priority
                 }}</span>
               </p>
@@ -148,7 +150,7 @@ import { UserService } from '../../services/data/user.service';
                 <strong class="text-neutral-900 dark:text-neutral-100"
                   >Status:</strong
                 >
-                <span class="text-neutral-700 dark:text-neutral-300">
+                <span class="text-neutral-700 dark:text-neutral-400">
                   {{ taskStatus(task.statusId)?.name }}
                 </span>
               </p>
@@ -156,14 +158,14 @@ import { UserService } from '../../services/data/user.service';
             }
           </ul>
           } @else {
-          <p class="text-neutral-500 dark:text-neutral-400">
+          <p class="text-neutral-600 dark:text-neutral-400">
             No tasks assigned to this project.
           </p>
           }
         </div>
       </div>
       } @else {
-      <p class="text-neutral-500 dark:text-neutral-400">
+      <p class="text-neutral-600 dark:text-neutral-400">
         Project not found. Redirecting...
       </p>
       }
