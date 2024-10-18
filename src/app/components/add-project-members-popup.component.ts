@@ -20,6 +20,7 @@ import { RoleService } from '../services/data/role.service';
 import { UserService } from '../services/data/user.service';
 import { SelectFieldComponent } from './ui/select-field.component';
 import { PopupComponent } from './ui/popup.component';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'add-project-member-popup',
@@ -53,6 +54,7 @@ import { PopupComponent } from './ui/popup.component';
   `,
 })
 export class AddProjectMemberPopupComponent {
+  private readonly authService = inject(AuthService);
   private readonly projectService = inject(ProjectService);
   private readonly projectMembersService = inject(ProjectMemberService);
   private readonly userService = inject(UserService);
@@ -64,6 +66,7 @@ export class AddProjectMemberPopupComponent {
   userOptions = computed(() =>
     this.userService
       .usersSignal()
+      .filter((user) => user.id !== this.authService.userSignal()?.id)
       .map((user) => ({ value: user.id, label: user.username }))
   );
   roleOptions = computed(() =>
