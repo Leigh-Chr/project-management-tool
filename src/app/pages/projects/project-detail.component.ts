@@ -83,6 +83,9 @@ import { UserService } from '../../services/data/user.service';
           @if (projectMembers().length > 0) {
           <ul class="space-y-2">
             @for (member of projectMembers(); track member.userId) {
+            {{
+              member | json
+            }}
             <li
               class="px-4 py-2 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 rounded-md"
             >
@@ -211,14 +214,16 @@ export class ProjectComponent {
       .filter((pm) => pm.projectId === this.id);
     return members.map((member) => ({
       ...member,
-      user: this.userService
-        .usersSignal()
-        .find((user) => user.id === member.userId)!,
+      user: this.memberUser(member.userId)!,
     }));
   }
 
   memberRole(roleId: number): Role | undefined {
     return this.roleService.rolesSignal().find((role) => role.id === roleId);
+  }
+
+  memberUser(userId: number): Omit<User, 'password'> | undefined {
+    return this.userService.usersSignal().find((user) => user.id === userId);
   }
 
   taskAssignee(userId: number): Omit<User, 'password'> | undefined {

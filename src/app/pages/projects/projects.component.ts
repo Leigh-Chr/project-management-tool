@@ -19,6 +19,7 @@ import { ProjectMemberService } from '../../services/data/project-member.service
 import { ProjectService } from '../../services/data/project.service';
 import { StatusService } from '../../services/data/status.service';
 import { Table } from '../../types';
+import { Router } from '@angular/router';
 
 @Component({
   imports: [
@@ -67,7 +68,7 @@ import { Table } from '../../types';
                   label="View project"
                   [iconOnly]="true"
                   icon="fi fi-rr-arrow-up-from-square"
-                  (click)="goToProject(project)"
+                  (click)="goToProject(project.id)"
                 />
                 <ui-button
                   label="Add members"
@@ -107,6 +108,7 @@ import { Table } from '../../types';
   `,
 })
 export class ProjectsComponent {
+  private readonly router = inject(Router);
   readonly projectService = inject(ProjectService);
   readonly projectMembersService = inject(ProjectMemberService);
   readonly statusService = inject(StatusService);
@@ -169,8 +171,8 @@ export class ProjectsComponent {
     this.activeProjectId.set(null);
   }
 
-  goToProject(item: Project): void {
-    console.log('View project details', item);
+  goToProject(projectId: number): void {
+    this.router.navigate(['/projects', projectId]);
   }
 
   onPageChange(page: number) {

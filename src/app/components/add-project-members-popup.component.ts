@@ -91,8 +91,8 @@ export class AddProjectMemberPopupComponent {
 
     const newMember: ProjectMember = {
       projectId: this.projectId,
-      userId: this.userControl.value,
-      roleId: this.roleControl.value,
+      userId: +this.userControl.value,
+      roleId: +this.roleControl.value,
     };
 
     this.projectMembersService.addProjectMember(
