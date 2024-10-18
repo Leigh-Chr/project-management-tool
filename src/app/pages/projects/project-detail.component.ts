@@ -7,13 +7,18 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
-import { Project, Role, Status, User } from '../../services/data-mock.service';
-import { ProjectMemberService } from '../../services/project-member.service';
-import { ProjectService } from '../../services/project.service';
-import { RoleService } from '../../services/role.service';
-import { StatusService } from '../../services/status.service';
-import { TaskService } from '../../services/task.service';
-import { UserService } from '../../services/user.service';
+import {
+  Project,
+  Role,
+  Status,
+  User,
+} from '../../services/backend-mock.service';
+import { ProjectMemberService } from '../../services/data/project-member.service';
+import { ProjectService } from '../../services/data/project.service';
+import { RoleService } from '../../services/data/role.service';
+import { StatusService } from '../../services/data/status.service';
+import { TaskService } from '../../services/data/task.service';
+import { UserService } from '../../services/data/user.service';
 
 @Component({
   imports: [DefaultLayoutComponent, JsonPipe, DatePipe],

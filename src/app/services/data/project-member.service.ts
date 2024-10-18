@@ -1,11 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { DataMockService, ProjectMember } from './data-mock.service';
+import { backendMockService, ProjectMember } from '../backend-mock.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectMemberService {
-  private readonly dataMockService = inject(DataMockService);
+  private readonly backendMockService = inject(backendMockService);
 
   readonly projectMembersSignal = signal<ProjectMember[]>([]);
 
@@ -22,11 +22,11 @@ export class ProjectMemberService {
   }
 
   private getProjectMembers(): ProjectMember[] {
-    return this.dataMockService.getProjectMembers();
+    return this.backendMockService.getProjectMembers();
   }
 
   addProjectMember(projectId: number, userId: number, roleId: number): void {
-    const newProjectMember = this.dataMockService.addProjectMember({
+    const newProjectMember = this.backendMockService.addProjectMember({
       projectId,
       userId,
       roleId,
@@ -38,7 +38,7 @@ export class ProjectMemberService {
   }
 
   deleteProjectMembers(projectId: number): void {
-    this.dataMockService.deleteProjectMembers(projectId);
+    this.backendMockService.deleteProjectMembers(projectId);
     this.projectMembersSignal.update((projectMembers) =>
       projectMembers.filter((pm) => pm.projectId !== projectId)
     );

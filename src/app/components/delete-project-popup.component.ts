@@ -6,8 +6,8 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { ProjectMemberService } from '../services/project-member.service';
-import { ProjectService } from '../services/project.service';
+import { ProjectMemberService } from '../services/data/project-member.service';
+import { ProjectService } from '../services/data/project.service';
 import { PopupComponent } from './ui/popup.component';
 
 @Component({

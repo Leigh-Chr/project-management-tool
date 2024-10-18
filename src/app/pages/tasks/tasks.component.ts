@@ -6,10 +6,10 @@ import {
   inject,
 } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
-import { Project, Task, User } from '../../services/data-mock.service';
-import { ProjectService } from '../../services/project.service';
-import { TaskService } from '../../services/task.service';
-import { UserService } from '../../services/user.service';
+import { Project, Task, User } from '../../services/backend-mock.service';
+import { ProjectService } from '../../services/data/project.service';
+import { TaskService } from '../../services/data/task.service';
+import { UserService } from '../../services/data/user.service';
 import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
 import { Table } from '../../types';
 import { ButtonComponent } from '../../components/ui/button.component';

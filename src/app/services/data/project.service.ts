@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { DataMockService, Project } from './data-mock.service';
-import { AuthService } from './auth.service';
+import { backendMockService, Project } from '../backend-mock.service';
+import { AuthService } from '../auth.service';
 import { ProjectMemberService } from './project-member.service';
 import { RoleService } from './role.service';
 
@@ -10,7 +10,7 @@ export type AddProjectDto = Pick<Project, 'name' | 'description' | 'startDate'>;
   providedIn: 'root',
 })
 export class ProjectService {
-  private readonly dataMockService = inject(DataMockService);
+  private readonly backendMockService = inject(backendMockService);
   private readonly authService = inject(AuthService);
   private readonly projectMemberService = inject(ProjectMemberService);
   private readonly roleService = inject(RoleService);
@@ -30,14 +30,14 @@ export class ProjectService {
   }
 
   private getProjects(): Project[] {
-    return this.dataMockService.getProjects();
+    return this.backendMockService.getProjects();
   }
 
   addProject(project: AddProjectDto): void {
     const user = this.authService.userSignal();
     if (!user) throw new Error('User not found');
 
-    const newProject = this.dataMockService.addProject(project);
+    const newProject = this.backendMockService.addProject(project);
     this.projectsSignal.update((projects) => [...projects, newProject]);
 
     const adminRoleId = this.roleService
@@ -53,7 +53,7 @@ export class ProjectService {
   }
 
   deleteProject(projectId: number): void {
-    this.dataMockService.deleteProject(projectId);
+    this.backendMockService.deleteProject(projectId);
     this.projectsSignal.update((projects) =>
       projects.filter((project) => project.id !== projectId)
     );

@@ -1,11 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { DataMockService, Role } from './data-mock.service';
+import { backendMockService, Role } from '../backend-mock.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleService {
-  private readonly dataMockService = inject(DataMockService);
+  private readonly backendMockService = inject(backendMockService);
   readonly rolesSignal = signal<Role[]>([]);
 
   constructor() {
@@ -17,6 +17,6 @@ export class RoleService {
   }
 
   private getRoles(): Role[] {
-    return this.dataMockService.getRoles();
+    return this.backendMockService.getRoles();
   }
 }

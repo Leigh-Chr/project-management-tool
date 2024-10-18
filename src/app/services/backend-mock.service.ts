@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { LoginParams, RegisterParams, RegisterResponse } from './auth.service';
-import { AddProjectDto } from './project.service';
+import { AddProjectDto } from './data/project.service';
 
 export type User = {
   id: number;
@@ -58,7 +58,7 @@ export type TaskHistory = {
 @Injectable({
   providedIn: 'root',
 })
-export class DataMockService {
+export class backendMockService {
   readonly users: User[] = [
     {
       id: 1,

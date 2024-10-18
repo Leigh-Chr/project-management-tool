@@ -6,7 +6,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ProjectService, AddProjectDto } from '../services/project.service';
+import {
+  ProjectService,
+  AddProjectDto,
+} from '../services/data/project.service';
 import { InputFieldComponent } from './ui/input-field.component';
 import { PopupComponent } from './ui/popup.component';
 

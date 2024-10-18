@@ -6,9 +6,9 @@ import {
   inject,
 } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { Project, Task } from '../../../services/data-mock.service';
-import { ProjectService } from '../../../services/project.service';
-import { TaskService } from '../../../services/task.service';
+import { Project, Task } from '../../../services/backend-mock.service';
+import { ProjectService } from '../../../services/data/project.service';
+import { TaskService } from '../../../services/data/task.service';
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../components/ui/button.component';
 import { PaginatorComponent } from '../../../components/ui/paginator.component';

@@ -1,11 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { DataMockService, Task } from './data-mock.service';
+import { backendMockService, Task } from '../backend-mock.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
-  private readonly dataMockService = inject(DataMockService);
+  private readonly backendMockService = inject(backendMockService);
 
   readonly tasksSignal = signal<Task[]>([]);
 
@@ -22,6 +22,6 @@ export class TaskService {
   }
 
   private getTasks(): Task[] {
-    return this.dataMockService.getTasks();
+    return this.backendMockService.getTasks();
   }
 }

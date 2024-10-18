@@ -1,11 +1,11 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { DataMockService, TaskHistory } from './data-mock.service';
+import { backendMockService, TaskHistory } from '../backend-mock.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskHistoryService {
-  private readonly dataMockService = inject(DataMockService);
+  private readonly backendMockService = inject(backendMockService);
 
   readonly taskHistoriesSignal = signal<TaskHistory[]>([]);
 
@@ -22,6 +22,6 @@ export class TaskHistoryService {
   }
 
   private getTaskHistories(): TaskHistory[] {
-    return this.dataMockService.getTaskHistories();
+    return this.backendMockService.getTaskHistories();
   }
 }

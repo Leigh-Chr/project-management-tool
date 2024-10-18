@@ -7,10 +7,10 @@ import {
   signal,
 } from '@angular/core';
 import { AuthService } from '../../../services/auth.service';
-import { Project, Status } from '../../../services/data-mock.service';
-import { ProjectMemberService } from '../../../services/project-member.service';
-import { ProjectService } from '../../../services/project.service';
-import { StatusService } from '../../../services/status.service';
+import { Project, Status } from '../../../services/backend-mock.service';
+import { ProjectMemberService } from '../../../services/data/project-member.service';
+import { ProjectService } from '../../../services/data/project.service';
+import { StatusService } from '../../../services/data/status.service';
 import { AddProjectPopupComponent } from '../../../components/add-project-popup.component';
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../components/ui/button.component';

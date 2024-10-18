@@ -1,11 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { DataMockService, User } from './data-mock.service';
+import { backendMockService, User } from '../backend-mock.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private readonly dataMockService = inject(DataMockService);
+  private readonly backendMockService = inject(backendMockService);
 
   readonly usersSignal = signal<Omit<User, 'password'>[]>([]);
 
@@ -22,11 +22,11 @@ export class UserService {
   }
 
   private getUsers(): Omit<User, 'password'>[] {
-    return this.dataMockService.getUsers();
+    return this.backendMockService.getUsers();
   }
 
   private addUser(user: User): void {
-    this.dataMockService.addUser(user);
+    this.backendMockService.addUser(user);
     this.usersSignal.update((users) => [...users, user]);
   }
 }

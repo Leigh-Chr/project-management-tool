@@ -1,11 +1,11 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { DataMockService, Status } from './data-mock.service';
+import { backendMockService, Status } from '../backend-mock.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StatusService {
-  private readonly dataMockService = inject(DataMockService);
+  private readonly backendMockService = inject(backendMockService);
 
   readonly statusesSignal = signal<Status[]>([]);
 
@@ -22,6 +22,6 @@ export class StatusService {
   }
 
   private getStatuses(): Status[] {
-    return this.dataMockService.getStatuses();
+    return this.backendMockService.getStatuses();
   }
 }
