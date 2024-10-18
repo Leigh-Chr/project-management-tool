@@ -19,6 +19,7 @@ import { StatusService } from '../services/status.service';
 import { ButtonComponent } from './ui/button.component';
 import { InputFieldComponent } from './ui/input-field.component';
 import { SelectFieldComponent } from './ui/select-field.component';
+import { PopupComponent } from './ui/popup.component';
 
 @Component({
   selector: 'add-project-popup',
@@ -30,15 +31,10 @@ import { SelectFieldComponent } from './ui/select-field.component';
     ButtonComponent,
     InputFieldComponent,
     SelectFieldComponent,
+    PopupComponent,
   ],
-  host: {
-    class:
-      'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center',
-  },
   template: `
-    <div
-      class="rounded-lg bg-white dark:bg-neutral-800 p-4 shadow-lg w-full max-w-md"
-    >
+    <ui-popup>
       <h3 class="text-lg font-semibold mb-4">Add New Project</h3>
       <form (ngSubmit)="onSubmit()" [formGroup]="projectForm" novalidate>
         <ui-input-field
@@ -75,7 +71,7 @@ import { SelectFieldComponent } from './ui/select-field.component';
           ></ui-button>
         </div>
       </form>
-    </div>
+    </ui-popup>
   `,
 })
 export class AddProjectPopupComponent {

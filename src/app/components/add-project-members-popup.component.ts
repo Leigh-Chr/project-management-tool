@@ -22,6 +22,7 @@ import { RoleService } from '../services/role.service';
 import { UserService } from '../services/user.service';
 import { ButtonComponent } from './ui/button.component';
 import { SelectFieldComponent } from './ui/select-field.component';
+import { PopupComponent } from './ui/popup.component';
 
 @Component({
   selector: 'add-project-member-popup',
@@ -32,15 +33,10 @@ import { SelectFieldComponent } from './ui/select-field.component';
     ReactiveFormsModule,
     ButtonComponent,
     SelectFieldComponent,
+    PopupComponent,
   ],
-  host: {
-    class:
-      'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center',
-  },
   template: `
-    <div
-      class="rounded-lg bg-white dark:bg-neutral-800 p-4 shadow-lg w-full max-w-md"
-    >
+    <ui-popup>
       <h3 class="text-lg font-semibold mb-4">
         Add Project Member -
         <span
@@ -78,7 +74,7 @@ import { SelectFieldComponent } from './ui/select-field.component';
           ></ui-button>
         </div>
       </form>
-    </div>
+    </ui-popup>
   `,
 })
 export class AddProjectMemberPopupComponent {
