@@ -43,4 +43,10 @@ export class ProjectMemberService {
       projectMembers.filter((pm) => pm.projectId !== projectId)
     );
   }
+
+  isMember(projectId: number, userId: number): boolean {
+    return this.projectMembersSignal().some(
+      (pm) => pm.projectId === projectId && pm.userId === userId
+    );
+  }
 }

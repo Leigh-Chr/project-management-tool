@@ -45,9 +45,7 @@ import { AuthService } from '../../services/auth.service';
         <div
           class="flex justify-between items-center bg-neutral-50 dark:bg-neutral-950 shadow-sm p-4"
         >
-          <h2 class="font-semibold text-lg">
-            <a href="/projects" class="hover:underline">Projects</a>
-          </h2>
+          <h2 class="font-semibold text-lg">Projects</h2>
           <ui-button
             [disabled]="false"
             icon="fi fi-rr-square-plus"
@@ -66,9 +64,9 @@ import { AuthService } from '../../services/auth.service';
               @if (toProject(project); as project) {
               <div class="flex gap-2">
                 <ui-button
-                  label="View project"
+                  label="Go to project"
                   [iconOnly]="true"
-                  icon="fi fi-rr-arrow-up-from-square"
+                  icon="fi fi-rr-door-open"
                   (click)="goToProject(project.id)"
                 />
                 @if (isAdmin(project.id)) {
@@ -91,23 +89,23 @@ import { AuthService } from '../../services/auth.service';
             </ng-template>
           </ui-table>
         </div>
-
-        @switch (activePopup()) { @case ('addProject') {
-        <add-project-popup (close)="hidePopup()" />
-        } @case ('addMembers') {
-        <add-project-member-popup
-          [projectId]="activeProjectId()!"
-          (close)="hidePopup()"
-        />
-        } @case ('deleteProject') {
-        <delete-project-popup
-          [projectId]="activeProjectId()!"
-          (close)="hidePopup()"
-        />
-        } }
       </div>
       {{ projectMembers() | json }}
     </default-layout>
+
+    @switch (activePopup()) { @case ('addProject') {
+    <add-project-popup (close)="hidePopup()" />
+    } @case ('addMembers') {
+    <add-project-member-popup
+      [projectId]="activeProjectId()!"
+      (close)="hidePopup()"
+    />
+    } @case ('deleteProject') {
+    <delete-project-popup
+      [projectId]="activeProjectId()!"
+      (close)="hidePopup()"
+    />
+    } }
   `,
 })
 export class ProjectsComponent {
@@ -165,9 +163,7 @@ export class ProjectsComponent {
     projectId?: number
   ): void {
     this.activePopup.set(popupType);
-    if (projectId) {
-      this.activeProjectId.set(projectId);
-    }
+    if (projectId) this.activeProjectId.set(projectId);
   }
 
   hidePopup(): void {
