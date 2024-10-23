@@ -6,7 +6,7 @@ import { ProjectsComponent } from './pages/projects/projects.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { TaskComponent } from './pages/tasks/task-details.component';
 import { TasksComponent } from './pages/tasks/tasks.component';
-import { ProjectComponent } from './pages/projects/project-detail.component';
+import { ProjectComponent } from './pages/projects/project-details.component';
 
 export const routes: Routes = [
   { path: 'tasks', component: TasksComponent },
