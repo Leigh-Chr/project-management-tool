@@ -66,7 +66,9 @@ export class AddProjectMemberPopupComponent {
   userOptions = computed(() =>
     this.userService
       .usersSignal()
-      .filter((user) => user.id !== this.authService.userSignal()?.id)
+      .filter(
+        (user) => !this.projectMembersService.isMember(this.projectId, user.id)
+      )
       .map((user) => ({ value: user.id, label: user.username }))
   );
   roleOptions = computed(() =>
