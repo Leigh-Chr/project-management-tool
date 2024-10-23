@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   template: `
     <i
       class="{{ class }}
-      grid content-center h-5
+      grid content-center h-[1.5em]
       "
     ></i>
   `,

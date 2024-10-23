@@ -1,7 +1,7 @@
 import { NgClass } from '@angular/common';
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { IconComponent } from './icon.component';
 import { TooltipDirective } from '../../directives/tooltip.directive';
+import { IconComponent } from './icon.component';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
 
@@ -57,7 +57,7 @@ export class ButtonComponent {
   @Input() class?: string;
 
   get buttonClasses(): string {
-    const baseClasses = `px-3 py-2 font-semibold rounded-md flex items-center justify-center gap-2 shadow-md transition-all duration-200 ease-in-out`;
+    const baseClasses = `px-[.75em] py-[.5em] font-semibold rounded-md flex items-center justify-center gap-2 shadow-md transition-all duration-200 ease-in-out`;
     const stateClasses =
       'disabled:opacity-50 disabled:pointer-events-none enabled:hover:brightness-125';
 
