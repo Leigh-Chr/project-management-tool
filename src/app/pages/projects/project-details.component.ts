@@ -7,21 +7,21 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import {
   Project,
   Role,
   Status,
   User,
-} from '../../services/backend-mock.service';
-import { ProjectMemberService } from '../../services/data/project-member.service';
-import { ProjectService } from '../../services/data/project.service';
-import { RoleService } from '../../services/data/role.service';
-import { StatusService } from '../../services/data/status.service';
-import { TaskService } from '../../services/data/task.service';
-import { UserService } from '../../services/data/user.service';
-import { ButtonComponent } from '../../components/ui/button.component';
-import { PopupComponent } from '../../components/ui/popup.component';
+} from '../../shared/services/backend-mock.service';
+import { ProjectMemberService } from '../../shared/services/data/project-member.service';
+import { ProjectService } from '../../shared/services/data/project.service';
+import { RoleService } from '../../shared/services/data/role.service';
+import { StatusService } from '../../shared/services/data/status.service';
+import { TaskService } from '../../shared/services/data/task.service';
+import { UserService } from '../../shared/services/data/user.service';
+import { ButtonComponent } from '../../shared/components/ui/button.component';
+import { PopupComponent } from '../../shared/components/ui/popup.component';
 
 type PopupType =
   | 'deleteProject'

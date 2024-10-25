@@ -6,16 +6,16 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { AuthService } from '../../../services/auth.service';
-import { Project, Status } from '../../../services/backend-mock.service';
-import { ProjectMemberService } from '../../../services/data/project-member.service';
-import { ProjectService } from '../../../services/data/project.service';
-import { StatusService } from '../../../services/data/status.service';
-import { AddProjectPopupComponent } from '../../../components/add-project-popup.component';
+import { AuthService } from '../../../shared/services/auth.service';
+import { Project, Status } from '../../../shared/services/backend-mock.service';
+import { ProjectMemberService } from '../../../shared/services/data/project-member.service';
+import { ProjectService } from '../../../shared/services/data/project.service';
+import { StatusService } from '../../../shared/services/data/status.service';
+import { AddProjectPopupComponent } from '../../../shared/components/add-project-popup.component';
 import { Table } from '../../../types';
-import { ButtonComponent } from '../../../components/ui/button.component';
-import { PaginatorComponent } from '../../../components/ui/paginator.component';
-import { TableComponent } from '../../../components/ui/table.component';
+import { ButtonComponent } from '../../../shared/components/ui/button.component';
+import { PaginatorComponent } from '../../../shared/components/ui/paginator.component';
+import { TableComponent } from '../../../shared/components/ui/table.component';
 
 @Component({
   selector: 'projects-panel',

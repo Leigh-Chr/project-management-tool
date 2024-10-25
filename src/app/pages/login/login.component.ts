@@ -7,9 +7,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { ButtonComponent } from '../../components/ui/button.component';
-import { InputFieldComponent } from '../../components/ui/input-field.component';
+import { AuthService } from '../../shared/services/auth.service';
+import { ButtonComponent } from '../../shared/components/ui/button.component';
+import { InputFieldComponent } from '../../shared/components/ui/input-field.component';
 
 @Component({
   imports: [ButtonComponent, ReactiveFormsModule, InputFieldComponent],

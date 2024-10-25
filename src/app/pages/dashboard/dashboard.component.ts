@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
-import { PaginatorComponent } from '../../components/ui/paginator.component';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { PaginatorComponent } from '../../shared/components/ui/paginator.component';
 import { ProjectsPanelComponent } from './panels/projects-panel.component';
 import { TaskHistoriesPanelComponent } from './panels/task-histories-panel.component';
 import { TasksPanelComponent } from './panels/tasks-panel.component';

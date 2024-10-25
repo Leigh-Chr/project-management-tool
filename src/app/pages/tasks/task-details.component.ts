@@ -6,13 +6,13 @@ import {
   inject,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
-import { TaskHistory } from '../../services/backend-mock.service';
-import { ProjectService } from '../../services/data/project.service';
-import { StatusService } from '../../services/data/status.service';
-import { TaskHistoryService } from '../../services/data/task-history.service';
-import { TaskService } from '../../services/data/task.service';
-import { UserService } from '../../services/data/user.service';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { TaskHistory } from '../../shared/services/backend-mock.service';
+import { ProjectService } from '../../shared/services/data/project.service';
+import { StatusService } from '../../shared/services/data/status.service';
+import { TaskHistoryService } from '../../shared/services/data/task-history.service';
+import { TaskService } from '../../shared/services/data/task.service';
+import { UserService } from '../../shared/services/data/user.service';
 
 @Component({
   imports: [DefaultLayoutComponent, JsonPipe, DatePipe, RouterModule],

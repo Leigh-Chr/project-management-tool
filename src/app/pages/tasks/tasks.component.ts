@@ -5,16 +5,16 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { AuthService } from '../../services/auth.service';
-import { Project, Task, User } from '../../services/backend-mock.service';
-import { ProjectService } from '../../services/data/project.service';
-import { TaskService } from '../../services/data/task.service';
-import { UserService } from '../../services/data/user.service';
-import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
+import { AuthService } from '../../shared/services/auth.service';
+import { Project, Task, User } from '../../shared/services/backend-mock.service';
+import { ProjectService } from '../../shared/services/data/project.service';
+import { TaskService } from '../../shared/services/data/task.service';
+import { UserService } from '../../shared/services/data/user.service';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { Table } from '../../types';
-import { ButtonComponent } from '../../components/ui/button.component';
-import { PaginatorComponent } from '../../components/ui/paginator.component';
-import { TableComponent } from '../../components/ui/table.component';
+import { ButtonComponent } from '../../shared/components/ui/button.component';
+import { PaginatorComponent } from '../../shared/components/ui/paginator.component';
+import { TableComponent } from '../../shared/components/ui/table.component';
 
 @Component({
   standalone: true,

@@ -5,12 +5,12 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { TaskHistory } from '../../../services/backend-mock.service';
-import { TaskHistoryService } from '../../../services/data/task-history.service';
+import { TaskHistory } from '../../../shared/services/backend-mock.service';
+import { TaskHistoryService } from '../../../shared/services/data/task-history.service';
 import { Table } from '../../../types';
-import { ButtonComponent } from '../../../components/ui/button.component';
-import { PaginatorComponent } from '../../../components/ui/paginator.component';
-import { TableComponent } from '../../../components/ui/table.component';
+import { ButtonComponent } from '../../../shared/components/ui/button.component';
+import { PaginatorComponent } from '../../../shared/components/ui/paginator.component';
+import { TableComponent } from '../../../shared/components/ui/table.component';
 
 @Component({
   selector: 'task-histories-panel',

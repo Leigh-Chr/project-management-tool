@@ -6,21 +6,21 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { AddProjectMemberPopupComponent } from '../../components/add-project-members-popup.component';
-import { AddProjectPopupComponent } from '../../components/add-project-popup.component';
-import { DeleteProjectPopupComponent } from '../../components/delete-project-popup.component';
-import { ButtonComponent } from '../../components/ui/button.component';
-import { PaginatorComponent } from '../../components/ui/paginator.component';
-import { TableComponent } from '../../components/ui/table.component';
-import { TooltipDirective } from '../../directives/tooltip.directive';
-import { DefaultLayoutComponent } from '../../layouts/default-layout.component';
-import { Project, Status } from '../../services/backend-mock.service';
-import { ProjectMemberService } from '../../services/data/project-member.service';
-import { ProjectService } from '../../services/data/project.service';
-import { StatusService } from '../../services/data/status.service';
+import { AddProjectMemberPopupComponent } from '../../shared/components/add-project-members-popup.component';
+import { AddProjectPopupComponent } from '../../shared/components/add-project-popup.component';
+import { DeleteProjectPopupComponent } from '../../shared/components/delete-project-popup.component';
+import { ButtonComponent } from '../../shared/components/ui/button.component';
+import { PaginatorComponent } from '../../shared/components/ui/paginator.component';
+import { TableComponent } from '../../shared/components/ui/table.component';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { Project, Status } from '../../shared/services/backend-mock.service';
+import { ProjectMemberService } from '../../shared/services/data/project-member.service';
+import { ProjectService } from '../../shared/services/data/project.service';
+import { StatusService } from '../../shared/services/data/status.service';
 import { Table } from '../../types';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
   imports: [
