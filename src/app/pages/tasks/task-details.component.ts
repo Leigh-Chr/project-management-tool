@@ -138,8 +138,10 @@ export class TaskComponent {
   task!: TaskDetails;
 
   async ngOnInit(): Promise<void> {
-    this.task = await this.taskService.getTaskDetails(this.id);
-
-    if (!this.task) this.router.navigate(['/tasks']);
+    try {
+      this.task = await this.taskService.getTaskDetails(this.id);
+    } catch {
+      this.router.navigate(['/tasks']);
+    }
   }
 }
