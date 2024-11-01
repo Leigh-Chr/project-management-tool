@@ -41,7 +41,7 @@ export interface TaskEntity {
   statusId: StatusEntity['id'];
 }
 
-export interface TaskHistory {
+export interface TaskHistoryEntity {
   id: number;
   taskId: TaskEntity['id'];
   name: string;

@@ -1,18 +1,9 @@
 import { DatePipe, JsonPipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { TaskHistory } from '../../shared/services/backend-mock.service';
-import { ProjectService } from '../../shared/services/data/project.service';
-import { StatusService } from '../../shared/services/data/status.service';
-import { TaskHistoryService } from '../../shared/services/data/task-history.service';
-import { TaskService } from '../../shared/services/data/task.service';
-import { UserService } from '../../shared/services/data/user.service';
+import { TaskService } from '../../shared/services/_data/task.service';
+import { TaskDetails } from '../../shared/models/TaskDetails';
 
 @Component({
   imports: [DefaultLayoutComponent, JsonPipe, DatePipe, RouterModule],
@@ -41,7 +32,7 @@ import { UserService } from '../../shared/services/data/user.service';
               Status
             </p>
             <p class="text-lg text-neutral-900 dark:text-neutral-100">
-              {{ taskStatus?.name }}
+              {{ task.status.name }}
             </p>
           </div>
           <div>
@@ -71,22 +62,23 @@ import { UserService } from '../../shared/services/data/user.service';
               Assigned to
             </p>
             <p class="text-lg text-neutral-900 dark:text-neutral-100">
-              {{ taskAssignee?.username }}
+              @if (task.assignee) {
+              {{ task.assignee.username }}
+              } @else { Not assigned }
             </p>
           </div>
         </div>
 
-        <!-- Lien stylisé vers le projet associé -->
-        @if (project) {
+        @if (task.project) {
         <div class="mt-6">
           <a
-            [routerLink]="['/projects', project.id]"
+            [routerLink]="['/projects', task.project.id]"
             class="
           inline-block px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white 
           dark:text-white font-semibold text-center rounded-lg shadow-sm 
           hover:bg-blue-700 dark:hover:bg-blue-600 transition-all"
           >
-            View Project: {{ project.name }}
+            View Project: {{ task.project.name }}
           </a>
         </div>
         }
@@ -97,9 +89,9 @@ import { UserService } from '../../shared/services/data/user.service';
           >
             Task History
           </h3>
-          @if (taskHistory().length > 0) {
+          @if (task.taskHistory.length > 0) {
           <ul class="space-y-4">
-            @for (history of taskHistory(); track history.id) {
+            @for (history of task.taskHistory; track history.id) {
             <li
               class="px-4 py-3 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 rounded-lg"
             >
@@ -139,35 +131,15 @@ import { UserService } from '../../shared/services/data/user.service';
 })
 export class TaskComponent {
   private readonly taskService = inject(TaskService);
-  private readonly projectService = inject(ProjectService);
-  private readonly userService = inject(UserService);
-  private readonly statusService = inject(StatusService);
-  private readonly taskHistoryService = inject(TaskHistoryService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  readonly task = this.taskService.tasksSignal().find((t) => t.id === this.id);
-  readonly project = this.projectService
-    .projectsSignal()
-    .find((p) => p.id === this.task?.projectId);
-  readonly taskStatus = this.statusService
-    .statusesSignal()
-    .find((s) => s.id === this.task?.statusId);
-  readonly taskAssignee = this.userService
-    .usersSignal()
-    .find((u) => u.id === this.task?.assigneeId);
-  readonly taskHistory = computed(() => this.getTaskHistory());
+  task!: TaskDetails;
 
-  constructor() {
-    if (!this.task) {
-      this.router.navigate(['/tasks']);
-    }
-  }
+  async ngOnInit(): Promise<void> {
+    this.task = await this.taskService.getTaskDetails(this.id);
 
-  private getTaskHistory(): TaskHistory[] {
-    return this.taskHistoryService
-      .taskHistoriesSignal()
-      .filter((history) => history.taskId === this.id);
+    if (!this.task) this.router.navigate(['/tasks']);
   }
 }
