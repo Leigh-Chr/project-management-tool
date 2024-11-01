@@ -2,26 +2,15 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import {
-  Project,
-  Role,
-  Status,
-  User,
-} from '../../shared/services/backend-mock.service';
-import { ProjectMemberService } from '../../shared/services/data/project-member.service';
-import { ProjectService } from '../../shared/services/data/project.service';
-import { RoleService } from '../../shared/services/data/role.service';
-import { StatusService } from '../../shared/services/data/status.service';
-import { TaskService } from '../../shared/services/data/task.service';
-import { UserService } from '../../shared/services/data/user.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { ProjectDetails } from '../../shared/models/ProjectDetails';
+import { ProjectService } from '../../shared/services/_data/project.service';
 
 type PopupType =
   | 'deleteProject'
@@ -79,7 +68,7 @@ type PopupType =
                 Status
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                {{ projectStatus?.name }}
+                {{ project.status.name }}
               </p>
             </div>
             <div>
@@ -123,9 +112,9 @@ type PopupType =
                 (click)="showPopup('addMember', project.id)"
               />
             </header>
-            @if (projectMembers().length > 0) {
+            @if (project.projectMembers.length > 0) {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              @for (member of projectMembers(); track member.userId) {
+              @for (member of project.projectMembers; track member.user.id) {
               <div
                 class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
               >
@@ -151,7 +140,7 @@ type PopupType =
                       Role:
                     </strong>
                     <span class="text-neutral-700 dark:text-neutral-400">
-                      {{ memberRole(member.roleId)?.name }}
+                      {{ member.role.name }}
                     </span>
                   </p>
                 </div>
@@ -160,14 +149,14 @@ type PopupType =
                     label="Assign Task"
                     [iconOnly]="true"
                     icon="fi fi-rr-link-horizontal"
-                    (click)="showPopup('assignTask', member.userId)"
+                    (click)="showPopup('assignTask', member.user.id)"
                   />
                   <ui-button
                     label="Remove Member"
                     [iconOnly]="true"
                     variant="danger"
                     icon="fi fi-rr-trash"
-                    (click)="showPopup('deleteMember', member.userId)"
+                    (click)="showPopup('deleteMember', member.user.id)"
                   />
                 </footer>
               </div>
@@ -197,9 +186,9 @@ type PopupType =
                 (click)="showPopup('addTask', project.id)"
               />
             </header>
-            @if (projectTasks().length > 0) {
+            @if (project.tasks.length > 0) {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              @for (task of projectTasks(); track task.id) {
+              @for (task of project.tasks; track task.id) {
               <div
                 class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
               >
@@ -228,9 +217,15 @@ type PopupType =
                     <strong class="text-neutral-900 dark:text-neutral-100"
                       >Assigned to:</strong
                     >
+                    @if (task.assignee) {
                     <span class="text-neutral-700 dark:text-neutral-400">
-                      {{ taskAssignee(task.assigneeId)?.username }}
+                      {{ task.assignee.username }}
                     </span>
+                    } @else {
+                    <span class="text-neutral-700 dark:text-neutral-400">
+                      Unassigned
+                    </span>
+                    }
                   </p>
                   <p class="text-sm">
                     <strong class="text-neutral-900 dark:text-neutral-100"
@@ -245,7 +240,7 @@ type PopupType =
                       >Status:</strong
                     >
                     <span class="text-neutral-700 dark:text-neutral-400">
-                      {{ taskStatus(task.statusId)?.name }}
+                      {{ task.status.name }}
                     </span>
                   </p>
                 </div>
@@ -341,66 +336,19 @@ type PopupType =
 })
 export class ProjectComponent {
   private readonly projectService = inject(ProjectService);
-  private readonly projectMemberService = inject(ProjectMemberService);
-  private readonly roleService = inject(RoleService);
-  private readonly statusService = inject(StatusService);
-  private readonly taskService = inject(TaskService);
-  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  readonly project = this.projectService
-    .projectsSignal()
-    .find((p) => p.id === this.id);
-  readonly projectStatus = this.statusService
-    .statusesSignal()
-    .find((s) => s.id === this.project?.statusId);
-  readonly projectMembers = computed(() => this.getProjectMembers());
-  readonly projectTasks = computed(() =>
-    this.taskService.tasksSignal().filter((task) => task.projectId === this.id)
-  );
+  project!: ProjectDetails;
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
 
-  constructor() {
-    if (!this.project) {
-      this.router.navigate(['/projects']);
-    }
-  }
+  async ngOnInit(): Promise<void> {
+    this.project = await this.projectService.getProjectDetails(this.id);
 
-  private getProjectMembers(): {
-    user: Omit<User, 'password'>;
-    projectId: Project['id'];
-    userId: User['id'];
-    roleId: Role['id'];
-  }[] {
-    const members = this.projectMemberService
-      .projectMembersSignal()
-      .filter((pm) => pm.projectId === this.id);
-    return members.map((member) => ({
-      ...member,
-      user: this.memberUser(member.userId)!,
-    }));
-  }
-
-  memberRole(roleId: number): Role | undefined {
-    return this.roleService.rolesSignal().find((role) => role.id === roleId);
-  }
-
-  memberUser(userId: number): Omit<User, 'password'> | undefined {
-    return this.userService.usersSignal().find((user) => user.id === userId);
-  }
-
-  taskAssignee(userId: number): Omit<User, 'password'> | undefined {
-    return this.userService.usersSignal().find((user) => user.id === userId);
-  }
-
-  taskStatus(statusId: number): Status | undefined {
-    return this.statusService
-      .statusesSignal()
-      .find((status) => status.id === statusId);
+    if (!this.project) this.router.navigate(['/projects']);
   }
 
   showPopup(popupType: PopupType, id?: number): void {
