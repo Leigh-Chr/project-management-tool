@@ -1,26 +1,17 @@
 import { inject, Injectable } from '@angular/core';
-import {
-  ProjectDetails,
-  ProjectMember,
-  Task,
-} from '../../models/ProjectDetails';
-import {
-  filterEntitiesByField,
-  findEntityById,
-  mapEntities,
-} from './backend.utils';
-import { DatabaseMockService } from './database.service';
+import { NotFoundError } from '../../../errors/NotFoundError';
+import { ProjectDetails } from '../../../models/ProjectDetails';
+import { filterEntitiesByField, findEntityById } from '../backend.utils';
+import { DatabaseMockService } from '../database.service';
 import {
   ProjectEntity,
   ProjectMemberEntity,
   StatusEntity,
   TaskEntity,
-} from './entities';
-import { mapProjectMember, mapStatus, mapTask } from './mappers';
-import { NotFoundError } from '../../errors/NotFoundError';
+} from '../entities';
 
 @Injectable({ providedIn: 'root' })
-export class BackendMockService {
+export class ProjectControllerService {
   private readonly database = inject(DatabaseMockService);
 
   async getProjectDetails(projectId: number): Promise<ProjectDetails> {
@@ -53,28 +44,14 @@ export class BackendMockService {
     );
 
     const defaultStatusEntity = this.database.statuses[0];
-    const taskStatusEntity = findEntityById<StatusEntity>(
-      this.database.statuses,
-      1,
-      'Task Status'
-    );
+    const taskStatusEntity =
+      findEntityById<StatusEntity>(this.database.statuses, 1, 'Task Status') ??
+      defaultStatusEntity;
 
     const projectStatusEntity =
       this.database.statuses.find(
         (status) => status.id === projectEntity.statusId
-      ) || defaultStatusEntity;
-
-    const projectStatus = mapStatus(projectStatusEntity);
-    const taskStatus = mapStatus(taskStatusEntity);
-
-    const projectMembers = mapEntities<ProjectMemberEntity, ProjectMember>(
-      projectMembersEntities,
-      (pmEntity) => mapProjectMember(pmEntity, usersEntities, rolesEntities)
-    );
-
-    const tasks = mapEntities<TaskEntity, Task>(tasksEntities, (taskEntity) =>
-      mapTask(taskEntity, projectMembers, taskStatus)
-    );
+      ) ?? defaultStatusEntity;
 
     return {
       id: projectEntity.id,
@@ -82,9 +59,27 @@ export class BackendMockService {
       description: projectEntity.description,
       startDate: projectEntity.startDate,
       endDate: projectEntity.endDate,
-      status: projectStatus,
-      projectMembers,
-      tasks,
+      status: {
+        id: projectStatusEntity.id,
+        name: projectStatusEntity.name,
+      },
+      projectMembers: projectMembersEntities.map((pm) => ({
+        id: pm.userId,
+        user: usersEntities.find((user) => user.id === pm.userId)!,
+        role: rolesEntities.find((role) => role.id === pm.roleId)!,
+      })),
+      tasks: tasksEntities.map((task) => ({
+        id: task.id,
+        name: task.name,
+        description: task.description,
+        dueDate: task.dueDate,
+        priority: task.priority,
+        assignee: usersEntities.find((user) => user.id === task.assigneeId),
+        status: {
+          id: taskStatusEntity.id,
+          name: taskStatusEntity.name,
+        },
+      })),
     };
   }
 
@@ -92,9 +87,7 @@ export class BackendMockService {
     const projectIndex = this.database.projects.findIndex(
       (p) => p.id === projectId
     );
-    if (projectIndex === -1) {
-      throw new NotFoundError('Project');
-    }
+    if (projectIndex === -1) throw new NotFoundError('Project');
 
     this.database.projects.splice(projectIndex, 1);
   }
