@@ -346,9 +346,11 @@ export class ProjectComponent {
   readonly activeId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    this.project = await this.projectService.getProjectDetails(this.id);
-
-    if (!this.project) this.router.navigate(['/projects']);
+    try {
+      this.project = await this.projectService.getProjectDetails(this.id);
+    } catch {
+      this.router.navigate(['/projects']);
+    }
   }
 
   showPopup(popupType: PopupType, id?: number): void {
