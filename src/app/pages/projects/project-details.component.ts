@@ -340,17 +340,14 @@ export class ProjectComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  project!: ProjectDetails;
+  project: ProjectDetails | null = null;
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    try {
-      this.project = await this.projectService.getProjectDetails(this.id);
-    } catch {
-      this.router.navigate(['/projects']);
-    }
+    this.project = await this.projectService.getProjectDetails(this.id);
+    if (!this.project) this.router.navigate(['/projects']);
   }
 
   showPopup(popupType: PopupType, id?: number): void {

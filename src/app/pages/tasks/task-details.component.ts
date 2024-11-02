@@ -135,13 +135,10 @@ export class TaskComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  task!: TaskDetails;
+  task: TaskDetails | null = null;
 
   async ngOnInit(): Promise<void> {
-    try {
-      this.task = await this.taskService.getTaskDetails(this.id);
-    } catch {
-      this.router.navigate(['/tasks']);
-    }
+    this.task = await this.taskService.getTaskDetails(this.id);
+    if (!this.task) this.router.navigate(['/tasks']);
   }
 }
