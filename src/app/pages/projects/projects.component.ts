@@ -22,6 +22,7 @@ import { Table } from '../../types';
 import { Router } from '@angular/router';
 import { AuthService } from '../../shared/services/auth.service';
 
+type PopupType = 'addProject' | 'addMember' | 'deleteProject';
 @Component({
   imports: [
     PaginatorComponent,
@@ -74,7 +75,7 @@ import { AuthService } from '../../shared/services/auth.service';
                   label="Add members"
                   [iconOnly]="true"
                   icon="fi fi-rr-user-add"
-                  (click)="showPopup('addMembers', project.id)"
+                  (click)="showPopup('addMember', project.id)"
                 />
                 <ui-button
                   label="Delete project"
@@ -90,12 +91,11 @@ import { AuthService } from '../../shared/services/auth.service';
           </ui-table>
         </div>
       </div>
-      {{ projectMembers() | json }}
     </default-layout>
 
     @switch (activePopup()) { @case ('addProject') {
     <add-project-popup (close)="hidePopup()" />
-    } @case ('addMembers') {
+    } @case ('addMember') {
     <add-project-member-popup
       [projectId]="activeProjectId()!"
       (close)="hidePopup()"
@@ -153,15 +153,10 @@ export class ProjectsComponent {
     return this.projectMembersService.projectMembersSignal();
   });
 
-  readonly activePopup = signal<
-    'addProject' | 'addMembers' | 'deleteProject' | null
-  >(null);
+  readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
 
-  showPopup(
-    popupType: 'addProject' | 'addMembers' | 'deleteProject',
-    projectId?: number
-  ): void {
+  showPopup(popupType: PopupType, projectId?: number): void {
     this.activePopup.set(popupType);
     if (projectId) this.activeProjectId.set(projectId);
   }
