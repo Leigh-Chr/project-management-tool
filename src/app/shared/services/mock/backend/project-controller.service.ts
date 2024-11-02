@@ -95,4 +95,27 @@ export class ProjectControllerService {
     this.database.projects.splice(this.database.projects.indexOf(project), 1);
     return project;
   }
+
+  async addProject(
+    project: Omit<Project, 'id' | 'statusId'>
+  ): Promise<Project> {
+    const projectEntity: ProjectEntity = {
+      id: this.database.projects.length + 1,
+      name: project.name,
+      description: project.description,
+      startDate: project.startDate,
+      statusId: 1,
+    };
+
+    this.database.projects.push(projectEntity);
+
+    return {
+      id: projectEntity.id,
+      name: projectEntity.name,
+      description: projectEntity.description,
+      startDate: projectEntity.startDate,
+      endDate: projectEntity.endDate,
+      statusId: projectEntity.statusId,
+    };
+  }
 }

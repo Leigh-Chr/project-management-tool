@@ -6,12 +6,10 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  ProjectService,
-  AddProjectDto,
-} from '../services/data/project.service';
 import { InputFieldComponent } from './ui/input-field.component';
 import { PopupComponent } from './ui/popup.component';
+import { ProjectService } from '../services/_data/project.service';
+import { Project } from '../models/Project';
 
 @Component({
   selector: 'add-project-popup',
@@ -69,7 +67,7 @@ export class AddProjectPopupComponent {
   onSubmit(): void {
     if (!this.projectForm.valid) return;
 
-    const newProject: AddProjectDto = {
+    const newProject: Omit<Project, 'id' | 'statusId'> = {
       name: this.name.value,
       description: this.description.value,
       startDate: new Date(this.startDate.value),

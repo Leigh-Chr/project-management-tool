@@ -16,4 +16,10 @@ export class ProjectService {
   async deleteProject(projectId: number): Promise<Project | null> {
     return this.projectController.deleteProject(projectId);
   }
+
+  async addProject(
+    project: Omit<Project, 'id' | 'statusId'>
+  ): Promise<Project | null> {
+    return this.projectController.addProject(project);
+  }
 }
