@@ -1,124 +1,267 @@
-import { DatePipe, JsonPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { TaskService } from '../../shared/services/_data/task.service';
 import { TaskDetails } from '../../shared/models/TaskDetails';
+import { TaskService } from '../../shared/services/_data/task.service';
+import { ButtonComponent } from '../../shared/components/ui/button.component';
+import { PopupComponent } from '../../shared/components/ui/popup.component';
+
+type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
 
 @Component({
-  imports: [DefaultLayoutComponent, JsonPipe, DatePipe, RouterModule],
+  imports: [
+    DefaultLayoutComponent,
+    DatePipe,
+    RouterModule,
+    ButtonComponent,
+    PopupComponent,
+  ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <default-layout>
       @if (task) {
       <div
-        class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900"
+        class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900 shadow-sm grid gap-6"
       >
-        <h2
-          class="text-3xl font-bold mb-4 text-neutral-900 dark:text-neutral-100"
-        >
-          {{ task.name }}
-        </h2>
-        <p class="text-neutral-700 dark:text-neutral-300 mb-4">
-          {{ task.description || 'No description provided.' }}
-        </p>
-
-        <div class="grid grid-cols-2 gap-4 mb-6">
+        <header class="flex justify-between items-center gap-6">
           <div>
-            <p
-              class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+            <h1
+              class="text-3xl font-bold text-neutral-900 dark:text-neutral-100"
             >
-              Status
-            </p>
-            <p class="text-lg text-neutral-900 dark:text-neutral-100">
-              {{ task.status.name }}
+              {{ task.name }}
+            </h1>
+            <p class="text-neutral-700 dark:text-neutral-300">
+              {{ task.description || 'No description provided.' }}
             </p>
           </div>
-          <div>
-            <p
-              class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-            >
-              Due Date
-            </p>
-            <p class="text-lg text-neutral-900 dark:text-neutral-100">
-              {{ task.dueDate | date : 'longDate' }}
-            </p>
-          </div>
-          <div>
-            <p
-              class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-            >
-              Priority
-            </p>
-            <p class="text-lg text-neutral-900 dark:text-neutral-100">
-              {{ task.priority }}
-            </p>
-          </div>
-          <div>
-            <p
-              class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-            >
-              Assigned to
-            </p>
-            <p class="text-lg text-neutral-900 dark:text-neutral-100">
-              @if (task.assignee) {
-              {{ task.assignee.username }}
-              } @else { Not assigned }
-            </p>
-          </div>
-        </div>
-
-        @if (task.project) {
-        <div class="mt-6">
-          <a
-            [routerLink]="['/projects', task.project.id]"
-            class="
-          inline-block px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white 
-          dark:text-white font-semibold text-center rounded-lg shadow-sm 
-          hover:bg-blue-700 dark:hover:bg-blue-600 transition-all"
-          >
-            View Project: {{ task.project.name }}
-          </a>
-        </div>
-        }
-
-        <div class="mt-6">
-          <h3
-            class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100 mb-3"
-          >
-            Task History
-          </h3>
-          @if (task.taskHistory.length > 0) {
-          <ul class="space-y-4">
-            @for (history of task.taskHistory; track history.id) {
-            <li
-              class="px-4 py-3 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 rounded-lg"
-            >
-              <h4
-                class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          <ui-button
+            label="Delete Task"
+            icon="fi fi-rr-trash"
+            variant="danger"
+            (click)="showPopup('deleteTask', task.id)"
+          />
+        </header>
+        <div class="grid gap-6">
+          <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div>
+              <p
+                class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
               >
-                {{ history.name }}
-              </h4>
-              <p class="text-sm text-neutral-700 dark:text-neutral-300 mb-2">
-                {{ history.description || 'No description provided.' }}
+                Status
               </p>
-              <p class="text-sm">
-                <strong class="text-neutral-900 dark:text-neutral-100"
-                  >Date:</strong
+              <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                {{ task.status.name }}
+              </p>
+            </div>
+            <div>
+              <p
+                class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+              >
+                Due Date
+              </p>
+              <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                {{ task.dueDate | date : 'longDate' }}
+              </p>
+            </div>
+            <div>
+              <p
+                class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+              >
+                Priority
+              </p>
+              <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                {{ task.priority }}
+              </p>
+            </div>
+          </section>
+          <div class="grid gap-6 lg:grid-cols-3">
+            <div class="lg:col-span-2 grid gap-6">
+              <section class="grid gap-6">
+                <header class="flex items-center gap-4">
+                  <h2
+                    class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+                  >
+                    Assignee
+                  </h2>
+                  <ui-button
+                    label="{{
+                      task.assignee ? 'Change Assignee' : 'Assign Member'
+                    }}"
+                    icon="{
+                      task.assignee ? 'fi fi-rr-user-pen' : 'fi fi-rr-user-add'
+                    }"
+                    (click)="showPopup('addAssignee', task.id)"
+                  />
+                  @if (task.assignee) {
+                  <ui-button
+                    label="Remove Assignee"
+                    icon="fi fi-rr-trash"
+                    variant="danger"
+                    (click)="showPopup('deleteAssignee', task.id)"
+                  />
+                  }
+                </header>
+                <div
+                  class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
                 >
-                <span class="text-neutral-700 dark:text-neutral-400">
-                  {{ history.date | date : 'longDate' }}
-                </span>
-              </p>
-            </li>
-            }
-          </ul>
-          } @else {
-          <p class="text-neutral-600 dark:text-neutral-400">
-            No history available for this task.
-          </p>
-          }
+                  @if (task.assignee) {
+                  <div>
+                    <p
+                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+                    >
+                      Username
+                    </p>
+                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                      {{ task.assignee.username }}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+                    >
+                      Email
+                    </p>
+                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                      {{ task.assignee.email }}
+                    </p>
+                  </div>
+                  } @else {
+                  <p class="text-neutral-600 dark:text-neutral-400">
+                    No assignee assigned to this task.
+                  </p>
+                  }
+                </div>
+              </section>
+              <section class="grid gap-6">
+                <header class="flex items-center gap-4">
+                  <h2
+                    class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+                  >
+                    Project
+                  </h2>
+                  <ui-button
+                    label="Go to Project"
+                    icon="fi fi-rr-door-open"
+                    (click)="goToProject(task.project.id)"
+                  />
+                </header>
+                <div
+                  class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
+                >
+                  <div>
+                    <p
+                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+                    >
+                      Project Name
+                    </p>
+                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                      {{ task.project.name }}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+                    >
+                      Project Description
+                    </p>
+                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                      {{
+                        task.project.description || 'No description provided.'
+                      }}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+                    >
+                      Start Date
+                    </p>
+                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                      {{ task.project.startDate | date : 'longDate' }}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+                    >
+                      End Date
+                    </p>
+                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                      {{
+                        task.project.endDate
+                          ? (task.project.endDate | date : 'longDate')
+                          : 'Ongoing'
+                      }}
+                    </p>
+                  </div>
+                  <div>
+                    <p
+                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
+                    >
+                      Project Status
+                    </p>
+                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
+                      {{ task.project.status.name }}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div>
+              <section class="grid gap-6">
+                <header class="flex items-center gap-4">
+                  <h2
+                    class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
+                  >
+                    Task History
+                  </h2>
+                </header>
+                @if (task.taskHistory.length > 0) {
+                <div class="grid gap-6">
+                  @for (history of task.taskHistory; track history.id) {
+                  <div
+                    class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
+                  >
+                    <header class="truncate">
+                      <h4
+                        class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+                      >
+                        {{ history.name }}
+                      </h4>
+                      <p
+                        class="text-sm text-neutral-700 dark:text-neutral-300 truncate"
+                      >
+                        {{ history.description || 'No description provided.' }}
+                      </p>
+                    </header>
+                    <div>
+                      <p class="text-sm">
+                        <strong class="text-neutral-900 dark:text-neutral-100"
+                          >Date:</strong
+                        >
+                        <span class="text-neutral-700 dark:text-neutral-400">
+                          {{ history.date | date : 'longDate' }}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  }
+                </div>
+                } @else {
+                <p class="text-neutral-600 dark:text-neutral-400">
+                  No history available for this task.
+                </p>
+                }
+              </section>
+            </div>
+          </div>
         </div>
       </div>
       } @else {
@@ -127,6 +270,17 @@ import { TaskDetails } from '../../shared/models/TaskDetails';
       </p>
       }
     </default-layout>
+
+    @switch (activePopup()) { @case ('deleteTask') {
+    <ui-popup title="Delete Task" (close)="hidePopup()">
+      Are you sure you want to delete this task?
+      <ui-button label="Confirm" (click)="deleteTask()" />
+    </ui-popup>
+    } @case ('addAssignee') {
+    <ui-popup title="Assign Member" (close)="hidePopup()">
+      <!-- Assign member form goes here -->
+    </ui-popup>
+    } }
   `,
 })
 export class TaskComponent {
@@ -137,8 +291,33 @@ export class TaskComponent {
   readonly id: number = +this.route.snapshot.params['id'];
   task: TaskDetails | null = null;
 
+  readonly activePopup = signal<PopupType | null>(null);
+  readonly activeId = signal<number | null>(null);
+
   async ngOnInit(): Promise<void> {
     this.task = await this.taskService.getTaskDetails(this.id);
     if (!this.task) this.router.navigate(['/tasks']);
+  }
+
+  showPopup(popupType: PopupType, id?: number): void {
+    this.activePopup.set(popupType);
+    if (id) this.activeId.set(id);
+  }
+
+  hidePopup(): void {
+    this.activePopup.set(null);
+    this.activeId.set(null);
+  }
+
+  deleteTask(): void {
+    if (this.task) {
+      this.taskService.deleteTask(this.task.id).then(() => {
+        this.router.navigate(['/tasks']);
+      });
+    }
+  }
+
+  goToProject(projectId: number): void {
+    this.router.navigate(['/projects', projectId]);
   }
 }
