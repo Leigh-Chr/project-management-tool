@@ -11,6 +11,8 @@ import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { ProjectDetails } from '../../shared/models/ProjectDetails';
 import { ProjectService } from '../../shared/services/_data/project.service';
+import { DeleteProjectPopupComponent } from '../../shared/components/delete-project-popup.component';
+import { AddProjectMemberPopupComponent } from '../../shared/components/add-project-members-popup.component';
 
 type PopupType =
   | 'deleteProject'
@@ -28,6 +30,8 @@ type PopupType =
     RouterModule,
     ButtonComponent,
     PopupComponent,
+    DeleteProjectPopupComponent,
+    AddProjectMemberPopupComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -284,18 +288,9 @@ type PopupType =
     </default-layout>
 
     @switch (activePopup()) { @case ('deleteProject') {
-    <ui-popup title="Delete Project" (close)="hidePopup()">
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem, minus
-      expedita omnis pariatur nihil voluptatum beatae fugit labore
-      necessitatibus. Adipisci blanditiis vitae ut dolore iure, facilis aliquam
-      impedit officia quasi.
-    </ui-popup>
+    <delete-project-popup [projectId]="activeId()!" (close)="hidePopup()" />
     } @case ('addMember') {
-    <ui-popup title="Add Member" (close)="hidePopup()">
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Mollitia soluta,
-      voluptas ipsam ipsum expedita quae non natus quam praesentium laborum
-      animi vitae odio iusto sunt nesciunt consequuntur vel molestiae numquam.
-    </ui-popup>
+    <add-project-member-popup [projectId]="activeId()!" (close)="hidePopup()" />
     } @case ('assignTask') {
     <ui-popup title="Assign Task" (close)="hidePopup()">
       Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem, minus
