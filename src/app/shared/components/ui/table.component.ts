@@ -39,7 +39,7 @@ import { PaginatorComponent } from './paginator.component';
       <tbody
         class="bg-white dark:bg-neutral-900 divide-y divide-neutral-200 dark:divide-neutral-800"
       >
-        @for (item of paginatedData(); track item['id']) {
+        @for (item of paginatedData(); track $index) {
         <tr class="hover:bg-neutral-100 dark:hover:bg-neutral-800">
           @for (column of columns; track $index) {
           <td
@@ -84,7 +84,7 @@ import { PaginatorComponent } from './paginator.component';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TableComponent<T extends { [key: string]: any }> {
+export class TableComponent<T extends Record<string, any>> {
   @Input() headers: { name: string; key: keyof T }[] = [];
   @Input() columns: { key: keyof T; type: 'text' | 'number' | 'date' }[] = [];
   readonly data = input.required<T[]>();

@@ -1,15 +1,16 @@
 import { inject, Injectable } from '@angular/core';
 import { Project } from '../../../models/Project';
 import { ProjectDetails } from '../../../models/ProjectDetails';
-import { filterEntitiesByField, findEntityById } from '../backend.utils';
-import { DatabaseMockService } from '../database.service';
+import { filterEntitiesByField, findEntityById } from '../database/utils';
+import { DatabaseMockService } from '../database/database.service';
 import {
   ProjectEntity,
   ProjectMemberEntity,
   StatusEntity,
   TaskEntity,
-} from '../entities';
+} from '../database/entities';
 import { ProjectSummary } from '../../../models/ProjectSummary';
+import { ProjectMember } from '../../../models/ProjectMember';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectControllerService {
@@ -107,6 +108,25 @@ export class ProjectControllerService {
     });
   }
 
+  async getProject(projectId: number): Promise<Project | null> {
+    const projectEntity = findEntityById<ProjectEntity>(
+      this.database.projects,
+      projectId,
+      'Project'
+    );
+
+    if (!projectEntity) return null;
+
+    return {
+      id: projectEntity.id,
+      name: projectEntity.name,
+      description: projectEntity.description,
+      startDate: projectEntity.startDate,
+      endDate: projectEntity.endDate,
+      statusId: projectEntity.statusId,
+    };
+  }
+
   async deleteProject(projectId: number): Promise<Project | null> {
     const project: Project | undefined = this.database.projects.find(
       (p) => p.id === projectId
@@ -145,6 +165,32 @@ export class ProjectControllerService {
       startDate: projectEntity.startDate,
       endDate: projectEntity.endDate,
       statusId: projectEntity.statusId,
+    };
+  }
+
+  async isMember(projectId: number, userId: number): Promise<boolean> {
+    return this.database.projectMembers.some(
+      (pm) => pm.projectId === projectId && pm.userId === userId
+    );
+  }
+
+  async addProjectMember(
+    projectId: number,
+    userId: number,
+    roleId: number
+  ): Promise<ProjectMember> {
+    const projectMemberEntity: ProjectMemberEntity = {
+      projectId,
+      userId,
+      roleId,
+    };
+
+    this.database.projectMembers.push(projectMemberEntity);
+
+    return {
+      projectId: projectMemberEntity.projectId,
+      userId: projectMemberEntity.userId,
+      roleId: projectMemberEntity.roleId,
     };
   }
 }

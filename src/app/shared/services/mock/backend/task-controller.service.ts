@@ -1,15 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { Task } from '../../../models/Task';
 import { TaskDetails } from '../../../models/TaskDetails';
-import { filterEntitiesByField, findEntityById } from '../backend.utils';
-import { DatabaseMockService } from '../database.service';
+import { filterEntitiesByField, findEntityById } from '../database/utils';
+import { DatabaseMockService } from '../database/database.service';
 import {
   ProjectEntity,
   StatusEntity,
   TaskEntity,
   TaskHistoryEntity,
   UserEntity,
-} from '../entities';
+} from '../database/entities';
 
 @Injectable({ providedIn: 'root' })
 export class TaskControllerService {

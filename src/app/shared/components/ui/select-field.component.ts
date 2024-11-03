@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
-type SelectOption<T> = {
+export type SelectOption<T> = {
   value: T;
   label: string;
 };
