@@ -8,8 +8,8 @@ import {
 } from '@angular/forms';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
-import { ProjectService } from '../../services/_data/project.service';
 import { Project } from '../../models/Project';
+import { ProjectService } from '../../services/_data/project.service';
 
 @Component({
   selector: 'add-project-popup',
