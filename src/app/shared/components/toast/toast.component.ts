@@ -18,10 +18,13 @@ export type ToastType = 'success' | 'error' | 'info';
     <div
       [ngClass]="toastClasses"
       class="relative p-4 rounded shadow-md border-l-4 bg-neutral-100 dark:bg-neutral-800"
+      role="alert"
+      aria-live="assertive"
     >
       <button
         (click)="closeToast()"
         class="absolute top-2 right-2 text-gray-500"
+        aria-label="Close"
       >
         &times;
       </button>

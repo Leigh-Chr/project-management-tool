@@ -14,7 +14,11 @@ import { Toast, ToastService } from './toast.service';
   standalone: true,
   imports: [ToastComponent, AsyncPipe, NgIf, NgFor],
   template: `
-    <div class="absolute top-4 right-4 flex flex-col gap-2 z-50">
+    <div
+      class="absolute top-4 right-4 flex flex-col gap-2 z-50"
+      role="region"
+      aria-live="polite"
+    >
       @if(toasts$ | async; as toasts) { @for(toast of toasts; track toast.id) {
       <ui-toast
         [title]="toast.title"
