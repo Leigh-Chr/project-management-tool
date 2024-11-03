@@ -1,11 +1,16 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
+import { ToastProviderComponent } from './shared/components/toast/toast-provider.component';
 
 @Component({
   selector: 'app-root',
+  imports: [ToastProviderComponent, RouterOutlet, FormsModule],
+  template: `
+    <toast-provider />
+    <router-outlet />
+  `,
   standalone: true,
-  imports: [RouterOutlet],
-  template: '<router-outlet/>',
-  host: { class: 'contents' },
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AppComponent {}
