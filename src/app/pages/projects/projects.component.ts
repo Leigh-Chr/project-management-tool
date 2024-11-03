@@ -6,6 +6,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { AddProjectMemberPopupComponent } from '../../shared/components/add-project-members-popup.component';
 import { AddProjectPopupComponent } from '../../shared/components/add-project-popup.component';
 import { DeleteProjectPopupComponent } from '../../shared/components/delete-project-popup.component';
@@ -14,13 +15,13 @@ import { PaginatorComponent } from '../../shared/components/ui/paginator.compone
 import { TableComponent } from '../../shared/components/ui/table.component';
 import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { ProjectSummary } from '../../shared/models/ProjectSummary';
+import { ProjectService } from '../../shared/services/_data/project.service';
+import { AuthService } from '../../shared/services/auth.service';
 import { Project, Status } from '../../shared/services/backend-mock.service';
 import { ProjectMemberService } from '../../shared/services/data/project-member.service';
-import { ProjectService } from '../../shared/services/data/project.service';
 import { StatusService } from '../../shared/services/data/status.service';
 import { Table } from '../../types';
-import { Router } from '@angular/router';
-import { AuthService } from '../../shared/services/auth.service';
 
 type PopupType = 'addProject' | 'addMember' | 'deleteProject';
 @Component({
@@ -58,7 +59,7 @@ type PopupType = 'addProject' | 'addMember' | 'deleteProject';
           <ui-table
             [headers]="table.headers"
             [columns]="table.items"
-            [data]="projects()"
+            [data]="projects"
             [pageSizeOptions]="[1, 2]"
           >
             <ng-template #actionTemplate let-project>
@@ -134,27 +135,17 @@ export class ProjectsComponent {
     ],
   };
 
-  readonly projects = computed<(Project & { status: Status['name'] })[]>(() => {
-    const statuses = this.statusService.statusesSignal();
-    return this.projectService
-      .projectsSignal()
-      .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
-      .map((project) => {
-        return {
-          ...project,
-          status:
-            statuses.find((status) => status.id === project.statusId)?.name ??
-            statuses[0].name,
-        };
-      });
-  });
-
+  readonly projects: ProjectSummary[] = [];
   readonly projectMembers = computed(() => {
     return this.projectMembersService.projectMembersSignal();
   });
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
+
+  async ngOnInit(): Promise<void> {
+    this.projects.push(...(await this.projectService.getProjects()));
+  }
 
   showPopup(popupType: PopupType, projectId?: number): void {
     this.activePopup.set(popupType);

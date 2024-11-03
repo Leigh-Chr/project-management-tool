@@ -9,6 +9,7 @@ import {
   StatusEntity,
   TaskEntity,
 } from '../entities';
+import { ProjectSummary } from '../../../models/ProjectSummary';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectControllerService {
@@ -85,6 +86,25 @@ export class ProjectControllerService {
         },
       })),
     };
+  }
+
+  async getProjects(): Promise<ProjectSummary[]> {
+    const projectEntities = this.database.projects;
+    const statusEntities = this.database.statuses;
+
+    return projectEntities.map((project) => {
+      const projectStatusEntity =
+        statusEntities.find((status) => status.id === project.statusId) ??
+        statusEntities[0];
+
+      return {
+        id: project.id,
+        name: project.name,
+        startDate: project.startDate,
+        endDate: project.endDate,
+        status: projectStatusEntity.name,
+      };
+    });
   }
 
   async deleteProject(projectId: number): Promise<Project | null> {
