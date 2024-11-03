@@ -20,14 +20,7 @@ import { Toast, ToastService } from './toast.service';
       aria-live="polite"
     >
       @if(toasts$ | async; as toasts) { @for(toast of toasts; track toast.id) {
-      <ui-toast
-        [title]="toast.title"
-        [message]="toast.message"
-        [type]="toast.type"
-        [duration]="toast.duration"
-        [template]="toast.template"
-        (close)="clearToast(toast.id)"
-      ></ui-toast>
+      <ui-toast [toast]="toast" (close)="clearToast(toast.id)"></ui-toast>
       } }
     </div>
   `,

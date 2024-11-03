@@ -5,8 +5,8 @@ import {
   EventEmitter,
   Input,
   Output,
-  TemplateRef,
 } from '@angular/core';
+import { Toast, ToastWithTemplate } from './toast.service';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -28,27 +28,23 @@ export type ToastType = 'success' | 'error' | 'info';
       >
         &times;
       </button>
-      @if(template) {
-      <ng-container *ngTemplateOutlet="template"></ng-container>
+      @if(isToastWithTemplate(toast)) {
+      <ng-container *ngTemplateOutlet="toast.template"></ng-container>
       } @else {
-      <strong class="block">{{ title }}</strong>
-      <p class="text-sm">{{ message }}</p>
+      <strong class="block">{{ toast.title }}</strong>
+      <p class="text-sm">{{ toast.message }}</p>
       }
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastComponent {
-  @Input() title: string = '';
-  @Input() message: string = '';
-  @Input() type: ToastType = 'info';
-  @Input() duration: number = 3000;
-  @Input() template: TemplateRef<unknown> | null = null;
+  @Input() toast!: Toast;
 
   @Output() readonly close = new EventEmitter<void>();
 
   ngOnInit(): void {
-    setTimeout(() => this.closeToast(), this.duration);
+    setTimeout(() => this.closeToast(), this.toast.duration);
   }
 
   closeToast(): void {
@@ -62,6 +58,10 @@ export class ToastComponent {
       error:
         'border-red-500 text-red-500 dark:border-red-400 dark:text-red-400',
       info: 'border-blue-500 text-blue-500 dark:border-blue-400 dark:text-blue-400',
-    }[this.type];
+    }[this.toast.type];
+  }
+
+  isToastWithTemplate(toast: Toast): toast is ToastWithTemplate {
+    return (toast as ToastWithTemplate).template !== undefined;
   }
 }
