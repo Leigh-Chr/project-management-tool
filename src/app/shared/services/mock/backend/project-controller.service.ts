@@ -113,6 +113,15 @@ export class ProjectControllerService {
     );
     if (!project) return null;
     this.database.projects.splice(this.database.projects.indexOf(project), 1);
+    const projectMembers = this.database.projectMembers.filter(
+      (pm) => pm.projectId === projectId
+    );
+    projectMembers.forEach((pm) => {
+      this.database.projectMembers.splice(
+        this.database.projectMembers.indexOf(pm),
+        1
+      );
+    });
     return project;
   }
 

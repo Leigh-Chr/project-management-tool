@@ -6,7 +6,6 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { ProjectMemberService } from '../../services/data/project-member.service';
 import { ProjectService } from '../../services/data/project.service';
 import { PopupComponent } from '../ui/popup.component';
 
@@ -31,7 +30,6 @@ import { PopupComponent } from '../ui/popup.component';
 })
 export class DeleteProjectPopupComponent {
   private readonly projectService = inject(ProjectService);
-  private readonly projectMemberService = inject(ProjectMemberService);
 
   @Input() projectId!: number;
   projectName = computed(
@@ -43,7 +41,6 @@ export class DeleteProjectPopupComponent {
   @Output() close = new EventEmitter<void>();
 
   onSubmit(): void {
-    this.projectMemberService.deleteProjectMembers(this.projectId);
     this.projectService.deleteProject(this.projectId);
     this.closePopup();
   }
