@@ -11,7 +11,7 @@ import { Project, Status } from '../../../shared/services/backend-mock.service';
 import { ProjectMemberService } from '../../../shared/services/data/project-member.service';
 import { ProjectService } from '../../../shared/services/data/project.service';
 import { StatusService } from '../../../shared/services/data/status.service';
-import { AddProjectPopupComponent } from '../../../shared/components/add-project-popup.component';
+import { AddProjectPopupComponent } from '../../../shared/components/popups/add-project-popup.component';
 import { Table } from '../../../types';
 import { ButtonComponent } from '../../../shared/components/ui/button.component';
 import { PaginatorComponent } from '../../../shared/components/ui/paginator.component';

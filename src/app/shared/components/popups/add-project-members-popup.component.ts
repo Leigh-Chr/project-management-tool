@@ -13,14 +13,14 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { ProjectMember } from '../services/backend-mock.service';
-import { ProjectMemberService } from '../services/data/project-member.service';
-import { ProjectService } from '../services/data/project.service';
-import { RoleService } from '../services/data/role.service';
-import { UserService } from '../services/data/user.service';
-import { SelectFieldComponent } from './ui/select-field.component';
-import { PopupComponent } from './ui/popup.component';
-import { AuthService } from '../services/auth.service';
+import { ProjectMember } from '../../services/backend-mock.service';
+import { ProjectMemberService } from '../../services/data/project-member.service';
+import { ProjectService } from '../../services/data/project.service';
+import { RoleService } from '../../services/data/role.service';
+import { UserService } from '../../services/data/user.service';
+import { SelectFieldComponent } from '../ui/select-field.component';
+import { PopupComponent } from '../ui/popup.component';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'add-project-member-popup',

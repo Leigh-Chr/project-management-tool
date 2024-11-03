@@ -11,8 +11,8 @@ import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { ProjectDetails } from '../../shared/models/ProjectDetails';
 import { ProjectService } from '../../shared/services/_data/project.service';
-import { DeleteProjectPopupComponent } from '../../shared/components/delete-project-popup.component';
-import { AddProjectMemberPopupComponent } from '../../shared/components/add-project-members-popup.component';
+import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
+import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
 
 type PopupType =
   | 'deleteProject'

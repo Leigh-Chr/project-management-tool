@@ -6,9 +6,9 @@ import {
   Input,
   Output,
 } from '@angular/core';
-import { ProjectMemberService } from '../services/data/project-member.service';
-import { ProjectService } from '../services/data/project.service';
-import { PopupComponent } from './ui/popup.component';
+import { ProjectMemberService } from '../../services/data/project-member.service';
+import { ProjectService } from '../../services/data/project.service';
+import { PopupComponent } from '../ui/popup.component';
 
 @Component({
   selector: 'delete-project-popup',

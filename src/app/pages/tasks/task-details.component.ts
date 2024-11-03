@@ -94,9 +94,9 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     label="{{
                       task.assignee ? 'Change Assignee' : 'Assign Member'
                     }}"
-                    icon="{
+                    icon="{{
                       task.assignee ? 'fi fi-rr-user-pen' : 'fi fi-rr-user-add'
-                    }"
+                    }}"
                     (click)="showPopup('addAssignee', task.id)"
                   />
                   @if (task.assignee) {

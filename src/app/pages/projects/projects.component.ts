@@ -7,9 +7,9 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AddProjectMemberPopupComponent } from '../../shared/components/add-project-members-popup.component';
-import { AddProjectPopupComponent } from '../../shared/components/add-project-popup.component';
-import { DeleteProjectPopupComponent } from '../../shared/components/delete-project-popup.component';
+import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
+import { AddProjectPopupComponent } from '../../shared/components/popups/add-project-popup.component';
+import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PaginatorComponent } from '../../shared/components/ui/paginator.component';
 import { TableComponent } from '../../shared/components/ui/table.component';
