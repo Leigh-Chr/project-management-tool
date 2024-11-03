@@ -2,18 +2,18 @@ import { Injectable, TemplateRef } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface ToastBase {
-  id: number;
-  type: 'success' | 'error' | 'info';
-  duration: number;
+  readonly id: number;
+  readonly type: 'success' | 'error' | 'info';
+  readonly duration: number;
 }
 
 export interface ToastWithMessage extends ToastBase {
-  title: string;
-  message: string;
+  readonly title: string;
+  readonly message: string;
 }
 
 export interface ToastWithTemplate extends ToastBase {
-  template: TemplateRef<unknown>;
+  readonly template: TemplateRef<unknown>;
 }
 
 export type Toast = ToastWithMessage | ToastWithTemplate;
@@ -25,7 +25,7 @@ export type ToastTemplateInput = Omit<ToastWithTemplate, 'id'>;
   providedIn: 'root',
 })
 export class ToastService {
-  private toastsSubjects = new Map<string, BehaviorSubject<Toast[]>>();
+  private readonly toastsSubjects = new Map<string, BehaviorSubject<Toast[]>>();
   private nextId = 0;
   private maxToasts = 5;
 

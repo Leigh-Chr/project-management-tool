@@ -38,7 +38,7 @@ export class ToastProviderComponent implements OnInit {
   @Input() providerId: string = 'default';
   toasts$!: Observable<Toast[]>;
 
-  constructor(private toastService: ToastService) {}
+  constructor(private readonly toastService: ToastService) {}
 
   ngOnInit(): void {
     this.toastService.setMaxToasts(this.maxToasts, this.providerId);

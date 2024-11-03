@@ -45,7 +45,7 @@ export class ToastComponent {
   @Input() duration: number = 3000;
   @Input() template: TemplateRef<unknown> | null = null;
 
-  @Output() close = new EventEmitter<void>();
+  @Output() readonly close = new EventEmitter<void>();
 
   ngOnInit(): void {
     setTimeout(() => this.closeToast(), this.duration);
