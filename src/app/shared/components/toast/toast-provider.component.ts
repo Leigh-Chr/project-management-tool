@@ -21,6 +21,7 @@ import { Toast, ToastService } from './toast.service';
         [message]="toast.message"
         [type]="toast.type"
         [duration]="toast.duration"
+        [template]="toast.template"
         (close)="clearToast(toast.id)"
       ></ui-toast>
       } }

@@ -1,10 +1,11 @@
-import { NgClass } from '@angular/common';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
   Output,
+  TemplateRef,
 } from '@angular/core';
 
 export type ToastType = 'success' | 'error' | 'info';
@@ -12,7 +13,7 @@ export type ToastType = 'success' | 'error' | 'info';
 @Component({
   selector: 'ui-toast',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, NgTemplateOutlet],
   template: `
     <div
       [ngClass]="toastClasses"
@@ -24,8 +25,12 @@ export type ToastType = 'success' | 'error' | 'info';
       >
         &times;
       </button>
+      @if(template) {
+      <ng-container *ngTemplateOutlet="template"></ng-container>
+      } @else {
       <strong class="block">{{ title }}</strong>
       <p class="text-sm">{{ message }}</p>
+      }
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +40,7 @@ export class ToastComponent {
   @Input() message: string = '';
   @Input() type: ToastType = 'info';
   @Input() duration: number = 3000;
+  @Input() template: TemplateRef<unknown> | null = null;
 
   @Output() close = new EventEmitter<void>();
 

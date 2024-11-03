@@ -1,13 +1,25 @@
-import { Injectable } from '@angular/core';
+import { Injectable, TemplateRef } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-export interface Toast {
+export interface ToastBase {
   id: number;
-  title: string;
-  message: string;
   type: 'success' | 'error' | 'info';
   duration: number;
 }
+
+export interface ToastWithMessage extends ToastBase {
+  title: string;
+  message: string;
+}
+
+export interface ToastWithTemplate extends ToastBase {
+  template: TemplateRef<unknown>;
+}
+
+export type Toast = ToastWithMessage | ToastWithTemplate;
+
+export type ToastMessageInput = Omit<ToastWithMessage, 'id'>;
+export type ToastTemplateInput = Omit<ToastWithTemplate, 'id'>;
 
 @Injectable({
   providedIn: 'root',
@@ -24,13 +36,16 @@ export class ToastService {
     }
   }
 
-  showToast(toast: Omit<Toast, 'id'>, providerId: string): void {
+  showToast(
+    toast: ToastMessageInput | ToastTemplateInput,
+    providerId: string
+  ): void {
     if (!this.toastsSubjects.has(providerId)) {
       this.toastsSubjects.set(providerId, new BehaviorSubject<Toast[]>([]));
     }
     const currentToasts = this.toastsSubjects.get(providerId)!.value;
     if (currentToasts.length >= this.maxToasts) currentToasts.shift();
-    const newToast = { ...toast, id: this.nextId++ };
+    const newToast: Toast = { ...toast, id: this.nextId++ } as Toast;
     this.toastsSubjects.get(providerId)!.next([...currentToasts, newToast]);
     setTimeout(() => this.clearToast(newToast.id, providerId), toast.duration);
   }
