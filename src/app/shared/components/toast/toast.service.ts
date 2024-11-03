@@ -21,6 +21,9 @@ export type Toast = ToastWithMessage | ToastWithTemplate;
 export type ToastMessageInput = Omit<ToastWithMessage, 'id'>;
 export type ToastTemplateInput = Omit<ToastWithTemplate, 'id'>;
 
+/**
+ * Service to manage toast notifications.
+ */
 @Injectable({
   providedIn: 'root',
 })
@@ -29,6 +32,11 @@ export class ToastService {
   private nextId = 0;
   private maxToasts = 5;
 
+  /**
+   * Sets the maximum number of toasts for a specific provider.
+   * @param maxToasts - The maximum number of toasts.
+   * @param providerId - The ID of the toast provider.
+   */
   setMaxToasts(maxToasts: number, providerId: string): void {
     this.maxToasts = maxToasts;
     if (!this.toastsSubjects.has(providerId)) {
@@ -36,6 +44,11 @@ export class ToastService {
     }
   }
 
+  /**
+   * Shows a new toast notification.
+   * @param toast - The toast to show.
+   * @param providerId - The ID of the toast provider.
+   */
   showToast(
     toast: ToastMessageInput | ToastTemplateInput,
     providerId: string
@@ -50,6 +63,11 @@ export class ToastService {
     setTimeout(() => this.clearToast(newToast.id, providerId), toast.duration);
   }
 
+  /**
+   * Clears a specific toast notification.
+   * @param id - The ID of the toast to clear.
+   * @param providerId - The ID of the toast provider.
+   */
   clearToast(id: number, providerId: string): void {
     if (this.toastsSubjects.has(providerId)) {
       this.toastsSubjects
@@ -62,6 +80,11 @@ export class ToastService {
     }
   }
 
+  /**
+   * Gets the observable stream of toasts for a specific provider.
+   * @param providerId - The ID of the toast provider.
+   * @returns An observable stream of toasts.
+   */
   getToasts(providerId: string): Observable<Toast[]> {
     if (!this.toastsSubjects.has(providerId)) {
       this.toastsSubjects.set(providerId, new BehaviorSubject<Toast[]>([]));

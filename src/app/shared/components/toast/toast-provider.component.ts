@@ -9,6 +9,9 @@ import { Observable } from 'rxjs';
 import { ToastComponent } from './toast.component';
 import { Toast, ToastService } from './toast.service';
 
+/**
+ * Component to provide and display toast notifications.
+ */
 @Component({
   selector: 'toast-provider',
   standalone: true,
@@ -27,8 +30,19 @@ import { Toast, ToastService } from './toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastProviderComponent implements OnInit {
+  /**
+   * The maximum number of toasts to display.
+   */
   @Input() maxToasts: number = 5;
+
+  /**
+   * The ID of the toast provider.
+   */
   @Input() providerId: string = 'default';
+
+  /**
+   * The observable stream of toasts.
+   */
   toasts$!: Observable<Toast[]>;
 
   constructor(private readonly toastService: ToastService) {}
@@ -38,6 +52,10 @@ export class ToastProviderComponent implements OnInit {
     this.toasts$ = this.toastService.getToasts(this.providerId);
   }
 
+  /**
+   * Clears a specific toast notification.
+   * @param id - The ID of the toast to clear.
+   */
   clearToast(id: number): void {
     this.toastService.clearToast(id, this.providerId);
   }

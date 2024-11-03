@@ -10,6 +10,9 @@ import { Toast, ToastWithTemplate } from './toast.service';
 
 export type ToastType = 'success' | 'error' | 'info';
 
+/**
+ * Component to display a toast notification.
+ */
 @Component({
   selector: 'ui-toast',
   standalone: true,
@@ -39,18 +42,30 @@ export type ToastType = 'success' | 'error' | 'info';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastComponent {
+  /**
+   * The toast to display.
+   */
   @Input() toast!: Toast;
 
+  /**
+   * Event emitted when the toast is closed.
+   */
   @Output() readonly close = new EventEmitter<void>();
 
   ngOnInit(): void {
     setTimeout(() => this.closeToast(), this.toast.duration);
   }
 
+  /**
+   * Closes the toast.
+   */
   closeToast(): void {
     this.close.emit();
   }
 
+  /**
+   * Gets the CSS classes for the toast based on its type.
+   */
   get toastClasses(): string {
     return {
       success:
@@ -61,6 +76,11 @@ export class ToastComponent {
     }[this.toast.type];
   }
 
+  /**
+   * Type guard to check if the toast is a ToastWithTemplate.
+   * @param toast - The toast to check.
+   * @returns True if the toast is a ToastWithTemplate, false otherwise.
+   */
   isToastWithTemplate(toast: Toast): toast is ToastWithTemplate {
     return (toast as ToastWithTemplate).template !== undefined;
   }
