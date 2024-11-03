@@ -18,9 +18,7 @@ import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.comp
 import { ProjectSummary } from '../../shared/models/ProjectSummary';
 import { ProjectService } from '../../shared/services/_data/project.service';
 import { AuthService } from '../../shared/services/auth.service';
-import { Project, Status } from '../../shared/services/backend-mock.service';
 import { ProjectMemberService } from '../../shared/services/data/project-member.service';
-import { StatusService } from '../../shared/services/data/status.service';
 import { Table } from '../../types';
 
 type PopupType = 'addProject' | 'addMember' | 'deleteProject';
@@ -62,28 +60,28 @@ type PopupType = 'addProject' | 'addMember' | 'deleteProject';
             [data]="projects"
             [pageSizeOptions]="[1, 2]"
           >
-            <ng-template #actionTemplate let-project>
-              @if (toProject(project); as project) {
+            <ng-template #actionTemplate let-projectSummary>
+              @if (toProjectSummary(projectSummary); as projectSummary) {
               <div class="flex gap-2">
                 <ui-button
                   label="Go to project"
                   [iconOnly]="true"
                   icon="fi fi-rr-door-open"
-                  (click)="goToProject(project.id)"
+                  (click)="goToProject(projectSummary.id)"
                 />
-                @if (isAdmin(project.id)) {
+                @if (isAdmin(projectSummary.id)) {
                 <ui-button
                   label="Add members"
                   [iconOnly]="true"
                   icon="fi fi-rr-user-add"
-                  (click)="showPopup('addMember', project.id)"
+                  (click)="showPopup('addMember', projectSummary.id)"
                 />
                 <ui-button
                   label="Delete project"
                   [iconOnly]="true"
                   variant="danger"
                   icon="fi fi-rr-trash"
-                  (click)="showPopup('deleteProject', project.id)"
+                  (click)="showPopup('deleteProject', projectSummary.id)"
                 />
                 }
               </div>
@@ -114,9 +112,8 @@ export class ProjectsComponent {
   private readonly authService = inject(AuthService);
   private readonly projectService = inject(ProjectService);
   private readonly projectMembersService = inject(ProjectMemberService);
-  private readonly statusService = inject(StatusService);
 
-  readonly table: Table<Project & { status: Status['name'] }> = {
+  readonly table: Table<ProjectSummary> = {
     headers: [
       { name: 'ID', key: 'id' },
       { name: 'Name', key: 'name' },
@@ -178,7 +175,7 @@ export class ProjectsComponent {
     console.log(page);
   }
 
-  toProject(project: unknown): Project {
-    return project as Project;
+  toProjectSummary(projectSummary: unknown): ProjectSummary {
+    return projectSummary as ProjectSummary;
   }
 }

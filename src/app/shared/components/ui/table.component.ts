@@ -84,7 +84,7 @@ import { PaginatorComponent } from './paginator.component';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TableComponent<T extends Record<string, string | number | Date>> {
+export class TableComponent<T extends { [key: string]: any }> {
   @Input() headers: { name: string; key: keyof T }[] = [];
   @Input() columns: { key: keyof T; type: 'text' | 'number' | 'date' }[] = [];
   readonly data = input.required<T[]>();
