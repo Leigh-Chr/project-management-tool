@@ -14,7 +14,7 @@ import { Toast, ToastService } from './toast.service';
   standalone: true,
   imports: [ToastComponent, AsyncPipe, NgIf, NgFor],
   template: `
-    <div class="fixed top-4 right-4 flex flex-col gap-2 z-50">
+    <div class="absolute top-4 right-4 flex flex-col gap-2 z-50">
       @if(toasts$ | async; as toasts) { @for(toast of toasts; track toast.id) {
       <ui-toast
         [title]="toast.title"
@@ -30,17 +30,17 @@ import { Toast, ToastService } from './toast.service';
 })
 export class ToastProviderComponent implements OnInit {
   @Input() maxToasts: number = 5;
-  toasts$: Observable<Toast[]>;
+  @Input() providerId: string = 'default';
+  toasts$!: Observable<Toast[]>;
 
-  constructor(private toastService: ToastService) {
-    this.toasts$ = this.toastService.toasts$;
-  }
+  constructor(private toastService: ToastService) {}
 
   ngOnInit(): void {
-    this.toastService.setMaxToasts(this.maxToasts);
+    this.toastService.setMaxToasts(this.maxToasts, this.providerId);
+    this.toasts$ = this.toastService.getToasts(this.providerId);
   }
 
   clearToast(id: number): void {
-    this.toastService.clearToast(id);
+    this.toastService.clearToast(id, this.providerId);
   }
 }
