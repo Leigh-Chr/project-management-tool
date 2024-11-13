@@ -14,4 +14,18 @@ export class UserControllerService {
       email: user.email,
     }));
   }
+
+  async getUser(userId: number): Promise<User | null> {
+    const userEntity = this.database.users.find((user) => user.id === userId);
+
+    if (!userEntity) return null;
+
+    const user: User = {
+      id: userEntity.id,
+      username: userEntity.username,
+      email: userEntity.email,
+    };
+
+    return user;
+  }
 }

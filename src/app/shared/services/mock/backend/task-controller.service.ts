@@ -16,11 +16,7 @@ export class TaskControllerService {
   private readonly database = inject(DatabaseMockService);
 
   async getTaskDetails(taskId: number): Promise<TaskDetails | null> {
-    const taskEntity = findEntityById<TaskEntity>(
-      this.database.tasks,
-      taskId,
-      'Task'
-    );
+    const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
 
     if (!taskEntity) return null;
 
@@ -34,21 +30,20 @@ export class TaskControllerService {
     const taskStatusEntity =
       findEntityById<StatusEntity>(
         this.database.statuses,
-        taskEntity.statusId,
-        'Task Status'
+        taskEntity.statusId
       ) ?? defaultStatusEntity;
 
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
-      taskEntity.projectId,
-      'Project'
+      taskEntity.projectId
     );
+
+    if (!projectEntity) return null;
 
     const projectStatusEntity =
       findEntityById<StatusEntity>(
         this.database.statuses,
-        projectEntity.statusId,
-        'Project Status'
+        projectEntity.statusId
       ) ?? defaultStatusEntity;
 
     const taskHistoryEntities = filterEntitiesByField<

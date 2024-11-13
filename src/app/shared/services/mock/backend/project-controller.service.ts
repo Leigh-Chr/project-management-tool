@@ -1,6 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { Project } from '../../../models/Project';
-import { ProjectDetails } from '../../../models/ProjectDetails';
+import {
+  ProjectDetails,
+  ProjectDetailsPermissions,
+} from '../../../models/ProjectDetails';
 import { filterEntitiesByField, findEntityById } from '../database/utils';
 import { DatabaseMockService } from '../database/database.service';
 import {
@@ -17,10 +20,10 @@ export class ProjectControllerService {
   private readonly database = inject(DatabaseMockService);
 
   async getProjectDetails(projectId: number): Promise<ProjectDetails | null> {
+    const userId = 1;
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
-      projectId,
-      'Project'
+      projectId
     );
 
     if (!projectEntity) {
@@ -51,13 +54,25 @@ export class ProjectControllerService {
 
     const defaultStatusEntity = this.database.statuses[0];
     const taskStatusEntity =
-      findEntityById<StatusEntity>(this.database.statuses, 1, 'Task Status') ??
+      findEntityById<StatusEntity>(this.database.statuses, 1) ??
       defaultStatusEntity;
 
     const projectStatusEntity =
       this.database.statuses.find(
         (status) => status.id === projectEntity.statusId
       ) ?? defaultStatusEntity;
+
+    const isAdmin = await this.isAdmin(projectEntity.id, userId);
+
+    const permissions: ProjectDetailsPermissions = {
+      deleteProject: isAdmin,
+      addMember: isAdmin,
+      deleteMember: isAdmin,
+      addTask: isAdmin,
+      deleteTask: isAdmin,
+      assignTask: isAdmin,
+      assignMember: isAdmin,
+    };
 
     return {
       id: projectEntity.id,
@@ -86,33 +101,48 @@ export class ProjectControllerService {
           name: taskStatusEntity.name,
         },
       })),
+      permissions,
     };
   }
 
-  async getProjects(): Promise<ProjectSummary[]> {
+  async getProjectSummaries(): Promise<ProjectSummary[]> {
+    const userId = 1; // Hardcoded user ID for now
     const projectEntities = this.database.projects;
     const statusEntities = this.database.statuses;
 
-    return projectEntities.map((project) => {
-      const projectStatusEntity =
-        statusEntities.find((status) => status.id === project.statusId) ??
-        statusEntities[0];
+    const projectSummaries = await Promise.all(
+      projectEntities.map(async (project) => {
+        const status =
+          statusEntities.find((status) => status.id === project.statusId)
+            ?.name ?? statusEntities[0].name;
 
-      return {
-        id: project.id,
-        name: project.name,
-        startDate: project.startDate,
-        endDate: project.endDate,
-        status: projectStatusEntity.name,
-      };
-    });
+        const memberCount = this.database.projectMembers.filter(
+          (pm) => pm.projectId === project.id
+        ).length;
+
+        const permissions = {
+          deleteProject: await this.isAdmin(project.id, userId),
+        };
+
+        return {
+          id: project.id,
+          name: project.name,
+          startDate: project.startDate,
+          endDate: project.endDate,
+          status,
+          memberCount,
+          permissions,
+        };
+      })
+    );
+
+    return projectSummaries;
   }
 
   async getProject(projectId: number): Promise<Project | null> {
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
-      projectId,
-      'Project'
+      projectId
     );
 
     if (!projectEntity) return null;
@@ -169,9 +199,18 @@ export class ProjectControllerService {
   }
 
   async isMember(projectId: number, userId: number): Promise<boolean> {
-    return this.database.projectMembers.some(
+    const res = this.database.projectMembers.some(
       (pm) => pm.projectId === projectId && pm.userId === userId
     );
+    return res;
+  }
+
+  async isAdmin(projectId: number, userId: number): Promise<boolean> {
+    return this.database.projectMembers.some((pm) => {
+      return (
+        pm.projectId === projectId && pm.userId === userId && pm.roleId === 1
+      );
+    });
   }
 
   async addProjectMember(
