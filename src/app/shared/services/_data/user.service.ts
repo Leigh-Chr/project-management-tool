@@ -11,4 +11,8 @@ export class UserService {
   async getUsers(): Promise<User[]> {
     return this.userController.getUsers();
   }
+
+  async getUser(userId: number): Promise<User | null> {
+    return this.userController.getUser(userId);
+  }
 }

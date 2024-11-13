@@ -15,8 +15,8 @@ export class ProjectService {
     return this.projectController.getProjectDetails(projectId);
   }
 
-  async getProjects(): Promise<ProjectSummary[]> {
-    return this.projectController.getProjects();
+  async getProjectSummaries(): Promise<ProjectSummary[]> {
+    return this.projectController.getProjectSummaries();
   }
 
   async getProject(projectId: number): Promise<Project | null> {
@@ -43,5 +43,9 @@ export class ProjectService {
 
   async isMember(projectId: number, userId: number): Promise<boolean> {
     return this.projectController.isMember(projectId, userId);
+  }
+
+  async isAdmin(projectId: number, userId: number): Promise<boolean> {
+    return this.projectController.isAdmin(projectId, userId);
   }
 }
