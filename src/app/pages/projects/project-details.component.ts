@@ -13,6 +13,9 @@ import { ProjectDetails } from '../../shared/models/ProjectDetails';
 import { ProjectService } from '../../shared/services/_data/project.service';
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
+import { DeleteProjectMemberPopupComponent } from '../../shared/components/popups/delete-project-member-popup.component';
+import { ProjectMember } from '../../shared/models/ProjectMember';
 
 type PopupType =
   | 'deleteProject'
@@ -31,6 +34,7 @@ type PopupType =
     ButtonComponent,
     PopupComponent,
     DeleteProjectPopupComponent,
+    DeleteProjectMemberPopupComponent,
     AddProjectMemberPopupComponent,
   ],
   standalone: true,
@@ -52,12 +56,14 @@ type PopupType =
               {{ project.description || 'No description provided.' }}
             </p>
           </div>
+          @if (project.permissions.deleteProject) {
           <ui-button
             label="Delete Project"
             icon="fi fi-rr-trash"
             variant="danger"
             (click)="showPopup('deleteProject', project.id)"
           />
+          }
         </header>
         <div
           class="
@@ -110,11 +116,13 @@ type PopupType =
               >
                 Project Members
               </h2>
+              @if (project.permissions.addMember) {
               <ui-button
                 label="Add Member"
                 icon="fi fi-rr-user-add"
                 (click)="showPopup('addMember', project.id)"
               />
+              }
             </header>
             @if (project.projectMembers.length > 0) {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -149,12 +157,15 @@ type PopupType =
                   </p>
                 </div>
                 <footer class="flex gap-1 text-[.75rem]">
+                  @if (project.permissions.assignTask) {
                   <ui-button
                     label="Assign Task"
                     [iconOnly]="true"
                     icon="fi fi-rr-link-horizontal"
                     (click)="showPopup('assignTask', member.user.id)"
                   />
+                  } @if (project.permissions.deleteMember && member.role.id !==
+                  1) {
                   <ui-button
                     label="Remove Member"
                     [iconOnly]="true"
@@ -162,6 +173,7 @@ type PopupType =
                     icon="fi fi-rr-trash"
                     (click)="showPopup('deleteMember', member.user.id)"
                   />
+                  }
                 </footer>
               </div>
               }
@@ -184,11 +196,13 @@ type PopupType =
               >
                 Tasks
               </h2>
+              @if (project.permissions.addTask) {
               <ui-button
                 label="Add Task"
                 icon="fi fi-rr-square-plus"
                 (click)="showPopup('addTask', project.id)"
               />
+              }
             </header>
             @if (project.tasks.length > 0) {
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -255,12 +269,14 @@ type PopupType =
                     icon="fi fi-rr-door-open"
                     (click)="goToTask(task.id)"
                   />
+                  @if (project.permissions.assignMember) {
                   <ui-button
                     label="Assigned Member"
                     [iconOnly]="true"
                     icon="fi fi-rr-link-horizontal"
                     (click)="showPopup('assignMember', task.id)"
                   />
+                  } @if (project.permissions.deleteTask) {
                   <ui-button
                     label="Delete Task"
                     [iconOnly]="true"
@@ -268,6 +284,7 @@ type PopupType =
                     icon="fi fi-rr-trash"
                     (click)="showPopup('deleteTask', task.id)"
                   />
+                  }
                 </footer>
               </div>
               }
@@ -280,56 +297,50 @@ type PopupType =
           </section>
         </div>
       </div>
-      } @else {
+
+      @switch (activePopup()) { @case ('deleteProject') {
+      <delete-project-popup
+        [projectId]="activeId()!"
+        (onClose)="hidePopup()"
+        (onDeleteProject)="redirectToProjects()"
+      />
+      } @case ('addMember') {
+      <add-project-member-popup
+        [projectId]="activeId()!"
+        (onClose)="hidePopup()"
+      />
+      } @case ('assignTask') {
+      <ui-popup title="Assign Task" (onClose)="hidePopup()">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+      </ui-popup>
+      } @case ('deleteMember') {
+      <delete-project-member-popup
+        [projectMemberIds]="{ projectId: project.id, userId: activeId()! }"
+        (onClose)="hidePopup()"
+        (onDeleteMember)="deleteMember($event)"
+      />
+      } @case ('addTask') {
+      <ui-popup title="Add Task" (onClose)="hidePopup()">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+      </ui-popup>
+      } @case ('assignMember') {
+      <ui-popup title="Asign Member" (onClose)="hidePopup()">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+      </ui-popup>
+      } @case ('deleteTask') {
+      <ui-popup title="Delete Task" (onClose)="hidePopup()">
+        Lorem ipsum dolor, sit amet consectetur adipisicing elit.
+      </ui-popup>
+      } } } @else {
       <p class="text-neutral-600 dark:text-neutral-400">
         Project not found. Redirecting...
       </p>
       }
     </default-layout>
-
-    @switch (activePopup()) { @case ('deleteProject') {
-    <delete-project-popup [projectId]="activeId()!" (close)="hidePopup()" />
-    } @case ('addMember') {
-    <add-project-member-popup [projectId]="activeId()!" (close)="hidePopup()" />
-    } @case ('assignTask') {
-    <ui-popup title="Assign Task" (close)="hidePopup()">
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem, minus
-      expedita omnis pariatur nihil voluptatum beatae fugit labore
-      necessitatibus. Adipisci blanditiis vitae ut dolore iure, facilis aliquam
-      impedit officia quasi.
-    </ui-popup>
-    } @case ('deleteMember') {
-    <ui-popup title="Delete Member" (close)="hidePopup()">
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem, minus
-      expedita omnis pariatur nihil voluptatum beatae fugit labore
-      necessitatibus. Adipisci blanditiis vitae ut dolore iure, facilis aliquam
-      impedit officia quasi.
-    </ui-popup>
-    } @case ('addTask') {
-    <ui-popup title="Add Task" (close)="hidePopup()">
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem, minus
-      expedita omnis pariatur nihil voluptatum beatae fugit labore
-      necessitatibus. Adipisci blanditiis vitae ut dolore iure, facilis aliquam
-      impedit officia quasi.
-    </ui-popup>
-    } @case ('assignMember') {
-    <ui-popup title="Asign Member" (close)="hidePopup()">
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem, minus
-      expedita omnis pariatur nihil voluptatum beatae fugit labore
-      necessitatibus. Adipisci blanditiis vitae ut dolore iure, facilis aliquam
-      impedit officia quasi.
-    </ui-popup>
-    } @case ('deleteTask') {
-    <ui-popup title="Delete Task" (close)="hidePopup()">
-      Lorem ipsum dolor, sit amet consectetur adipisicing elit. Autem, minus
-      expedita omnis pariatur nihil voluptatum beatae fugit labore
-      necessitatibus. Adipisci blanditiis vitae ut dolore iure, facilis aliquam
-      impedit officia quasi.
-    </ui-popup>
-    } }
   `,
 })
 export class ProjectComponent {
+  private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -342,7 +353,18 @@ export class ProjectComponent {
 
   async ngOnInit(): Promise<void> {
     this.project = await this.projectService.getProjectDetails(this.id);
-    if (!this.project) this.router.navigate(['/projects']);
+    if (!this.project) {
+      this.toastService.showToast(
+        {
+          title: 'Project not found',
+          type: 'error',
+          message: 'The project you are looking for does not exist.',
+          duration: 5000,
+        },
+        'root'
+      );
+      this.router.navigate(['/projects']);
+    }
   }
 
   showPopup(popupType: PopupType, id?: number): void {
@@ -357,5 +379,19 @@ export class ProjectComponent {
 
   goToTask(taskId: number): void {
     this.router.navigate(['/tasks', taskId]);
+  }
+
+  redirectToProjects(): void {
+    this.router.navigate(['/projects']);
+  }
+
+  deleteMember(projectMember: ProjectMember | null): void {
+    if (!projectMember) return;
+    this.project?.projectMembers.splice(
+      this.project.projectMembers.findIndex(
+        (member) => member.user.id === projectMember.userId
+      ),
+      1
+    );
   }
 }

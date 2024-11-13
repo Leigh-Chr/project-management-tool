@@ -1,39 +1,27 @@
-import { DatePipe, JsonPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
   inject,
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
 import { AddProjectPopupComponent } from '../../shared/components/popups/add-project-popup.component';
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
-import { PaginatorComponent } from '../../shared/components/ui/paginator.component';
 import { TableComponent } from '../../shared/components/ui/table.component';
-import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { ProjectSummary } from '../../shared/models/ProjectSummary';
 import { ProjectService } from '../../shared/services/_data/project.service';
-import { AuthService } from '../../shared/services/auth.service';
-import { ProjectMemberService } from '../../shared/services/data/project-member.service';
 import { Table } from '../../types';
 
-type PopupType = 'addProject' | 'addMember' | 'deleteProject';
+type PopupType = 'addProject' | 'deleteProject';
 @Component({
   imports: [
-    PaginatorComponent,
     ButtonComponent,
-    DatePipe,
     AddProjectPopupComponent,
-    AddProjectMemberPopupComponent,
     DeleteProjectPopupComponent,
-    JsonPipe,
     DefaultLayoutComponent,
     TableComponent,
-    TooltipDirective,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,13 +57,7 @@ type PopupType = 'addProject' | 'addMember' | 'deleteProject';
                   icon="fi fi-rr-door-open"
                   (click)="goToProject(projectSummary.id)"
                 />
-                @if (isAdmin(projectSummary.id)) {
-                <ui-button
-                  label="Add members"
-                  [iconOnly]="true"
-                  icon="fi fi-rr-user-add"
-                  (click)="showPopup('addMember', projectSummary.id)"
-                />
+                @if (projectSummary.permissions.deleteProject) {
                 <ui-button
                   label="Delete project"
                   [iconOnly]="true"
@@ -94,11 +76,6 @@ type PopupType = 'addProject' | 'addMember' | 'deleteProject';
 
     @switch (activePopup()) { @case ('addProject') {
     <add-project-popup (close)="hidePopup()" />
-    } @case ('addMember') {
-    <add-project-member-popup
-      [projectId]="activeProjectId()!"
-      (close)="hidePopup()"
-    />
     } @case ('deleteProject') {
     <delete-project-popup
       [projectId]="activeProjectId()!"
@@ -109,9 +86,7 @@ type PopupType = 'addProject' | 'addMember' | 'deleteProject';
 })
 export class ProjectsComponent {
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
   private readonly projectService = inject(ProjectService);
-  private readonly projectMembersService = inject(ProjectMemberService);
 
   readonly table: Table<ProjectSummary> = {
     headers: [
@@ -121,6 +96,7 @@ export class ProjectsComponent {
       { name: 'Start Date', key: 'startDate' },
       { name: 'End Date', key: 'endDate' },
       { name: 'Status', key: 'status' },
+      { name: 'Members', key: 'memberCount' },
     ],
     items: [
       { key: 'id', type: 'number' },
@@ -129,19 +105,16 @@ export class ProjectsComponent {
       { key: 'startDate', type: 'date' },
       { key: 'endDate', type: 'date' },
       { key: 'status', type: 'text' },
+      { key: 'memberCount', type: 'number' },
     ],
   };
 
   readonly projects: ProjectSummary[] = [];
-  readonly projectMembers = computed(() => {
-    return this.projectMembersService.projectMembersSignal();
-  });
-
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    this.projects.push(...(await this.projectService.getProjects()));
+    this.projects.push(...(await this.projectService.getProjectSummaries()));
   }
 
   showPopup(popupType: PopupType, projectId?: number): void {
@@ -156,19 +129,6 @@ export class ProjectsComponent {
 
   goToProject(projectId: number): void {
     this.router.navigate(['/projects', projectId]);
-  }
-
-  isAdmin(projectId: number): boolean {
-    const user = this.authService.userSignal();
-    if (!user) return false;
-
-    const userMember = this.projectMembersService
-      .projectMembersSignal()
-      .find((pm) => pm.projectId === projectId && pm.userId === user.id);
-    if (!userMember) return false;
-
-    const isAdmin = userMember.roleId === 1;
-    return isAdmin;
   }
 
   onPageChange(page: number) {

@@ -27,13 +27,13 @@ import { ButtonComponent, ButtonVariant } from './button.component';
       <div class="flex justify-end mt-4">
         <ui-button
           type="button"
-          (click)="onClose()"
+          (click)="close()"
           label="Cancel"
           class="mr-2"
         ></ui-button>
         <ui-button
           type="button"
-          (click)="onSubmit()"
+          (click)="submit()"
           [disabled]="isSubmitDisabled"
           [label]="submitLabel"
           [variant]="submitVariant"
@@ -48,14 +48,14 @@ export class PopupComponent {
   @Input() submitLabel: string = 'Submit';
   @Input() submitVariant: ButtonVariant = 'primary';
 
-  @Output() close = new EventEmitter<void>();
-  @Output() submit = new EventEmitter<void>();
+  @Output() onClose = new EventEmitter<void>();
+  @Output() onSubmit = new EventEmitter<void>();
 
-  onClose(): void {
-    this.close.emit();
+  close(): void {
+    this.onClose.emit();
   }
 
-  onSubmit(): void {
-    this.submit.emit();
+  submit(): void {
+    this.onSubmit.emit();
   }
 }

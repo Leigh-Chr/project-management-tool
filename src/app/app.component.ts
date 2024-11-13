@@ -7,7 +7,7 @@ import { ToastProviderComponent } from './shared/components/toast/toast-provider
   selector: 'app-root',
   imports: [ToastProviderComponent, RouterOutlet, FormsModule],
   template: `
-    <toast-provider />
+    <toast-provider providerId="root" />
     <router-outlet />
   `,
   standalone: true,
