@@ -1,12 +1,9 @@
 export function findEntityById<T extends { id: number }>(
   entities: T[],
-  id: number,
-  entityName: string
-): T {
+  id: number
+): T | null {
   const entity = entities.find((e) => e.id === id);
-  if (!entity) {
-    throw new Error(`${entityName} not found`);
-  }
+  if (!entity) return null;
   return entity;
 }
 
