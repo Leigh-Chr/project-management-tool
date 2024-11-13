@@ -20,8 +20,8 @@ import { ProjectService } from '../../services/_data/project.service';
       title="Add New Project"
       [isSubmitDisabled]="projectForm.invalid"
       submitLabel="Add Project"
-      (submit)="onSubmit()"
-      (close)="closePopup()"
+      (onSubmit)="submit()"
+      (onClose)="close()"
     >
       <form [formGroup]="projectForm" novalidate>
         <ui-input-field
@@ -62,9 +62,10 @@ export class AddProjectPopupComponent {
   description = this.projectForm.get('description') as FormControl<string>;
   startDate = this.projectForm.get('startDate') as FormControl<string>;
 
-  @Output() close = new EventEmitter<void>();
+  @Output() onClose = new EventEmitter<void>();
+  @Output() onSubmit = new EventEmitter<void>();
 
-  onSubmit(): void {
+  submit(): void {
     if (!this.projectForm.valid) return;
 
     const newProject: Omit<Project, 'id' | 'statusId'> = {
@@ -74,11 +75,10 @@ export class AddProjectPopupComponent {
     };
 
     this.projectService.addProject(newProject);
-    this.closePopup();
+    this.onSubmit.emit();
   }
 
-  closePopup(): void {
-    this.projectForm.reset();
-    this.close.emit();
+  close(): void {
+    this.onClose.emit();
   }
 }

@@ -1,51 +1,71 @@
-import {
-  Component,
-  computed,
-  EventEmitter,
-  inject,
-  Input,
-  Output,
-} from '@angular/core';
-import { ProjectService } from '../../services/data/project.service';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Project } from '../../models/Project';
+import { ProjectService } from '../../services/_data/project.service';
 import { PopupComponent } from '../ui/popup.component';
+import { ToastService } from '../toast/toast.service';
 
 @Component({
   selector: 'delete-project-popup',
   standalone: true,
   imports: [PopupComponent],
   template: `
+    @if (project) {
     <ui-popup
-      title="Delete Project - {{ projectName() }}"
+      title="Delete Project - {{ project.name }}"
       submitLabel="Delete"
       submitVariant="danger"
-      (submit)="onSubmit()"
-      (close)="closePopup()"
+      (onSubmit)="deleteProject()"
+      (onClose)="close()"
     >
       <p class="mb-4">
         Are you sure you want to delete this project? This action cannot be
         undone.
       </p>
     </ui-popup>
+    } @else {
+    <ui-popup title="Delete Project" [isSubmitDisabled]="true">
+      <p>Loading...</p>
+    </ui-popup>
+    }
   `,
 })
 export class DeleteProjectPopupComponent {
+  private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
 
   @Input() projectId!: number;
-  projectName = computed(
-    () =>
-      this.projectService.projectsSignal().find((p) => p.id === this.projectId)
-        ?.name
-  );
+  project: Project | null = null;
 
-  @Output() close = new EventEmitter<void>();
+  @Output() onClose = new EventEmitter<void>();
+  @Output() onDeleteProject = new EventEmitter<void>();
 
-  onSubmit(): void {
-    this.projectService.deleteProject(this.projectId);
-    this.closePopup();
+  async ngOnInit(): Promise<void> {
+    this.project = await this.getProjectName();
+    if (!this.project) {
+      this.toastService.showToast(
+        {
+          title: 'Error',
+          message: 'Project not found.',
+          duration: 5000,
+          type: 'error',
+        },
+        'root'
+      );
+      this.close();
+    }
   }
 
-  closePopup(): void {
-    this.close.emit();
+  async getProjectName(): Promise<Project | null> {
+    return this.projectService.getProject(this.projectId);
+  }
+
+  deleteProject(): void {
+    this.projectService.deleteProject(this.projectId);
+    this.onDeleteProject.emit();
+    this.close();
+  }
+
+  close(): void {
+    this.onClose.emit();
   }
 }

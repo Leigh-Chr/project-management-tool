@@ -17,7 +17,9 @@ import {
   SelectFieldComponent,
   SelectOption,
 } from '../ui/select-field.component';
+import { ToastService } from '../toast/toast.service';
 
+const CURRENT_USER_ID = 1; // This is a mock value for the current user ID.
 @Component({
   selector: 'add-project-member-popup',
   standalone: true,
@@ -28,8 +30,8 @@ import {
       title="Add Project Member - {{ project.name }}"
       [isSubmitDisabled]="memberForm.invalid"
       submitLabel="Add Member"
-      (submit)="onSubmit()"
-      (close)="closePopup()"
+      (onSubmit)="addMember()"
+      (onClose)="close()"
     >
       <form [formGroup]="memberForm" novalidate>
         <ui-select-field
@@ -56,12 +58,14 @@ import {
   `,
 })
 export class AddProjectMemberPopupComponent {
+  private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
 
   @Input() projectId!: number;
-  @Output() close = new EventEmitter<void>();
+  @Output() onClose = new EventEmitter<void>();
+  @Output() onAddMember = new EventEmitter<void>();
 
   userOptions: SelectOption<User>[] = [];
   roleOptions: SelectOption<Role>[] = [];
@@ -79,22 +83,70 @@ export class AddProjectMemberPopupComponent {
 
   async ngOnInit(): Promise<void> {
     this.project = await this.projectService.getProject(this.projectId);
-    if (!this.project) this.closePopup();
-    this.userOptions = (await this.userService.getUsers())
-      .filter((user) => !this.projectService.isMember(this.projectId, user.id))
-      .map((user) => ({
+    if (!this.project) {
+      this.toastService.showToast(
+        {
+          title: 'Project not found.',
+          message:
+            'The project you are trying to add a member to does not exist.',
+          type: 'error',
+          duration: 5000,
+        },
+        'root'
+      );
+      this.close();
+    }
+
+    const users = await this.userService.getUsers();
+    const userStatuses = await Promise.all(
+      users.map(async (user) => {
+        const isNotMember = !(await this.isMember(user.id));
+        return { user, isNotMember };
+      })
+    );
+    this.userOptions = userStatuses
+      .filter(({ isNotMember }) => isNotMember)
+      .filter(({ user }) => user.id !== CURRENT_USER_ID)
+      .map(({ user }) => ({
         value: user,
         label: user.username,
       }));
-    if (this.userOptions.length === 0) this.closePopup();
+
+    if (this.userOptions.length === 0) {
+      this.toastService.showToast(
+        {
+          title: 'No users available to add.',
+          message: 'All users are already members of this project.',
+          type: 'error',
+          duration: 5000,
+        },
+        'root'
+      );
+      this.close();
+    }
     this.roleOptions = (await this.roleService.getRoles()).map((role) => ({
       value: role,
       label: role.name,
     }));
-    if (this.roleOptions.length === 0) this.closePopup();
+    if (this.roleOptions.length === 0) {
+      this.toastService.showToast(
+        {
+          message: 'No roles available to add.',
+          type: 'error',
+          title: 'No Roles',
+          duration: 5000,
+        },
+        'root'
+      );
+      this.close();
+    }
   }
 
-  onSubmit(): void {
+  private async isMember(userId: number): Promise<boolean> {
+    return this.projectService.isMember(this.projectId, userId);
+  }
+
+  addMember(): void {
     if (this.memberForm.invalid) return;
 
     const newMember: ProjectMember = {
@@ -108,11 +160,11 @@ export class AddProjectMemberPopupComponent {
       newMember.userId,
       newMember.roleId
     );
-    this.closePopup();
+    this.onAddMember.emit();
+    this.close();
   }
 
-  closePopup(): void {
-    this.memberForm.reset();
-    this.close.emit();
+  close(): void {
+    this.onClose.emit();
   }
 }
