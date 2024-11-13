@@ -7,6 +7,7 @@ export interface ProjectDetails {
   status: Status;
   projectMembers: ProjectMember[];
   tasks: Task[];
+  permissions: ProjectDetailsPermissions;
 }
 
 export interface Status {
@@ -39,4 +40,14 @@ export interface Task {
   priority: number;
   assignee?: User;
   status: Status;
+}
+
+export interface ProjectDetailsPermissions {
+  deleteProject: boolean;
+  addMember: boolean;
+  deleteMember: boolean;
+  assignTask: boolean;
+  addTask: boolean;
+  deleteTask: boolean;
+  assignMember: boolean;
 }
