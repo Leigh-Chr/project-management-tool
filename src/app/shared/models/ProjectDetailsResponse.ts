@@ -1,4 +1,4 @@
-export interface ProjectDetails {
+export interface ProjectDetailsResponse {
   id: number;
   name: string;
   description?: string;

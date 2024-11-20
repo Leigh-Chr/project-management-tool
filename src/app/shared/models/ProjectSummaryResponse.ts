@@ -1,4 +1,4 @@
-export interface ProjectSummary {
+export interface ProjectSummaryResponse {
   id: number;
   name: string;
   description?: string;
@@ -6,9 +6,9 @@ export interface ProjectSummary {
   endDate?: Date;
   status: string;
   memberCount: number;
-  permissions: ProjectSummaryPermissions;
+  permissions: Permissions;
 }
 
-export interface ProjectSummaryPermissions {
+export interface Permissions {
   deleteProject: boolean;
 }

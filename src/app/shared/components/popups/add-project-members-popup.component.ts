@@ -6,8 +6,8 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { Role } from '../../models/Role';
-import { User } from '../../models/User';
+import { RoleResponse } from '../../models/RoleResponse';
+import { UserResponse } from '../../models/UserResponse';
 import { ProjectService } from '../../services/_data/project.service';
 import { RoleService } from '../../services/_data/role.service';
 import { UserService } from '../../services/_data/user.service';
@@ -67,8 +67,8 @@ export class AddProjectMemberPopupComponent {
   @Output() onClose = new EventEmitter<void>();
   @Output() onAddMember = new EventEmitter<void>();
 
-  userOptions: SelectOption<User>[] = [];
-  roleOptions: SelectOption<Role>[] = [];
+  userOptions: SelectOption<UserResponse>[] = [];
+  roleOptions: SelectOption<RoleResponse>[] = [];
 
   project: Project | null = null;
 
@@ -78,8 +78,8 @@ export class AddProjectMemberPopupComponent {
     role: ['', [Validators.required]],
   });
 
-  userControl = this.memberForm.get('user') as FormControl<User>;
-  roleControl = this.memberForm.get('role') as FormControl<Role>;
+  userControl = this.memberForm.get('user') as FormControl<UserResponse>;
+  roleControl = this.memberForm.get('role') as FormControl<RoleResponse>;
 
   async ngOnInit(): Promise<void> {
     this.project = await this.projectService.getProject(this.projectId);

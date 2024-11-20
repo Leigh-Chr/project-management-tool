@@ -9,13 +9,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { ProjectDetails } from '../../shared/models/ProjectDetails';
+import { ProjectDetailsResponse } from '../../shared/models/ProjectDetailsResponse';
 import { ProjectService } from '../../shared/services/_data/project.service';
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { DeleteProjectMemberPopupComponent } from '../../shared/components/popups/delete-project-member-popup.component';
-import { ProjectMember } from '../../shared/models/ProjectMember';
+import { ProjectMemberResponse } from '../../shared/models/ProjectMemberResponse';
 
 type PopupType =
   | 'deleteProject'
@@ -346,7 +346,7 @@ export class ProjectComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  project: ProjectDetails | null = null;
+  project: ProjectDetailsResponse | null = null;
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
@@ -385,7 +385,7 @@ export class ProjectComponent {
     this.router.navigate(['/projects']);
   }
 
-  deleteMember(projectMember: ProjectMember | null): void {
+  deleteMember(projectMember: ProjectMemberResponse | null): void {
     if (!projectMember) return;
     this.project?.projectMembers.splice(
       this.project.projectMembers.findIndex(

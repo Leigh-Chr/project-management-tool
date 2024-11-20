@@ -1,4 +1,4 @@
-export interface ProjectMember {
+export interface ProjectMemberResponse {
   projectId: number;
   userId: number;
   roleId: number;

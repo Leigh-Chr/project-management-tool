@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
-import { Project } from '../../models/Project';
+import { ProjectResponse } from '../../models/ProjectResponse';
 import { ProjectService } from '../../services/_data/project.service';
 
 @Component({
@@ -63,12 +63,12 @@ export class AddProjectPopupComponent {
   startDate = this.projectForm.get('startDate') as FormControl<string>;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<Project>();
+  @Output() onSubmit = new EventEmitter<ProjectResponse>();
 
   async submit(): Promise<void> {
     if (!this.projectForm.valid) return;
 
-    const newProject: Omit<Project, 'id' | 'statusId'> = {
+    const newProject: Omit<ProjectResponse, 'id' | 'statusId'> = {
       name: this.name.value,
       description: this.description.value,
       startDate: new Date(this.startDate.value),

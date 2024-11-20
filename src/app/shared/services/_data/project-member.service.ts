@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ProjectMemberControllerService } from '../mock/backend/project-member-controller.service';
-import { ProjectMember } from '../../models/ProjectMember';
+import { ProjectMemberResponse } from '../../models/ProjectMemberResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -13,14 +13,14 @@ export class ProjectMemberService {
   async getProjectMember(
     projectId: number,
     userId: number
-  ): Promise<ProjectMember | null> {
+  ): Promise<ProjectMemberResponse | null> {
     return this.projectMemberController.getProjectMember(projectId, userId);
   }
 
   async deleteProjectMember(
     projectId: number,
     userId: number
-  ): Promise<ProjectMember | null> {
+  ): Promise<ProjectMemberResponse | null> {
     return this.projectMemberController.deleteProjectMember(projectId, userId);
   }
 }

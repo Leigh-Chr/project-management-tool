@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { Project } from '../../../models/Project';
+import { ProjectResponse } from '../../../models/ProjectResponse';
 import {
-  ProjectDetails,
+  ProjectDetailsResponse,
   ProjectDetailsPermissions,
-} from '../../../models/ProjectDetails';
+} from '../../../models/ProjectDetailsResponse';
 import { filterEntitiesByField, findEntityById } from '../database/utils';
 import { DatabaseMockService } from '../database/database.service';
 import {
@@ -12,14 +12,16 @@ import {
   StatusEntity,
   TaskEntity,
 } from '../database/entities';
-import { ProjectSummary } from '../../../models/ProjectSummary';
-import { ProjectMember } from '../../../models/ProjectMember';
+import { ProjectSummaryResponse } from '../../../models/ProjectSummaryResponse';
+import { ProjectMemberResponse } from '../../../models/ProjectMemberResponse';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectControllerService {
   private readonly database = inject(DatabaseMockService);
 
-  async getProjectDetails(projectId: number): Promise<ProjectDetails | null> {
+  async getProjectDetails(
+    projectId: number
+  ): Promise<ProjectDetailsResponse | null> {
     const userId = 1;
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
@@ -105,7 +107,7 @@ export class ProjectControllerService {
     };
   }
 
-  async getProjectSummaries(): Promise<ProjectSummary[]> {
+  async getProjectSummaries(): Promise<ProjectSummaryResponse[]> {
     const userId = 1; // Hardcoded user ID for now
     const projectEntities = this.database.projects;
     const statusEntities = this.database.statuses;
@@ -139,7 +141,9 @@ export class ProjectControllerService {
     return projectSummaries;
   }
 
-  async getProjectSummary(projectId: number): Promise<ProjectSummary | null> {
+  async getProjectSummary(
+    projectId: number
+  ): Promise<ProjectSummaryResponse | null> {
     const userId = 1; // Hardcoded user ID for now
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
@@ -175,7 +179,7 @@ export class ProjectControllerService {
     };
   }
 
-  async getProject(projectId: number): Promise<Project | null> {
+  async getProject(projectId: number): Promise<ProjectResponse | null> {
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
       projectId
@@ -193,8 +197,8 @@ export class ProjectControllerService {
     };
   }
 
-  async deleteProject(projectId: number): Promise<Project | null> {
-    const project: Project | undefined = this.database.projects.find(
+  async deleteProject(projectId: number): Promise<ProjectResponse | null> {
+    const project: ProjectResponse | undefined = this.database.projects.find(
       (p) => p.id === projectId
     );
     if (!project) return null;
@@ -212,8 +216,8 @@ export class ProjectControllerService {
   }
 
   async addProject(
-    project: Omit<Project, 'id' | 'statusId'>
-  ): Promise<Project> {
+    project: Omit<ProjectResponse, 'id' | 'statusId'>
+  ): Promise<ProjectResponse> {
     const userId = 1; // Hardcoded user ID for now
 
     const projectEntity: ProjectEntity = {
@@ -263,7 +267,7 @@ export class ProjectControllerService {
     projectId: number,
     userId: number,
     roleId: number
-  ): Promise<ProjectMember> {
+  ): Promise<ProjectMemberResponse> {
     const projectMemberEntity: ProjectMemberEntity = {
       projectId,
       userId,

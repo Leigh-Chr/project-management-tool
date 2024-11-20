@@ -1,10 +1,10 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { User } from '../../models/User';
+import { UserResponse } from '../../models/UserResponse';
 import { ProjectMemberService } from '../../services/_data/project-member.service';
 import { UserService } from '../../services/_data/user.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
-import { ProjectMember } from '../../models/ProjectMember';
+import { ProjectMemberResponse } from '../../models/ProjectMemberResponse';
 
 @Component({
   selector: 'delete-project-member-popup',
@@ -40,11 +40,11 @@ export class DeleteProjectMemberPopupComponent {
     projectId: number;
     userId: number;
   };
-  projectMember: ProjectMember | null = null;
-  user: User | null = null;
+  projectMember: ProjectMemberResponse | null = null;
+  user: UserResponse | null = null;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onDeleteMember = new EventEmitter<ProjectMember | null>();
+  @Output() onDeleteMember = new EventEmitter<ProjectMemberResponse | null>();
 
   async ngOnInit(): Promise<void> {
     this.projectMember = await this.getProjectMember();
@@ -63,14 +63,14 @@ export class DeleteProjectMemberPopupComponent {
     }
   }
 
-  async getProjectMember(): Promise<ProjectMember | null> {
+  async getProjectMember(): Promise<ProjectMemberResponse | null> {
     return this.projectMemberService.getProjectMember(
       this.projectMemberIds.projectId,
       this.projectMemberIds.userId
     );
   }
 
-  async getUser(): Promise<User | null> {
+  async getUser(): Promise<UserResponse | null> {
     return this.userService.getUser(this.projectMemberIds.userId);
   }
 

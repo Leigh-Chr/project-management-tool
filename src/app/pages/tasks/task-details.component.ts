@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { TaskDetails } from '../../shared/models/TaskDetails';
+import { TaskDetailsResponse } from '../../shared/models/TaskDetailsResponse';
 import { TaskService } from '../../shared/services/_data/task.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
@@ -289,7 +289,7 @@ export class TaskComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  task: TaskDetails | null = null;
+  task: TaskDetailsResponse | null = null;
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);

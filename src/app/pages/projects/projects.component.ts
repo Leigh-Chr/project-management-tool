@@ -10,10 +10,10 @@ import { DeleteProjectPopupComponent } from '../../shared/components/popups/dele
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { TableComponent } from '../../shared/components/ui/table.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { ProjectSummary } from '../../shared/models/ProjectSummary';
+import { ProjectSummaryResponse } from '../../shared/models/ProjectSummaryResponse';
 import { ProjectService } from '../../shared/services/_data/project.service';
 import { Table } from '../../types';
-import { Project } from '../../shared/models/Project';
+import { ProjectResponse } from '../../shared/models/ProjectResponse';
 
 type PopupType = 'addProject' | 'deleteProject';
 @Component({
@@ -93,7 +93,7 @@ export class ProjectsComponent {
   private readonly router = inject(Router);
   private readonly projectService = inject(ProjectService);
 
-  readonly table: Table<ProjectSummary> = {
+  readonly table: Table<ProjectSummaryResponse> = {
     headers: [
       { name: 'ID', key: 'id' },
       { name: 'Name', key: 'name' },
@@ -114,7 +114,7 @@ export class ProjectsComponent {
     ],
   };
 
-  readonly projects = signal<ProjectSummary[]>([]);
+  readonly projects = signal<ProjectSummaryResponse[]>([]);
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
 
@@ -140,8 +140,8 @@ export class ProjectsComponent {
     console.log(page);
   }
 
-  toProjectSummary(projectSummary: unknown): ProjectSummary {
-    return projectSummary as ProjectSummary;
+  toProjectSummary(projectSummary: unknown): ProjectSummaryResponse {
+    return projectSummary as ProjectSummaryResponse;
   }
 
   deleteProject(projectId: number): void {
@@ -150,7 +150,7 @@ export class ProjectsComponent {
     );
   }
 
-  async addProject(project: Project): Promise<void> {
+  async addProject(project: ProjectResponse): Promise<void> {
     const projectSummary = await this.projectService.getProjectSummary(
       project.id
     );

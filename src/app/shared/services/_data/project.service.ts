@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { Project } from '../../models/Project';
-import { ProjectDetails } from '../../models/ProjectDetails';
+import { ProjectResponse } from '../../models/ProjectResponse';
+import { ProjectDetailsResponse } from '../../models/ProjectDetailsResponse';
 import { ProjectControllerService } from '../mock/backend/project-controller.service';
-import { ProjectSummary } from '../../models/ProjectSummary';
-import { ProjectMember } from '../../models/ProjectMember';
+import { ProjectSummaryResponse } from '../../models/ProjectSummaryResponse';
+import { ProjectMemberResponse } from '../../models/ProjectMemberResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -11,29 +11,33 @@ import { ProjectMember } from '../../models/ProjectMember';
 export class ProjectService {
   private readonly projectController = inject(ProjectControllerService);
 
-  async getProjectDetails(projectId: number): Promise<ProjectDetails | null> {
+  async getProjectDetails(
+    projectId: number
+  ): Promise<ProjectDetailsResponse | null> {
     return this.projectController.getProjectDetails(projectId);
   }
 
-  async getProjectSummaries(): Promise<ProjectSummary[]> {
+  async getProjectSummaries(): Promise<ProjectSummaryResponse[]> {
     return this.projectController.getProjectSummaries();
   }
 
-  async getProjectSummary(projectId: number): Promise<ProjectSummary | null> {
+  async getProjectSummary(
+    projectId: number
+  ): Promise<ProjectSummaryResponse | null> {
     return this.projectController.getProjectSummary(projectId);
   }
 
-  async getProject(projectId: number): Promise<Project | null> {
+  async getProject(projectId: number): Promise<ProjectResponse | null> {
     return this.projectController.getProject(projectId);
   }
 
-  async deleteProject(projectId: number): Promise<Project | null> {
+  async deleteProject(projectId: number): Promise<ProjectResponse | null> {
     return this.projectController.deleteProject(projectId);
   }
 
   async addProject(
-    project: Omit<Project, 'id' | 'statusId'>
-  ): Promise<Project> {
+    project: Omit<ProjectResponse, 'id' | 'statusId'>
+  ): Promise<ProjectResponse> {
     return this.projectController.addProject(project);
   }
 
@@ -41,7 +45,7 @@ export class ProjectService {
     projectId: number,
     userId: number,
     roleId: number
-  ): Promise<ProjectMember> {
+  ): Promise<ProjectMemberResponse> {
     return this.projectController.addProjectMember(projectId, userId, roleId);
   }
 

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,27 +5,19 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { AddProjectPopupComponent } from '../../../shared/components/popups/add-project-popup.component';
+import { TableComponent } from '../../../shared/components/ui/table.component';
 import { AuthService } from '../../../shared/services/auth.service';
 import { Project, Status } from '../../../shared/services/backend-mock.service';
 import { ProjectMemberService } from '../../../shared/services/data/project-member.service';
 import { ProjectService } from '../../../shared/services/data/project.service';
 import { StatusService } from '../../../shared/services/data/status.service';
-import { AddProjectPopupComponent } from '../../../shared/components/popups/add-project-popup.component';
 import { Table } from '../../../types';
-import { ButtonComponent } from '../../../shared/components/ui/button.component';
-import { PaginatorComponent } from '../../../shared/components/ui/paginator.component';
-import { TableComponent } from '../../../shared/components/ui/table.component';
 
 @Component({
   selector: 'projects-panel',
   standalone: true,
-  imports: [
-    PaginatorComponent,
-    ButtonComponent,
-    DatePipe,
-    AddProjectPopupComponent,
-    TableComponent,
-  ],
+  imports: [AddProjectPopupComponent, TableComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:

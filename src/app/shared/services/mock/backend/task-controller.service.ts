@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Task } from '../../../models/Task';
-import { TaskDetails } from '../../../models/TaskDetails';
+import { TaskResponse } from '../../../models/TaskResponse';
+import { TaskDetailsResponse } from '../../../models/TaskDetailsResponse';
 import { filterEntitiesByField, findEntityById } from '../database/utils';
 import { DatabaseMockService } from '../database/database.service';
 import {
@@ -15,7 +15,7 @@ import {
 export class TaskControllerService {
   private readonly database = inject(DatabaseMockService);
 
-  async getTaskDetails(taskId: number): Promise<TaskDetails | null> {
+  async getTaskDetails(taskId: number): Promise<TaskDetailsResponse | null> {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
 
     if (!taskEntity) return null;
@@ -86,8 +86,8 @@ export class TaskControllerService {
     };
   }
 
-  async deleteTask(taskId: number): Promise<Task | null> {
-    const task: Task | null =
+  async deleteTask(taskId: number): Promise<TaskResponse | null> {
+    const task: TaskResponse | null =
       this.database.tasks.find((t) => t.id === taskId) ?? null;
 
     if (!task) return null;
