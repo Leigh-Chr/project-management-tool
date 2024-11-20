@@ -45,7 +45,7 @@ type PopupType = 'addProject' | 'deleteProject';
           <ui-table
             [headers]="table.headers"
             [columns]="table.items"
-            [data]="projects"
+            [data]="projects()"
             [pageSizeOptions]="[1, 2]"
           >
             <ng-template #actionTemplate let-projectSummary>
@@ -79,7 +79,8 @@ type PopupType = 'addProject' | 'deleteProject';
     } @case ('deleteProject') {
     <delete-project-popup
       [projectId]="activeProjectId()!"
-      (close)="hidePopup()"
+      (onClose)="hidePopup()"
+      (onDeleteProject)="deleteProject($event)"
     />
     } }
   `,
@@ -109,12 +110,12 @@ export class ProjectsComponent {
     ],
   };
 
-  readonly projects: ProjectSummary[] = [];
+  readonly projects = signal<ProjectSummary[]>([]);
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    this.projects.push(...(await this.projectService.getProjectSummaries()));
+    this.projects.set(await this.projectService.getProjectSummaries());
   }
 
   showPopup(popupType: PopupType, projectId?: number): void {
@@ -137,5 +138,11 @@ export class ProjectsComponent {
 
   toProjectSummary(projectSummary: unknown): ProjectSummary {
     return projectSummary as ProjectSummary;
+  }
+
+  deleteProject(projectId: number): void {
+    this.projects.set(
+      this.projects().filter((project) => project.id !== projectId)
+    );
   }
 }

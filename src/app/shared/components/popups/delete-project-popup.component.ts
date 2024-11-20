@@ -33,11 +33,11 @@ export class DeleteProjectPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
 
-  @Input() projectId!: number;
+  @Input({ required: true }) projectId!: number;
   project: Project | null = null;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onDeleteProject = new EventEmitter<void>();
+  @Output() onDeleteProject = new EventEmitter<number>();
 
   async ngOnInit(): Promise<void> {
     this.project = await this.getProjectName();
@@ -61,7 +61,7 @@ export class DeleteProjectPopupComponent {
 
   deleteProject(): void {
     this.projectService.deleteProject(this.projectId);
-    this.onDeleteProject.emit();
+    this.onDeleteProject.emit(this.projectId);
     this.close();
   }
 
