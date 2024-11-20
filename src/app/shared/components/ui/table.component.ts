@@ -39,7 +39,16 @@ import { PaginatorComponent } from './paginator.component';
       <tbody
         class="bg-white dark:bg-neutral-900 divide-y divide-neutral-200 dark:divide-neutral-800"
       >
-        @for (item of paginatedData(); track $index) {
+        @if (paginatedData().length === 0) {
+        <tr>
+          <td
+            class="px-4 py-2 text-center text-sm text-neutral-500 dark:text-neutral-400"
+            [attr.colspan]="headers.length + (actionTemplate ? 1 : 0)"
+          >
+            No data available
+          </td>
+        </tr>
+        } @else { @for (item of paginatedData(); track $index) {
         <tr class="hover:bg-neutral-100 dark:hover:bg-neutral-800">
           @for (column of columns; track $index) {
           <td
@@ -63,7 +72,7 @@ import { PaginatorComponent } from './paginator.component';
           </td>
           }
         </tr>
-        }
+        } }
       </tbody>
       <tfoot>
         <tr>

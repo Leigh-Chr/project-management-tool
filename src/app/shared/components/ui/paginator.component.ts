@@ -109,7 +109,9 @@ export class PaginatorComponent {
   pageSize = signal(0);
   pageIndex = signal(1);
 
-  totalPages = computed(() => Math.ceil(this.totalItems() / this.pageSize()));
+  totalPages = computed(() =>
+    Math.max(1, Math.ceil(this.totalItems() / this.pageSize()))
+  );
 
   uniqueId = `pageSizeSelect-${Math.random().toString(36).substring(2, 9)}`;
 
