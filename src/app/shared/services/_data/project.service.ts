@@ -17,8 +17,10 @@ export class ProjectService {
     return this.projectController.getProjectDetails(projectId);
   }
 
-  async getProjectSummaries(): Promise<ProjectSummaryResponse[]> {
-    return this.projectController.getProjectSummaries();
+  async getProjectSummaries(
+    onlyUserProjects: boolean = false
+  ): Promise<ProjectSummaryResponse[]> {
+    return this.projectController.getProjectSummaries(onlyUserProjects);
   }
 
   async getProjectSummary(

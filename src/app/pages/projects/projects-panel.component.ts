@@ -5,20 +5,19 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AddProjectPopupComponent } from '../../../shared/components/popups/add-project-popup.component';
-import { DeleteProjectPopupComponent } from '../../../shared/components/popups/delete-project-popup.component';
-import { ButtonComponent } from '../../../shared/components/ui/button.component';
-import { TableComponent } from '../../../shared/components/ui/table.component';
-import { DefaultLayoutComponent } from '../../../shared/layouts/default-layout.component';
-import { ProjectResponse } from '../../../shared/models/ProjectResponse';
-import { ProjectSummaryResponse } from '../../../shared/models/ProjectSummaryResponse';
-import { Table } from '../../../types';
-import { ProjectService } from '../../../shared/services/_data/project.service';
+import { AddProjectPopupComponent } from '../../shared/components/popups/add-project-popup.component';
+import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
+import { ButtonComponent } from '../../shared/components/ui/button.component';
+import { TableComponent } from '../../shared/components/ui/table.component';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { ProjectSummaryResponse } from '../../shared/models/ProjectSummaryResponse';
+import { ProjectService } from '../../shared/services/_data/project.service';
+import { Table } from '../../types';
+import { ProjectResponse } from '../../shared/models/ProjectResponse';
 
 type PopupType = 'addProject' | 'deleteProject';
 
 @Component({
-  selector: 'projects-panel',
   imports: [
     ButtonComponent,
     AddProjectPopupComponent,
@@ -28,52 +27,54 @@ type PopupType = 'addProject' | 'deleteProject';
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    class:
-      'border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]',
-  },
   template: `
-    <div
-      class="flex justify-between items-center bg-neutral-50 dark:bg-neutral-950 shadow-sm p-4"
-    >
-      <h2 class="font-semibold text-lg">Projects</h2>
-      <ui-button
-        [disabled]="false"
-        icon="fi fi-rr-square-plus"
-        label="Add Project"
-        (click)="showPopup('addProject')"
-      />
-    </div>
-    <div>
-      <ui-table
-        [headers]="table.headers"
-        [columns]="table.items"
-        [data]="projects()"
-        [pageSizeOptions]="[1, 2]"
+    <default-layout>
+      <div
+        class="border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]"
       >
-        <ng-template #actionTemplate let-projectSummary>
-          @if (toProjectSummary(projectSummary); as projectSummary) {
-          <div class="flex gap-2">
-            <ui-button
-              label="Go to project"
-              [iconOnly]="true"
-              icon="fi fi-rr-door-open"
-              (click)="goToProject(projectSummary.id)"
-            />
-            @if (projectSummary.permissions.deleteProject) {
-            <ui-button
-              label="Delete project"
-              [iconOnly]="true"
-              variant="danger"
-              icon="fi fi-rr-trash"
-              (click)="showPopup('deleteProject', projectSummary.id)"
-            />
-            }
-          </div>
-          }
-        </ng-template>
-      </ui-table>
-    </div>
+        <div
+          class="flex justify-between items-center bg-neutral-50 dark:bg-neutral-950 shadow-sm p-4"
+        >
+          <h2 class="font-semibold text-lg">Projects</h2>
+          <ui-button
+            [disabled]="false"
+            icon="fi fi-rr-square-plus"
+            label="Add Project"
+            (click)="showPopup('addProject')"
+          />
+        </div>
+        <div>
+          <ui-table
+            [headers]="table.headers"
+            [columns]="table.items"
+            [data]="projects()"
+            [pageSizeOptions]="[1, 2]"
+          >
+            <ng-template #actionTemplate let-projectSummary>
+              @if (toProjectSummary(projectSummary); as projectSummary) {
+              <div class="flex gap-2">
+                <ui-button
+                  label="Go to project"
+                  [iconOnly]="true"
+                  icon="fi fi-rr-door-open"
+                  (click)="goToProject(projectSummary.id)"
+                />
+                @if (projectSummary.permissions.deleteProject) {
+                <ui-button
+                  label="Delete project"
+                  [iconOnly]="true"
+                  variant="danger"
+                  icon="fi fi-rr-trash"
+                  (click)="showPopup('deleteProject', projectSummary.id)"
+                />
+                }
+              </div>
+              }
+            </ng-template>
+          </ui-table>
+        </div>
+      </div>
+    </default-layout>
 
     @switch (activePopup()) { @case ('addProject') {
     <add-project-popup
@@ -96,7 +97,7 @@ export class ProjectsPanelComponent {
   readonly table: Table<ProjectSummaryResponse> = {
     headers: [
       { name: 'ID', key: 'id' },
-      { name: 'Name', key: 'name' },
+      { name: 'Name!!', key: 'name' },
       { name: 'Description', key: 'description' },
       { name: 'Start Date', key: 'startDate' },
       { name: 'End Date', key: 'endDate' },
@@ -119,7 +120,7 @@ export class ProjectsPanelComponent {
   readonly activeProjectId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    this.projects.set(await this.projectService.getProjectSummaries(true));
+    this.projects.set(await this.projectService.getProjectSummaries());
   }
 
   showPopup(popupType: PopupType, projectId?: number): void {

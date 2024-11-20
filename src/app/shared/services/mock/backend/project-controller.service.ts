@@ -107,9 +107,21 @@ export class ProjectControllerService {
     };
   }
 
-  async getProjectSummaries(): Promise<ProjectSummaryResponse[]> {
+  async getProjectSummaries(
+    onlyUserProjects: boolean = false
+  ): Promise<ProjectSummaryResponse[]> {
     const userId = 1; // Hardcoded user ID for now
-    const projectEntities = this.database.projects;
+    let projectEntities = this.database.projects;
+
+    if (onlyUserProjects) {
+      const userProjectIds = this.database.projectMembers
+        .filter((pm) => pm.userId === userId)
+        .map((pm) => pm.projectId);
+      projectEntities = projectEntities.filter((project) =>
+        userProjectIds.includes(project.id)
+      );
+    }
+
     const statusEntities = this.database.statuses;
 
     const projectSummaries = await Promise.all(
