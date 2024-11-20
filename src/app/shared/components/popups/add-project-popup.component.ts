@@ -63,9 +63,9 @@ export class AddProjectPopupComponent {
   startDate = this.projectForm.get('startDate') as FormControl<string>;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<void>();
+  @Output() onSubmit = new EventEmitter<Project>();
 
-  submit(): void {
+  async submit(): Promise<void> {
     if (!this.projectForm.valid) return;
 
     const newProject: Omit<Project, 'id' | 'statusId'> = {
@@ -74,8 +74,9 @@ export class AddProjectPopupComponent {
       startDate: new Date(this.startDate.value),
     };
 
-    this.projectService.addProject(newProject);
-    this.onSubmit.emit();
+    const project = await this.projectService.addProject(newProject);
+    this.onSubmit.emit(project);
+    this.close();
   }
 
   close(): void {

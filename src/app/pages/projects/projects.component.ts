@@ -13,6 +13,7 @@ import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.comp
 import { ProjectSummary } from '../../shared/models/ProjectSummary';
 import { ProjectService } from '../../shared/services/_data/project.service';
 import { Table } from '../../types';
+import { Project } from '../../shared/models/Project';
 
 type PopupType = 'addProject' | 'deleteProject';
 @Component({
@@ -75,7 +76,10 @@ type PopupType = 'addProject' | 'deleteProject';
     </default-layout>
 
     @switch (activePopup()) { @case ('addProject') {
-    <add-project-popup (close)="hidePopup()" />
+    <add-project-popup
+      (onClose)="hidePopup()"
+      (onSubmit)="addProject($event)"
+    />
     } @case ('deleteProject') {
     <delete-project-popup
       [projectId]="activeProjectId()!"
@@ -144,5 +148,13 @@ export class ProjectsComponent {
     this.projects.set(
       this.projects().filter((project) => project.id !== projectId)
     );
+  }
+
+  async addProject(project: Project): Promise<void> {
+    const projectSummary = await this.projectService.getProjectSummary(
+      project.id
+    );
+    if (!projectSummary) return;
+    this.projects.set([...this.projects(), projectSummary]);
   }
 }

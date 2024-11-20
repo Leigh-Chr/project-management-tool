@@ -19,6 +19,10 @@ export class ProjectService {
     return this.projectController.getProjectSummaries();
   }
 
+  async getProjectSummary(projectId: number): Promise<ProjectSummary | null> {
+    return this.projectController.getProjectSummary(projectId);
+  }
+
   async getProject(projectId: number): Promise<Project | null> {
     return this.projectController.getProject(projectId);
   }

@@ -139,6 +139,42 @@ export class ProjectControllerService {
     return projectSummaries;
   }
 
+  async getProjectSummary(projectId: number): Promise<ProjectSummary | null> {
+    const userId = 1; // Hardcoded user ID for now
+    const projectEntity = findEntityById<ProjectEntity>(
+      this.database.projects,
+      projectId
+    );
+
+    if (!projectEntity) {
+      return null;
+    }
+
+    const statusEntity = this.database.statuses.find(
+      (status) => status.id === projectEntity.statusId
+    );
+
+    const status = statusEntity?.name ?? 'Unknown';
+
+    const memberCount = this.database.projectMembers.filter(
+      (pm) => pm.projectId === projectEntity.id
+    ).length;
+
+    const permissions = {
+      deleteProject: await this.isAdmin(projectEntity.id, userId),
+    };
+
+    return {
+      id: projectEntity.id,
+      name: projectEntity.name,
+      startDate: projectEntity.startDate,
+      endDate: projectEntity.endDate,
+      status,
+      memberCount,
+      permissions,
+    };
+  }
+
   async getProject(projectId: number): Promise<Project | null> {
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
@@ -178,6 +214,8 @@ export class ProjectControllerService {
   async addProject(
     project: Omit<Project, 'id' | 'statusId'>
   ): Promise<Project> {
+    const userId = 1; // Hardcoded user ID for now
+
     const projectEntity: ProjectEntity = {
       id: this.database.projects.length + 1,
       name: project.name,
@@ -187,6 +225,14 @@ export class ProjectControllerService {
     };
 
     this.database.projects.push(projectEntity);
+
+    const projectMemberEntity: ProjectMemberEntity = {
+      projectId: projectEntity.id,
+      userId,
+      roleId: 1,
+    };
+
+    this.database.projectMembers.push(projectMemberEntity);
 
     return {
       id: projectEntity.id,
