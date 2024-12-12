@@ -8,12 +8,12 @@ import {
 } from '@angular/forms';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
-import { ProjectResponse } from '../../models/ProjectResponse';
+import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { ProjectService } from '../../services/_data/project.service';
+import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
 
 @Component({
   selector: 'add-project-popup',
-  standalone: true,
   imports: [ReactiveFormsModule, InputFieldComponent, PopupComponent],
   template: `
     <ui-popup
@@ -68,7 +68,7 @@ export class AddProjectPopupComponent {
   async submit(): Promise<void> {
     if (!this.projectForm.valid) return;
 
-    const newProject: Omit<ProjectResponse, 'id' | 'statusId'> = {
+    const newProject: AddProjectRequest = {
       name: this.name.value,
       description: this.description.value,
       startDate: new Date(this.startDate.value),

@@ -2,10 +2,9 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
-  selector: 'default-layout',
-  standalone: true,
-  imports: [RouterLink, RouterLinkActive],
-  template: `
+    selector: 'default-layout',
+    imports: [RouterLink, RouterLinkActive],
+    template: `
     <div
       class="
     grid grid-rows-[auto,1fr] min-h-screen"
@@ -54,6 +53,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
       </main>
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DefaultLayoutComponent {}

@@ -4,11 +4,10 @@ import { ProjectMemberService } from '../../services/_data/project-member.servic
 import { UserService } from '../../services/_data/user.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
-import { ProjectMemberResponse } from '../../models/ProjectMemberResponse';
+import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
 
 @Component({
   selector: 'delete-project-member-popup',
-  standalone: true,
   imports: [PopupComponent],
   template: `
     @if (user) {

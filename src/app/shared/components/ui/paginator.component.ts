@@ -12,10 +12,9 @@ import {
 } from '@angular/core';
 
 @Component({
-  selector: 'ui-paginator',
-  standalone: true,
-  imports: [NgClass],
-  template: `
+    selector: 'ui-paginator',
+    imports: [NgClass],
+    template: `
     <nav
       class="
       flex flex-col items-center
@@ -94,7 +93,7 @@ import {
       }
     </nav>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PaginatorComponent {
   readonly totalItems = input.required<number>();

@@ -11,18 +11,18 @@ import { UserResponse } from '../../models/UserResponse';
 import { ProjectService } from '../../services/_data/project.service';
 import { RoleService } from '../../services/_data/role.service';
 import { UserService } from '../../services/_data/user.service';
-import { Project, ProjectMember } from '../../services/backend-mock.service';
 import { PopupComponent } from '../ui/popup.component';
 import {
   SelectFieldComponent,
   SelectOption,
 } from '../ui/select-field.component';
 import { ToastService } from '../toast/toast.service';
+import { ProjectResponse } from '../../models/Projects/ProjectResponse';
+import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
 
 const CURRENT_USER_ID = 1; // This is a mock value for the current user ID.
 @Component({
   selector: 'add-project-member-popup',
-  standalone: true,
   imports: [ReactiveFormsModule, SelectFieldComponent, PopupComponent],
   template: `
     @if (project) {
@@ -70,7 +70,7 @@ export class AddProjectMemberPopupComponent {
   userOptions: SelectOption<UserResponse>[] = [];
   roleOptions: SelectOption<RoleResponse>[] = [];
 
-  project: Project | null = null;
+  project: ProjectResponse | null = null;
 
   private readonly formBuilder = inject(FormBuilder);
   memberForm: FormGroup = this.formBuilder.group({
@@ -149,7 +149,7 @@ export class AddProjectMemberPopupComponent {
   addMember(): void {
     if (this.memberForm.invalid) return;
 
-    const newMember: ProjectMember = {
+    const newMember: ProjectMemberResponse = {
       projectId: this.projectId,
       userId: +this.userControl.value.id,
       roleId: +this.roleControl.value,

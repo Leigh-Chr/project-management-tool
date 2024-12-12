@@ -1,12 +1,11 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { ProjectResponse } from '../../models/ProjectResponse';
+import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { ProjectService } from '../../services/_data/project.service';
 import { PopupComponent } from '../ui/popup.component';
 import { ToastService } from '../toast/toast.service';
 
 @Component({
   selector: 'delete-project-popup',
-  standalone: true,
   imports: [PopupComponent],
   template: `
     @if (project) {
@@ -40,7 +39,7 @@ export class DeleteProjectPopupComponent {
   @Output() onDeleteProject = new EventEmitter<number>();
 
   async ngOnInit(): Promise<void> {
-    this.project = await this.getProjectName();
+    this.project = await this.getProject();
     if (!this.project) {
       this.toastService.showToast(
         {
@@ -55,7 +54,7 @@ export class DeleteProjectPopupComponent {
     }
   }
 
-  async getProjectName(): Promise<ProjectResponse | null> {
+  async getProject(): Promise<ProjectResponse | null> {
     return this.projectService.getProject(this.projectId);
   }
 

@@ -1,4 +1,4 @@
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,10 +13,9 @@ import { Toast, ToastService } from './toast.service';
  * Component to provide and display toast notifications.
  */
 @Component({
-  selector: 'toast-provider',
-  standalone: true,
-  imports: [ToastComponent, AsyncPipe, NgIf, NgFor],
-  template: `
+    selector: 'toast-provider',
+    imports: [ToastComponent, AsyncPipe],
+    template: `
     <div
       class="absolute top-4 right-4 flex flex-col gap-2 z-50"
       role="region"
@@ -27,7 +26,7 @@ import { Toast, ToastService } from './toast.service';
       } }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToastProviderComponent implements OnInit {
   /**

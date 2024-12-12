@@ -2,9 +2,9 @@ import { Component, Input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 
 @Component({
-  imports: [ReactiveFormsModule],
-  selector: 'ui-input-field',
-  template: `
+    imports: [ReactiveFormsModule],
+    selector: 'ui-input-field',
+    template: `
     <div class="mt-6">
       <label>
         <span
@@ -35,8 +35,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
       </small>
       }
     </div>
-  `,
-  standalone: true,
+  `
 })
 export class InputFieldComponent {
   @Input() control!: FormControl;

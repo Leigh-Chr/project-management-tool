@@ -6,10 +6,9 @@ import { IconComponent } from './icon.component';
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
 
 @Component({
-  selector: 'ui-button',
-  standalone: true,
-  imports: [NgClass, IconComponent, TooltipDirective],
-  template: `
+    selector: 'ui-button',
+    imports: [NgClass, IconComponent, TooltipDirective],
+    template: `
     @if (isLink) {
     <a
       attr.aria-label="{{ label }}"
@@ -40,7 +39,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
     </button>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ButtonComponent {
   @Input({

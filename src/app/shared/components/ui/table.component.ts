@@ -12,10 +12,9 @@ import {
 import { PaginatorComponent } from './paginator.component';
 
 @Component({
-  standalone: true,
-  selector: 'ui-table',
-  imports: [DatePipe, PaginatorComponent, NgTemplateOutlet],
-  template: `
+    selector: 'ui-table',
+    imports: [DatePipe, PaginatorComponent, NgTemplateOutlet],
+    template: `
     <table
       class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800"
     >
@@ -91,7 +90,7 @@ import { PaginatorComponent } from './paginator.component';
       </tfoot>
     </table>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TableComponent<T extends Record<string, any>> {
   @Input() headers: { name: string; key: keyof T }[] = [];
