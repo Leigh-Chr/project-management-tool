@@ -9,11 +9,10 @@ import { Router } from '@angular/router';
 import { AddProjectPopupComponent } from '../popups/add-project-popup.component';
 import { DeleteProjectPopupComponent } from '../popups/delete-project-popup.component';
 import { ButtonComponent } from '../ui/button.component';
-import { TableComponent } from '../ui/table.component';
+import { TableColumn, TableComponent } from '../ui/table.component';
 import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { ProjectSummaryResponse } from '../../models/Projects/ProjectSummaryResponse';
-import { ProjectService } from '../../services/_data/project.service';
-import { Table } from '../../../types';
+import { ProjectService } from '../../services/data/project.service';
 
 type PopupType = 'addProject' | 'deleteProject';
 
@@ -43,11 +42,7 @@ type PopupType = 'addProject' | 'deleteProject';
       />
     </div>
     <div>
-      <ui-table
-        [headers]="table.headers"
-        [columns]="table.items"
-        [data]="projects()"
-      >
+      <ui-table [columns]="columns" [data]="projects()">
         <ng-template #actionTemplate let-projectSummary>
           @if (toProjectSummary(projectSummary); as projectSummary) {
           <div class="flex gap-2">
@@ -92,26 +87,15 @@ export class ProjectsPanelComponent {
 
   readonly assignedOnly = input<boolean>(false);
 
-  readonly table: Table<ProjectSummaryResponse> = {
-    headers: [
-      { name: 'ID', key: 'id' },
-      { name: 'Name', key: 'name' },
-      { name: 'Description', key: 'description' },
-      { name: 'Start Date', key: 'startDate' },
-      { name: 'End Date', key: 'endDate' },
-      { name: 'Status', key: 'status' },
-      { name: 'Members', key: 'memberCount' },
-    ],
-    items: [
-      { key: 'id', type: 'number' },
-      { key: 'name', type: 'text' },
-      { key: 'description', type: 'text' },
-      { key: 'startDate', type: 'date' },
-      { key: 'endDate', type: 'date' },
-      { key: 'status', type: 'text' },
-      { key: 'memberCount', type: 'number' },
-    ],
-  };
+  readonly columns: TableColumn<ProjectSummaryResponse>[] = [
+    { name: 'ID', key: 'id', type: 'number' },
+    { name: 'Name', key: 'name', type: 'text' },
+    { name: 'Description', key: 'description', type: 'text' },
+    { name: 'Start Date', key: 'startDate', type: 'date' },
+    { name: 'End Date', key: 'endDate', type: 'date' },
+    { name: 'Status', key: 'status', type: 'text' },
+    { name: 'Members', key: 'memberCount', type: 'number' },
+  ];
 
   readonly projects = signal<ProjectSummaryResponse[]>([]);
   readonly activePopup = signal<PopupType | null>(null);
@@ -135,10 +119,6 @@ export class ProjectsPanelComponent {
 
   goToProject(projectId: number): void {
     this.router.navigate(['/projects', projectId]);
-  }
-
-  onPageChange(page: number) {
-    console.log(page);
   }
 
   toProjectSummary(projectSummary: unknown): ProjectSummaryResponse {

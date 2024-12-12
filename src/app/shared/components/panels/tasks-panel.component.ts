@@ -6,14 +6,13 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Table } from '../../../types';
 import { TaskResponse } from '../../models/Tasks/TaskResponse';
 import { TaskSummaryResponse } from '../../models/Tasks/TaskSummaryResponse';
-import { TaskService } from '../../services/_data/task.service';
-import { ButtonComponent } from '../ui/button.component';
-import { TableComponent } from '../ui/table.component';
+import { TaskService } from '../../services/data/task.service';
 import { AddTaskPopupComponent } from '../popups/add-task-popup.component';
 import { DeleteTaskPopupComponent } from '../popups/delete-task-popup.component';
+import { ButtonComponent } from '../ui/button.component';
+import { TableColumn, TableComponent } from '../ui/table.component';
 
 type PopupType = 'addTask' | 'deleteTask';
 
@@ -42,11 +41,7 @@ type PopupType = 'addTask' | 'deleteTask';
       />
     </div>
     <div>
-      <ui-table
-        [headers]="table.headers"
-        [columns]="table.items"
-        [data]="tasks()"
-      >
+      <ui-table [columns]="columns" [data]="tasks()">
         <ng-template #actionTemplate let-taskSummary>
           @if (toTaskSummary(taskSummary); as taskSummary) {
           <div class="flex gap-2">
@@ -90,24 +85,14 @@ export class TasksPanelComponent {
 
   readonly assignedOnly = input<boolean>(false);
 
-  readonly table: Table<TaskSummaryResponse> = {
-    headers: [
-      { name: 'ID', key: 'id' },
-      { name: 'Name', key: 'name' },
-      { name: 'Project', key: 'project' },
-      { name: 'Description', key: 'description' },
-      { name: 'Due Date', key: 'dueDate' },
-      { name: 'Priority', key: 'priority' },
-    ],
-    items: [
-      { key: 'id', type: 'number' },
-      { key: 'name', type: 'text' },
-      { key: 'project', type: 'text' },
-      { key: 'description', type: 'text' },
-      { key: 'dueDate', type: 'date' },
-      { key: 'priority', type: 'number' },
-    ],
-  };
+  readonly columns: TableColumn<TaskSummaryResponse>[] = [
+    { name: 'ID', key: 'id', type: 'number' },
+    { name: 'Name', key: 'name', type: 'text' },
+    { name: 'Project', key: 'project', type: 'text' },
+    { name: 'Description', key: 'description', type: 'text' },
+    { name: 'Due Date', key: 'dueDate', type: 'date' },
+    { name: 'Priority', key: 'priority', type: 'number' },
+  ];
 
   readonly tasks = signal<TaskSummaryResponse[]>([]);
   readonly activePopup = signal<PopupType | null>(null);
@@ -131,10 +116,6 @@ export class TasksPanelComponent {
 
   goTotask(taskId: number): void {
     this.router.navigate(['/tasks', taskId]);
-  }
-
-  onPageChange(page: number) {
-    console.log(page);
   }
 
   toTaskSummary(taskSummary: unknown): TaskSummaryResponse {

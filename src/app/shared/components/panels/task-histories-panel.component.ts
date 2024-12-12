@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { Table } from '../../../types';
 import { TaskEventResponse } from '../../models/TaskEventResponse';
-import { TableComponent } from '../ui/table.component';
+import { TableColumn, TableComponent } from '../ui/table.component';
 
 @Component({
   selector: 'task-histories-panel',
@@ -19,11 +18,7 @@ import { TableComponent } from '../ui/table.component';
       </h2>
     </div>
     <div>
-      <ui-table
-        [headers]="table.headers"
-        [columns]="table.items"
-        [data]="taskHistories()"
-      />
+      <ui-table [columns]="columns" [data]="taskHistories()" />
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,24 +26,12 @@ import { TableComponent } from '../ui/table.component';
 export class TaskHistoriesPanelComponent {
   readonly typeName = 'Task History';
 
-  protected readonly table: Table<TaskEventResponse> = {
-    headers: [
-      { name: 'ID', key: 'id' },
-      { name: 'Name', key: 'name' },
-      { name: 'Description', key: 'description' },
-      { name: 'Date', key: 'date' },
-    ],
-    items: [
-      { key: 'id', type: 'number' },
-      { key: 'name', type: 'text' },
-      { key: 'description', type: 'text' },
-      { key: 'date', type: 'date' },
-    ],
-  };
+  protected readonly columns: TableColumn<TaskEventResponse>[] = [
+    { name: 'ID', key: 'id', type: 'number' },
+    { name: 'Name', key: 'name', type: 'text' },
+    { name: 'Description', key: 'description', type: 'text' },
+    { name: 'Date', key: 'date', type: 'date' },
+  ];
 
   readonly taskHistories = signal<TaskEventResponse[]>([]);
-
-  onPageChange(page: number) {
-    console.log(page);
-  }
 }

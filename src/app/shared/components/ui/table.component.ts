@@ -11,20 +11,28 @@ import {
 } from '@angular/core';
 import { PaginatorComponent } from './paginator.component';
 
+export type ItemType = 'text' | 'date' | 'number';
+
+export type TableColumn<Item> = {
+  name: string;
+  key: keyof Item;
+  type: ItemType;
+};
+
 @Component({
-    selector: 'ui-table',
-    imports: [DatePipe, PaginatorComponent, NgTemplateOutlet],
-    template: `
+  selector: 'ui-table',
+  imports: [DatePipe, PaginatorComponent, NgTemplateOutlet],
+  template: `
     <table
       class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800"
     >
       <thead class="bg-neutral-50 dark:bg-neutral-950">
         <tr>
-          @for (header of headers; track $index) {
+          @for (column of columns; track $index) {
           <th
             class="px-4 py-2 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider"
           >
-            {{ header.name }}
+            {{ column.name }}
           </th>
           } @if (actionTemplate) {
           <th
@@ -42,7 +50,7 @@ import { PaginatorComponent } from './paginator.component';
         <tr>
           <td
             class="px-4 py-2 text-center text-sm text-neutral-500 dark:text-neutral-400"
-            [attr.colspan]="headers.length + (actionTemplate ? 1 : 0)"
+            [attr.colspan]="columns.length + (actionTemplate ? 1 : 0)"
           >
             No data available
           </td>
@@ -75,7 +83,7 @@ import { PaginatorComponent } from './paginator.component';
       </tbody>
       <tfoot>
         <tr>
-          <td [attr.colspan]="headers.length + (actionTemplate ? 1 : 0)">
+          <td [attr.colspan]="columns.length + (actionTemplate ? 1 : 0)">
             <ui-paginator
               [totalItems]="data().length"
               [pageSizeOptions]="pageSizeOptions"
@@ -90,11 +98,10 @@ import { PaginatorComponent } from './paginator.component';
       </tfoot>
     </table>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TableComponent<T extends Record<string, any>> {
-  @Input() headers: { name: string; key: keyof T }[] = [];
-  @Input() columns: { key: keyof T; type: 'text' | 'number' | 'date' }[] = [];
+  @Input() columns: TableColumn<T>[] = [];
   readonly data = input.required<T[]>();
 
   @Input() pageSizeOptions: number[] = [5, 10, 20, 50];
