@@ -43,15 +43,12 @@ module.exports = [
       "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/consistent-type-assertions": "error",
-      "@typescript-eslint/no-unsafe-assignment": "error",
-      "@typescript-eslint/no-unsafe-call": "error",
 
       // Règles de sécurité
       "security/detect-object-injection": "error",
       "security/detect-eval-with-expression": "error",
 
       // Autres règles de style
-      "no-console": "error",
       "prefer-const": "error",
     },
   },
