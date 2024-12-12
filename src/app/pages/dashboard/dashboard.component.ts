@@ -1,25 +1,22 @@
 import { Component } from '@angular/core';
+import { ProjectsPanelComponent } from '../../shared/components/panels/projects-panel.component';
+import { TaskHistoriesPanelComponent } from '../../shared/components/panels/task-histories-panel.component';
+import { TasksPanelComponent } from '../../shared/components/panels/tasks-panel.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { PaginatorComponent } from '../../shared/components/ui/paginator.component';
-import { ProjectsPanelComponent } from './panels/projects-panel.component';
-import { TaskHistoriesPanelComponent } from './panels/task-histories-panel.component';
-import { TasksPanelComponent } from './panels/tasks-panel.component';
 
 @Component({
-  standalone: true,
   imports: [
     DefaultLayoutComponent,
-    PaginatorComponent,
     ProjectsPanelComponent,
     TasksPanelComponent,
     TaskHistoriesPanelComponent,
   ],
   template: `
     <default-layout>
-      <div class="gap-4 grid lg:grid-cols-[2fr,1fr] p-4 h-full">
-        <div class="gap-4 grid lg:grid-cols-1">
-          <projects-panel />
-          <tasks-panel />
+      <div class="gap-2 grid lg:grid-cols-[2fr,1fr] p-2 h-full">
+        <div class="gap-2 grid lg:grid-cols-1">
+          <projects-panel [assignedOnly]="true" />
+          <tasks-panel [assignedOnly]="true" />
         </div>
         <task-histories-panel />
       </div>

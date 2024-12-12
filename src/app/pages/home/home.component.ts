@@ -2,9 +2,8 @@ import { Component } from '@angular/core';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 
 @Component({
-  imports: [ButtonComponent],
-  standalone: true,
-  template: `
+    imports: [ButtonComponent],
+    template: `
     <div
       class="shadow-md p-8 rounded-lg w-full max-w-md bg-white dark:bg-neutral-900"
     >
@@ -22,6 +21,6 @@ import { ButtonComponent } from '../../shared/components/ui/button.component';
       </div>
     </div>
   `,
-  host: { class: 'grid h-screen place-items-center' },
+    host: { class: 'grid h-screen place-items-center' }
 })
 export class HomeComponent {}

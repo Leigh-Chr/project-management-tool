@@ -9,13 +9,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { ProjectDetailsResponse } from '../../shared/models/ProjectDetailsResponse';
+import { ProjectDetailsResponse } from '../../shared/models/Projects/ProjectDetailsResponse';
 import { ProjectService } from '../../shared/services/_data/project.service';
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { DeleteProjectMemberPopupComponent } from '../../shared/components/popups/delete-project-member-popup.component';
-import { ProjectMemberResponse } from '../../shared/models/ProjectMemberResponse';
+import { ProjectMemberResponse } from '../../shared/models/Projects/ProjectMemberResponse';
 
 type PopupType =
   | 'deleteProject'
@@ -37,7 +37,6 @@ type PopupType =
     DeleteProjectMemberPopupComponent,
     AddProjectMemberPopupComponent,
   ],
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <default-layout>
