@@ -12,10 +12,12 @@ import {
 } from '../database/entities';
 import { TaskSummaryResponse } from '../../../models/Tasks/TaskSummaryResponse';
 import { AddTaskRequest } from '../../../models/Tasks/AddTaskRequest';
+import { AuthService } from '../../auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class TaskControllerService {
   private readonly database = inject(DatabaseMockService);
+  private readonly authService = inject(AuthService);
 
   async getTaskDetails(taskId: number): Promise<TaskDetailsResponse | null> {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
@@ -91,7 +93,8 @@ export class TaskControllerService {
   async getTaskSummaries(
     assignedOnly: boolean = false
   ): Promise<TaskSummaryResponse[]> {
-    const userId = 1; // Hardcoded user ID for now
+    const userId = this.authService.authUser()?.id;
+    if (!userId) return [];
     let taskEntities = this.database.tasks;
 
     if (assignedOnly) {
@@ -135,7 +138,8 @@ export class TaskControllerService {
   }
 
   async getTaskSummary(taskId: number): Promise<TaskSummaryResponse | null> {
-    const userId = 1; // Hardcoded user ID for now
+    const userId = this.authService.authUser()?.id;
+    if (!userId) return null;
 
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
 

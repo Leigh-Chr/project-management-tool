@@ -15,15 +15,18 @@ import {
 import { ProjectSummaryResponse } from '../../../models/Projects/ProjectSummaryResponse';
 import { ProjectMemberResponse } from '../../../models/Projects/ProjectMemberResponse';
 import { AddProjectRequest } from '../../../models/Projects/AddProjectRequest';
+import { AuthService } from '../../auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectControllerService {
   private readonly database = inject(DatabaseMockService);
+  private readonly authService = inject(AuthService);
 
   async getProjectDetails(
     projectId: number
   ): Promise<ProjectDetailsResponse | null> {
-    const userId = 1;
+    const userId = this.authService.authUser()?.id;
+    if (!userId) return null;
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
       projectId
@@ -111,7 +114,8 @@ export class ProjectControllerService {
   async getProjectSummaries(
     assignedOnly: boolean = false
   ): Promise<ProjectSummaryResponse[]> {
-    const userId = 1; // Hardcoded user ID for now
+    const userId = this.authService.authUser()?.id;
+    if (!userId) return [];
     let projectEntities = this.database.projects;
 
     if (assignedOnly) {
@@ -157,7 +161,8 @@ export class ProjectControllerService {
   async getProjectSummary(
     projectId: number
   ): Promise<ProjectSummaryResponse | null> {
-    const userId = 1; // Hardcoded user ID for now
+    const userId = this.authService.authUser()?.id;
+    if (!userId) return null;
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
       projectId
@@ -228,8 +233,11 @@ export class ProjectControllerService {
     return project;
   }
 
-  async addProject(project: AddProjectRequest): Promise<ProjectResponse> {
-    const userId = 1; // Hardcoded user ID for now
+  async addProject(
+    project: AddProjectRequest
+  ): Promise<ProjectResponse | null> {
+    const userId = this.authService.authUser()?.id;
+    if (!userId) return null;
 
     const projectEntity: ProjectEntity = {
       id: this.database.projects.length + 1,

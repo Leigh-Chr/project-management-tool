@@ -37,10 +37,16 @@ export class AuthControllerService {
 
     if (!userEntity) return null;
 
+    const token = JSON.stringify({
+      userId: userEntity.id,
+      email: userEntity.email,
+    });
+
     return {
       id: userEntity.id,
       username: userEntity.username,
       email: userEntity.email,
+      token,
     };
   }
 }

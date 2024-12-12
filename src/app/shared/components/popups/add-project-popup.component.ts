@@ -63,7 +63,7 @@ export class AddProjectPopupComponent {
   startDate = this.projectForm.get('startDate') as FormControl<string>;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<ProjectResponse>();
+  @Output() onSubmit = new EventEmitter<ProjectResponse | null>();
 
   async submit(): Promise<void> {
     if (!this.projectForm.valid) return;
