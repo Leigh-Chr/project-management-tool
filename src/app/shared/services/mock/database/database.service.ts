@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { TaskHistory } from '../../backend-mock.service';
 import {
   UserEntity,
   StatusEntity,
@@ -8,6 +7,7 @@ import {
   ProjectMemberEntity,
   TaskEntity,
 } from './entities';
+import { TaskEventResponse } from '../../../models/TaskEventResponse';
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseMockService {
@@ -154,7 +154,7 @@ export class DatabaseMockService {
     },
   ];
 
-  readonly taskHistories: TaskHistory[] = [
+  readonly taskHistory: TaskEventResponse[] = [
     {
       id: 1,
       taskId: 1,

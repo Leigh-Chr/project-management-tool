@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { ProjectResponse } from '../../../models/ProjectResponse';
+import { ProjectResponse } from '../../../models/Projects/ProjectResponse';
 import {
   ProjectDetailsResponse,
   ProjectDetailsPermissions,
-} from '../../../models/ProjectDetailsResponse';
+} from '../../../models/Projects/ProjectDetailsResponse';
 import { filterEntitiesByField, findEntityById } from '../database/utils';
 import { DatabaseMockService } from '../database/database.service';
 import {
@@ -12,8 +12,9 @@ import {
   StatusEntity,
   TaskEntity,
 } from '../database/entities';
-import { ProjectSummaryResponse } from '../../../models/ProjectSummaryResponse';
-import { ProjectMemberResponse } from '../../../models/ProjectMemberResponse';
+import { ProjectSummaryResponse } from '../../../models/Projects/ProjectSummaryResponse';
+import { ProjectMemberResponse } from '../../../models/Projects/ProjectMemberResponse';
+import { AddProjectRequest } from '../../../models/Projects/AddProjectRequest';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectControllerService {
@@ -108,12 +109,12 @@ export class ProjectControllerService {
   }
 
   async getProjectSummaries(
-    onlyUserProjects: boolean = false
+    assignedOnly: boolean = false
   ): Promise<ProjectSummaryResponse[]> {
     const userId = 1; // Hardcoded user ID for now
     let projectEntities = this.database.projects;
 
-    if (onlyUserProjects) {
+    if (assignedOnly) {
       const userProjectIds = this.database.projectMembers
         .filter((pm) => pm.userId === userId)
         .map((pm) => pm.projectId);
@@ -227,9 +228,7 @@ export class ProjectControllerService {
     return project;
   }
 
-  async addProject(
-    project: Omit<ProjectResponse, 'id' | 'statusId'>
-  ): Promise<ProjectResponse> {
+  async addProject(project: AddProjectRequest): Promise<ProjectResponse> {
     const userId = 1; // Hardcoded user ID for now
 
     const projectEntity: ProjectEntity = {
