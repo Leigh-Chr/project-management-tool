@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { ProjectResponse } from '../../models/ProjectResponse';
-import { ProjectDetailsResponse } from '../../models/ProjectDetailsResponse';
+import { ProjectResponse } from '../../models/Projects/ProjectResponse';
+import { ProjectDetailsResponse } from '../../models/Projects/ProjectDetailsResponse';
 import { ProjectControllerService } from '../mock/backend/project-controller.service';
-import { ProjectSummaryResponse } from '../../models/ProjectSummaryResponse';
-import { ProjectMemberResponse } from '../../models/ProjectMemberResponse';
+import { ProjectSummaryResponse } from '../../models/Projects/ProjectSummaryResponse';
+import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
+import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
 
 @Injectable({
   providedIn: 'root',
@@ -18,9 +19,9 @@ export class ProjectService {
   }
 
   async getProjectSummaries(
-    onlyUserProjects: boolean = false
+    assignedOnly: boolean = false
   ): Promise<ProjectSummaryResponse[]> {
-    return this.projectController.getProjectSummaries(onlyUserProjects);
+    return this.projectController.getProjectSummaries(assignedOnly);
   }
 
   async getProjectSummary(
@@ -37,9 +38,7 @@ export class ProjectService {
     return this.projectController.deleteProject(projectId);
   }
 
-  async addProject(
-    project: Omit<ProjectResponse, 'id' | 'statusId'>
-  ): Promise<ProjectResponse> {
+  async addProject(project: AddProjectRequest): Promise<ProjectResponse> {
     return this.projectController.addProject(project);
   }
 

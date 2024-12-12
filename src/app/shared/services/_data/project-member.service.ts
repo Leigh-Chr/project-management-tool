@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ProjectMemberControllerService } from '../mock/backend/project-member-controller.service';
-import { ProjectMemberResponse } from '../../models/ProjectMemberResponse';
+import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
 
 @Injectable({
   providedIn: 'root',

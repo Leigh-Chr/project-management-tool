@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { Role } from '../backend-mock.service';
 import { RoleControllerService } from '../mock/backend/role-controller.service';
+import { RoleResponse } from '../../models/RoleResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +8,7 @@ import { RoleControllerService } from '../mock/backend/role-controller.service';
 export class RoleService {
   private readonly roleController = inject(RoleControllerService);
 
-  async getRoles(): Promise<Role[]> {
+  async getRoles(): Promise<RoleResponse[]> {
     return this.roleController.getRoles();
   }
 }
