@@ -10,7 +10,7 @@ import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { ProjectDetailsResponse } from '../../shared/models/Projects/ProjectDetailsResponse';
-import { ProjectService } from '../../shared/services/_data/project.service';
+import { ProjectService } from '../../shared/services/data/project.service';
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
 import { ToastService } from '../../shared/components/toast/toast.service';

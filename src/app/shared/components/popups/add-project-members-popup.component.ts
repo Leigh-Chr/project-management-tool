@@ -8,9 +8,9 @@ import {
 } from '@angular/forms';
 import { RoleResponse } from '../../models/RoleResponse';
 import { UserResponse } from '../../models/UserResponse';
-import { ProjectService } from '../../services/_data/project.service';
-import { RoleService } from '../../services/_data/role.service';
-import { UserService } from '../../services/_data/user.service';
+import { ProjectService } from '../../services/data/project.service';
+import { RoleService } from '../../services/data/role.service';
+import { UserService } from '../../services/data/user.service';
 import { PopupComponent } from '../ui/popup.component';
 import {
   SelectFieldComponent,

@@ -9,8 +9,8 @@ import {
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
 import { TaskResponse } from '../../models/Tasks/TaskResponse';
-import { TaskService } from '../../services/_data/task.service';
-import { UserService } from '../../services/_data/user.service';
+import { TaskService } from '../../services/data/task.service';
+import { UserService } from '../../services/data/user.service';
 import { UserResponse } from '../../models/UserResponse';
 import {
   SelectFieldComponent,

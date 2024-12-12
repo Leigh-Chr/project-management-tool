@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { TaskResponse } from '../../models/Tasks/TaskResponse';
-import { TaskService } from '../../services/_data/task.service';
+import { TaskService } from '../../services/data/task.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
 

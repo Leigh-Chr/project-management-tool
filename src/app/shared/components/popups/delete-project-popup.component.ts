@@ -1,6 +1,6 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ProjectResponse } from '../../models/Projects/ProjectResponse';
-import { ProjectService } from '../../services/_data/project.service';
+import { ProjectService } from '../../services/data/project.service';
 import { PopupComponent } from '../ui/popup.component';
 import { ToastService } from '../toast/toast.service';
 

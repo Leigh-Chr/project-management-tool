@@ -1,7 +1,7 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { UserResponse } from '../../models/UserResponse';
-import { ProjectMemberService } from '../../services/_data/project-member.service';
-import { UserService } from '../../services/_data/user.service';
+import { ProjectMemberService } from '../../services/data/project-member.service';
+import { UserService } from '../../services/data/user.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
 import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';

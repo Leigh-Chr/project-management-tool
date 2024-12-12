@@ -9,7 +9,7 @@ import {
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
 import { ProjectResponse } from '../../models/Projects/ProjectResponse';
-import { ProjectService } from '../../services/_data/project.service';
+import { ProjectService } from '../../services/data/project.service';
 import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
 
 @Component({

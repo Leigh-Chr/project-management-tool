@@ -8,7 +8,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { TaskDetailsResponse } from '../../shared/models/Tasks/TaskDetailsResponse';
-import { TaskService } from '../../shared/services/_data/task.service';
+import { TaskService } from '../../shared/services/data/task.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
 
