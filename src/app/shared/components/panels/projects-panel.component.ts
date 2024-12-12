@@ -2,18 +2,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  input,
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { AddProjectPopupComponent } from '../../../shared/components/popups/add-project-popup.component';
-import { DeleteProjectPopupComponent } from '../../../shared/components/popups/delete-project-popup.component';
-import { ButtonComponent } from '../../../shared/components/ui/button.component';
-import { TableComponent } from '../../../shared/components/ui/table.component';
-import { DefaultLayoutComponent } from '../../../shared/layouts/default-layout.component';
-import { ProjectResponse } from '../../../shared/models/ProjectResponse';
-import { ProjectSummaryResponse } from '../../../shared/models/ProjectSummaryResponse';
+import { AddProjectPopupComponent } from '../popups/add-project-popup.component';
+import { DeleteProjectPopupComponent } from '../popups/delete-project-popup.component';
+import { ButtonComponent } from '../ui/button.component';
+import { TableComponent } from '../ui/table.component';
+import { ProjectResponse } from '../../models/Projects/ProjectResponse';
+import { ProjectSummaryResponse } from '../../models/Projects/ProjectSummaryResponse';
+import { ProjectService } from '../../services/_data/project.service';
 import { Table } from '../../../types';
-import { ProjectService } from '../../../shared/services/_data/project.service';
 
 type PopupType = 'addProject' | 'deleteProject';
 
@@ -23,10 +23,8 @@ type PopupType = 'addProject' | 'deleteProject';
     ButtonComponent,
     AddProjectPopupComponent,
     DeleteProjectPopupComponent,
-    DefaultLayoutComponent,
     TableComponent,
   ],
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
@@ -49,7 +47,6 @@ type PopupType = 'addProject' | 'deleteProject';
         [headers]="table.headers"
         [columns]="table.items"
         [data]="projects()"
-        [pageSizeOptions]="[1, 2]"
       >
         <ng-template #actionTemplate let-projectSummary>
           @if (toProjectSummary(projectSummary); as projectSummary) {
@@ -93,6 +90,8 @@ export class ProjectsPanelComponent {
   private readonly router = inject(Router);
   private readonly projectService = inject(ProjectService);
 
+  readonly assignedOnly = input<boolean>(false);
+
   readonly table: Table<ProjectSummaryResponse> = {
     headers: [
       { name: 'ID', key: 'id' },
@@ -119,7 +118,9 @@ export class ProjectsPanelComponent {
   readonly activeProjectId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    this.projects.set(await this.projectService.getProjectSummaries(true));
+    this.projects.set(
+      await this.projectService.getProjectSummaries(this.assignedOnly())
+    );
   }
 
   showPopup(popupType: PopupType, projectId?: number): void {

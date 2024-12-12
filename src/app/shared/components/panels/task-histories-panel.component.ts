@@ -1,21 +1,11 @@
-import { DatePipe } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
-import { TaskHistory } from '../../../shared/services/backend-mock.service';
-import { TaskHistoryService } from '../../../shared/services/data/task-history.service';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { Table } from '../../../types';
-import { ButtonComponent } from '../../../shared/components/ui/button.component';
-import { PaginatorComponent } from '../../../shared/components/ui/paginator.component';
-import { TableComponent } from '../../../shared/components/ui/table.component';
+import { TaskEventResponse } from '../../models/TaskEventResponse';
+import { TableComponent } from '../ui/table.component';
 
 @Component({
   selector: 'task-histories-panel',
-  standalone: true,
-  imports: [PaginatorComponent, ButtonComponent, DatePipe, TableComponent],
+  imports: [TableComponent],
   host: {
     class:
       'border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]',
@@ -39,10 +29,9 @@ import { TableComponent } from '../../../shared/components/ui/table.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskHistoriesPanelComponent {
-  protected readonly taskHistoryService = inject(TaskHistoryService);
   readonly typeName = 'Task History';
 
-  protected readonly table: Table<TaskHistory> = {
+  protected readonly table: Table<TaskEventResponse> = {
     headers: [
       { name: 'ID', key: 'id' },
       { name: 'Name', key: 'name' },
@@ -57,11 +46,7 @@ export class TaskHistoriesPanelComponent {
     ],
   };
 
-  readonly taskHistories = computed(() =>
-    this.taskHistoryService
-      .taskHistoriesSignal()
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
-  );
+  readonly taskHistories = signal<TaskEventResponse[]>([]);
 
   onPageChange(page: number) {
     console.log(page);
