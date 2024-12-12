@@ -7,16 +7,38 @@ import { RegisterComponent } from './pages/register/register.component';
 import { TaskComponent } from './pages/tasks/task-details.component';
 import { TasksComponent } from './pages/tasks/tasks.component';
 import { ProjectComponent } from './pages/projects/project-details.component';
+import { AuthGuard } from './shared/guards/auth.guard';
+import { UnauthGuard } from './shared/guards/unauth.guard';
 
 export const routes: Routes = [
-  { path: 'tasks', component: TasksComponent },
-  { path: 'tasks/:id', component: TaskComponent },
-  { path: 'projects', component: ProjectsComponent },
-  { path: 'projects/:id', component: ProjectComponent },
+  {
+    path: 'tasks',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: TasksComponent },
+      { path: ':id', component: TaskComponent },
+    ],
+  },
+  {
+    path: 'projects',
+    canActivate: [AuthGuard],
+    children: [
+      { path: '', component: ProjectsComponent },
+      { path: ':id', component: ProjectComponent },
+    ],
+  },
   { path: 'home', component: HomeComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'login', component: LoginComponent },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'register',
+    component: RegisterComponent,
+    canActivate: [UnauthGuard],
+  },
+  { path: 'login', component: LoginComponent, canActivate: [UnauthGuard] },
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: '**', redirectTo: '/home' },
 ];
