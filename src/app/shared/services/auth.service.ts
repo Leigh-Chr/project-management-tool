@@ -5,6 +5,7 @@ import { RegisterResponse } from '../models/Auth/RegisterResponse';
 import { LoginRequest } from '../models/Auth/LoginRequest';
 import { LoginResponse } from '../models/Auth/LoginResponse';
 import { CookieService } from 'ngx-cookie-service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class AuthService {
   readonly authController = inject(AuthControllerService);
   readonly authUser = signal<LoginResponse | null>(null);
   private readonly cookieService = inject(CookieService);
+  private readonly router = inject(Router);
 
   constructor() {
     this.loadUserFromCookies();
@@ -35,6 +37,7 @@ export class AuthService {
   logout(): void {
     this.authUser.set(null);
     this.removeUserFromCookies();
+    this.router.navigate(['/login']);
   }
 
   private setUserInCookies(loginResponse: LoginResponse): void {

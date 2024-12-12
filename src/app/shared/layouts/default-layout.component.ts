@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { ButtonComponent } from '../components/ui/button.component';
+import { AuthService } from '../services/auth.service';
 
 @Component({
-    selector: 'default-layout',
-    imports: [RouterLink, RouterLinkActive],
-    template: `
+  selector: 'default-layout',
+  imports: [RouterLink, RouterLinkActive, ButtonComponent],
+  template: `
     <div
       class="
     grid grid-rows-[auto,1fr] min-h-screen"
@@ -44,15 +46,33 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
             </li>
           </ul>
         </div>
-        <button>
-          <i class="fi fi-br-user"></i>
-        </button>
+
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-2">
+            <i class="fi fi-br-user"></i>
+            <span>{{ user()!.username }}</span>
+          </span>
+          <ui-button
+            label="Logout"
+            icon="fi fi-br-exit"
+            variant="danger"
+            (click)="logout()"
+          ></ui-button>
+        </div>
       </nav>
       <main class="p-2">
         <ng-content />
       </main>
     </div>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DefaultLayoutComponent {}
+export class DefaultLayoutComponent {
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  readonly user = this.authService.authUser;
+
+  logout(): void {
+    this.authService.logout();
+  }
+}
