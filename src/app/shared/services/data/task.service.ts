@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { TaskResponse } from '../../models/Tasks/TaskResponse';
 import { TaskDetailsResponse } from '../../models/Tasks/TaskDetailsResponse';
-import { TaskControllerService } from '../mock/backend/task-controller.service';
+import { TaskController } from '../mock/backend/task.controller';
 import { TaskSummaryResponse } from '../../models/Tasks/TaskSummaryResponse';
 import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
 
@@ -9,7 +9,7 @@ import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
   providedIn: 'root',
 })
 export class TaskService {
-  private readonly taskController = inject(TaskControllerService);
+  private readonly taskController = inject(TaskController);
 
   async getTaskDetails(taskId: number): Promise<TaskDetailsResponse | null> {
     return this.taskController.getTaskDetails(taskId);

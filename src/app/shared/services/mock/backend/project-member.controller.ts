@@ -3,7 +3,7 @@ import { DatabaseMockService } from '../database/database.service';
 import { ProjectMemberResponse } from '../../../models/Projects/ProjectMemberResponse';
 
 @Injectable({ providedIn: 'root' })
-export class ProjectMemberControllerService {
+export class ProjectMemberController {
   private readonly database = inject(DatabaseMockService);
 
   async getProjectMember(

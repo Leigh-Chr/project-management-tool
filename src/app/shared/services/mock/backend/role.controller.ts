@@ -4,7 +4,7 @@ import { RoleEntity } from '../database/entities';
 import { RoleResponse } from '../../../models/RoleResponse';
 
 @Injectable({ providedIn: 'root' })
-export class RoleControllerService {
+export class RoleController {
   private readonly database = inject(DatabaseMockService);
 
   async getRoles(): Promise<RoleResponse[]> {

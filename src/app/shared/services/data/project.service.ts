@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { ProjectDetailsResponse } from '../../models/Projects/ProjectDetailsResponse';
-import { ProjectControllerService } from '../mock/backend/project-controller.service';
+import { ProjectController } from '../mock/backend/project.controller';
 import { ProjectSummaryResponse } from '../../models/Projects/ProjectSummaryResponse';
 import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
 import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
@@ -10,7 +10,7 @@ import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
   providedIn: 'root',
 })
 export class ProjectService {
-  private readonly projectController = inject(ProjectControllerService);
+  private readonly projectController = inject(ProjectController);
 
   async getProjectDetails(
     projectId: number

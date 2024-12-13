@@ -3,7 +3,7 @@ import { UserResponse } from '../../../models/UserResponse';
 import { DatabaseMockService } from '../database/database.service';
 
 @Injectable({ providedIn: 'root' })
-export class UserControllerService {
+export class UserController {
   private readonly database = inject(DatabaseMockService);
 
   async getUsers(): Promise<UserResponse[]> {

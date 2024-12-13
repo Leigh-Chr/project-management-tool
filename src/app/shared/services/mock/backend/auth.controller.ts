@@ -8,7 +8,7 @@ import { LoginResponse } from '../../../models/Auth/LoginResponse';
 @Injectable({
   providedIn: 'root',
 })
-export class AuthControllerService {
+export class AuthController {
   private readonly database = inject(DatabaseMockService);
 
   async register(registerRequest: RegisterRequest): Promise<RegisterResponse> {

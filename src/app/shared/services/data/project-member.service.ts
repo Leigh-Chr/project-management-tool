@@ -1,14 +1,12 @@
 import { Injectable, inject } from '@angular/core';
-import { ProjectMemberControllerService } from '../mock/backend/project-member-controller.service';
+import { ProjectMemberController } from '../mock/backend/project-member.controller';
 import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectMemberService {
-  private readonly projectMemberController = inject(
-    ProjectMemberControllerService
-  );
+  private readonly projectMemberController = inject(ProjectMemberController);
 
   async getProjectMember(
     projectId: number,

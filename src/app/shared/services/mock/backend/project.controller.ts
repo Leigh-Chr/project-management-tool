@@ -18,7 +18,7 @@ import { AddProjectRequest } from '../../../models/Projects/AddProjectRequest';
 import { AuthService } from '../../auth.service';
 
 @Injectable({ providedIn: 'root' })
-export class ProjectControllerService {
+export class ProjectController {
   private readonly database = inject(DatabaseMockService);
   private readonly authService = inject(AuthService);
 

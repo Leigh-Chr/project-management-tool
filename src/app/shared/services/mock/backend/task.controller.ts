@@ -15,7 +15,7 @@ import { AddTaskRequest } from '../../../models/Tasks/AddTaskRequest';
 import { AuthService } from '../../auth.service';
 
 @Injectable({ providedIn: 'root' })
-export class TaskControllerService {
+export class TaskController {
   private readonly database = inject(DatabaseMockService);
   private readonly authService = inject(AuthService);
 

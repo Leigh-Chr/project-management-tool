@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { AuthControllerService } from './mock/backend/auth-controller.service';
+import { AuthController } from './mock/backend/auth.controller';
 import { RegisterRequest } from '../models/Auth/RegisterRequest';
 import { RegisterResponse } from '../models/Auth/RegisterResponse';
 import { LoginRequest } from '../models/Auth/LoginRequest';
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   providedIn: 'root',
 })
 export class AuthService {
-  readonly authController = inject(AuthControllerService);
+  readonly authController = inject(AuthController);
   readonly authUser = signal<LoginResponse | null>(null);
   private readonly cookieService = inject(CookieService);
   private readonly router = inject(Router);
