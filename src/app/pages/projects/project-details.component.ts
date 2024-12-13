@@ -41,7 +41,11 @@ type PopupType =
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <pmt-default-layout>
+    <pmt-default-layout
+      title="
+      {{ project ? project.name : ('project.loading' | translate) }}
+    "
+    >
       @if (project) {
       <div
         class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900 shadow-sm grid gap-6"

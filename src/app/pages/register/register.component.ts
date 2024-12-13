@@ -12,6 +12,7 @@ import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { InputFieldComponent } from '../../shared/components/ui/input-field.component';
 import { RegisterRequest } from '../../shared/models/Auth/RegisterRequest';
 import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 
 @Component({
   imports: [
@@ -20,61 +21,64 @@ import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
     InputFieldComponent,
     RouterModule,
     TranslatorPipe,
+    DefaultLayoutComponent,
   ],
   host: {
     class: 'grid h-screen place-items-center',
   },
   template: `
-    <div
-      class="shadow-md p-8 rounded-lg w-full max-w-md bg-neutral-50 dark:bg-neutral-900"
-    >
-      <h1 class="mb-6 font-semibold text-4xl text-center">
-        {{ 'register.title' | translate }}
-      </h1>
-      <form (ngSubmit)="onSubmit()" [formGroup]="registerForm" novalidate>
-        <ui-input-field
-          [control]="username"
-          id="username"
-          [label]="'register.username' | translate"
-          type="text"
-          autocomplete="username"
-          [errorMessage]="'register.usernameRequired' | translate"
-        />
-        <ui-input-field
-          [control]="email"
-          id="email"
-          [label]="'register.email' | translate"
-          type="email"
-          autocomplete="email"
-          [errorMessage]="'register.emailRequired' | translate"
-        />
-        <ui-input-field
-          [control]="password"
-          id="password"
-          [label]="'register.password' | translate"
-          type="password"
-          autocomplete="new-password"
-          [errorMessage]="'register.passwordRequired' | translate"
-        />
+    <pmt-default-layout title="{{ 'register.title' | translate }}">
+      <div
+        class="shadow-md p-8 rounded-lg w-full max-w-md bg-neutral-50 dark:bg-neutral-900"
+      >
+        <h1 class="mb-6 font-semibold text-4xl text-center">
+          {{ 'register.title' | translate }}
+        </h1>
+        <form (ngSubmit)="onSubmit()" [formGroup]="registerForm" novalidate>
+          <ui-input-field
+            [control]="username"
+            id="username"
+            [label]="'register.username' | translate"
+            type="text"
+            autocomplete="username"
+            [errorMessage]="'register.usernameRequired' | translate"
+          />
+          <ui-input-field
+            [control]="email"
+            id="email"
+            [label]="'register.email' | translate"
+            type="email"
+            autocomplete="email"
+            [errorMessage]="'register.emailRequired' | translate"
+          />
+          <ui-input-field
+            [control]="password"
+            id="password"
+            [label]="'register.password' | translate"
+            type="password"
+            autocomplete="new-password"
+            [errorMessage]="'register.passwordRequired' | translate"
+          />
 
-        <div class="mt-6">
-          <ui-button
-            class="w-full"
-            type="submit"
-            [disabled]="registerForm.invalid"
-            [label]="'register.submit' | translate"
-          ></ui-button>
+          <div class="mt-6">
+            <ui-button
+              class="w-full"
+              type="submit"
+              [disabled]="registerForm.invalid"
+              [label]="'register.submit' | translate"
+            ></ui-button>
+          </div>
+        </form>
+        <div class="mt-4 text-center">
+          <a
+            routerLink="/login"
+            class="text-sm text-indigo-500 hover:underline cursor-pointer"
+          >
+            {{ 'register.loginLink' | translate }}
+          </a>
         </div>
-      </form>
-      <div class="mt-4 text-center">
-        <a
-          routerLink="/login"
-          class="text-sm text-indigo-500 hover:underline cursor-pointer"
-        >
-          {{ 'register.loginLink' | translate }}
-        </a>
       </div>
-    </div>
+    </pmt-default-layout>
   `,
 })
 export class RegisterComponent {

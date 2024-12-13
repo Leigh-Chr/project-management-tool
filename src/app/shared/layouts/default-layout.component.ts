@@ -1,8 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+} from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { ButtonComponent } from '../components/ui/button.component';
-import { AuthService } from '../services/auth.service';
 import { TranslatorPipe } from '../i18n/translator.pipe';
+import { AuthService } from '../services/auth.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'pmt-default-layout',
@@ -12,6 +19,7 @@ import { TranslatorPipe } from '../i18n/translator.pipe';
       class="
     grid grid-rows-[auto,1fr] min-h-screen"
     >
+      @if (user(); as user) {
       <nav
         class="flex flex-wrap gap-2 items-center bg-neutral-50 dark:bg-neutral-950 px-8 py-4 justify-between sticky top-0 z-10"
       >
@@ -51,7 +59,7 @@ import { TranslatorPipe } from '../i18n/translator.pipe';
         <div class="flex items-center gap-4">
           <span class="flex items-center gap-2">
             <i class="fi fi-br-user"></i>
-            <span>{{ user()!.username }}</span>
+            <span>{{ user.username }}</span>
           </span>
           <ui-button
             label="{{ 'logout' | translate }}"
@@ -61,6 +69,7 @@ import { TranslatorPipe } from '../i18n/translator.pipe';
           ></ui-button>
         </div>
       </nav>
+      }
       <main class="p-2">
         <ng-content />
       </main>
@@ -69,9 +78,16 @@ import { TranslatorPipe } from '../i18n/translator.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DefaultLayoutComponent {
+  private readonly titleService = inject(Title);
   private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
   readonly user = this.authService.authUser;
+  readonly title = input.required<string>();
+
+  constructor() {
+    effect(() => {
+      this.titleService.setTitle(this.title() + ' - Project Management Tool');
+    });
+  }
 
   logout(): void {
     this.authService.logout();

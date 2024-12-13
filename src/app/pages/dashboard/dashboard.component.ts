@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { ProjectsPanelComponent } from '../../shared/components/panels/projects-panel.component';
 import { TaskHistoriesPanelComponent } from '../../shared/components/panels/task-histories-panel.component';
 import { TasksPanelComponent } from '../../shared/components/panels/tasks-panel.component';
+import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 
 @Component({
@@ -11,9 +12,10 @@ import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.comp
     ProjectsPanelComponent,
     TasksPanelComponent,
     TaskHistoriesPanelComponent,
+    TranslatorPipe,
   ],
   template: `
-    <pmt-default-layout>
+    <pmt-default-layout title="{{ 'dashboard' | translate }}">
       <div class="gap-2 grid lg:grid-cols-[2fr,1fr] p-2 h-full">
         <div class="gap-2 grid lg:grid-cols-1">
           <pmt-projects-panel [assignedOnly]="true" />
