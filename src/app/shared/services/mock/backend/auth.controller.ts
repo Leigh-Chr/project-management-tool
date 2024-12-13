@@ -37,15 +37,20 @@ export class AuthController {
 
     if (!userEntity) return null;
 
+    const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
+
     const token = JSON.stringify({
-      userId: userEntity.id,
+      id: userEntity.id,
+      username: userEntity.username,
       email: userEntity.email,
+      exp,
     });
 
     return {
       id: userEntity.id,
       username: userEntity.username,
       email: userEntity.email,
+      exp,
       token,
     };
   }
