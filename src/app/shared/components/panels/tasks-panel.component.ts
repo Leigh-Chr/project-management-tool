@@ -13,6 +13,7 @@ import { AddTaskPopupComponent } from '../popups/add-task-popup.component';
 import { DeleteTaskPopupComponent } from '../popups/delete-task-popup.component';
 import { ButtonComponent } from '../ui/button.component';
 import { TableColumn, TableComponent } from '../ui/table.component';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 type PopupType = 'addTask' | 'deleteTask';
 
@@ -23,20 +24,22 @@ type PopupType = 'addTask' | 'deleteTask';
     ButtonComponent,
     AddTaskPopupComponent,
     DeleteTaskPopupComponent,
+    TranslatorPipe,
   ],
   host: {
     class:
       'border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]',
   },
+  providers: [TranslatorPipe],
   template: `
     <div
       class="flex justify-between items-center bg-neutral-50 dark:bg-neutral-950 shadow-sm p-4"
     >
-      <h2 class="font-semibold text-lg">Tasks</h2>
+      <h2 class="font-semibold text-lg">{{ 'tasks' | translate }}</h2>
       <ui-button
         [disabled]="false"
         icon="fi fi-rr-square-plus"
-        label="Add Task"
+        [label]="'task.addTask' | translate"
         (click)="showPopup('addTask')"
       />
     </div>
@@ -46,7 +49,7 @@ type PopupType = 'addTask' | 'deleteTask';
           @if (toTaskSummary(taskSummary); as taskSummary) {
           <div class="flex gap-2">
             <ui-button
-              label="Go to task"
+              [label]="'task.goToTask' | translate"
               [iconOnly]="true"
               icon="fi fi-rr-door-open"
               (click)="goTotask(taskSummary.id)"
@@ -54,7 +57,7 @@ type PopupType = 'addTask' | 'deleteTask';
 
             @if (taskSummary.permissions.deleteTask) {
             <ui-button
-              label="Delete Task"
+              [label]="'task.deleteTask' | translate"
               [iconOnly]="true"
               variant="danger"
               icon="fi fi-rr-trash"
@@ -82,16 +85,33 @@ type PopupType = 'addTask' | 'deleteTask';
 export class TasksPanelComponent {
   private readonly router = inject(Router);
   readonly taskService = inject(TaskService);
+  private readonly translator = inject(TranslatorPipe);
 
   readonly assignedOnly = input<boolean>(false);
 
   readonly columns: TableColumn<TaskSummaryResponse>[] = [
-    { name: 'ID', key: 'id', type: 'number' },
-    { name: 'Name', key: 'name', type: 'text' },
-    { name: 'Project', key: 'project', type: 'text' },
-    { name: 'Description', key: 'description', type: 'text' },
-    { name: 'Due Date', key: 'dueDate', type: 'date' },
-    { name: 'Priority', key: 'priority', type: 'number' },
+    { name: this.translator.transform('task.id'), key: 'id', type: 'number' },
+    { name: this.translator.transform('task.name'), key: 'name', type: 'text' },
+    {
+      name: this.translator.transform('task.project'),
+      key: 'project',
+      type: 'text',
+    },
+    {
+      name: this.translator.transform('task.description'),
+      key: 'description',
+      type: 'text',
+    },
+    {
+      name: this.translator.transform('task.dueDate'),
+      key: 'dueDate',
+      type: 'date',
+    },
+    {
+      name: this.translator.transform('task.priority'),
+      key: 'priority',
+      type: 'number',
+    },
   ];
 
   readonly tasks = signal<TaskSummaryResponse[]>([]);

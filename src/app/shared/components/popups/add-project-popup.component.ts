@@ -11,15 +11,23 @@ import { PopupComponent } from '../ui/popup.component';
 import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { ProjectService } from '../../services/data/project.service';
 import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'add-project-popup',
-  imports: [ReactiveFormsModule, InputFieldComponent, PopupComponent],
+  imports: [
+    ReactiveFormsModule,
+    InputFieldComponent,
+    PopupComponent,
+    TranslatorPipe,
+  ],
+  providers: [TranslatorPipe],
   template: `
     <ui-popup
-      title="Add New Project"
+      [title]="'project.addNewProject' | translate"
       [isSubmitDisabled]="projectForm.invalid"
-      submitLabel="Add Project"
+      [submitLabel]="'project.addProject' | translate"
+      [cancelLabel]="'project.cancel' | translate"
       (onSubmit)="submit()"
       (onClose)="close()"
     >
@@ -27,22 +35,22 @@ import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
         <ui-input-field
           [control]="name"
           id="name"
-          label="Name"
+          [label]="'project.name' | translate"
           type="text"
-          errorMessage="Name is required."
+          [errorMessage]="'project.nameRequired' | translate"
         />
         <ui-input-field
           [control]="description"
           id="description"
-          label="Description"
+          [label]="'project.description' | translate"
           type="text"
         />
         <ui-input-field
           [control]="startDate"
           id="startDate"
-          label="Start Date"
+          [label]="'project.startDate' | translate"
           type="date"
-          errorMessage="Start Date is required."
+          [errorMessage]="'project.startDateRequired' | translate"
         />
       </form>
     </ui-popup>

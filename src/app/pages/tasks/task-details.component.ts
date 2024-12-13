@@ -11,6 +11,7 @@ import { TaskDetailsResponse } from '../../shared/models/Tasks/TaskDetailsRespon
 import { TaskService } from '../../shared/services/data/task.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
+import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 
 type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
 
@@ -21,6 +22,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
     RouterModule,
     ButtonComponent,
     PopupComponent,
+    TranslatorPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -41,7 +43,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
             </p>
           </div>
           <ui-button
-            label="Delete Task"
+            [label]="'task.deleteTask' | translate"
             icon="fi fi-rr-trash"
             variant="danger"
             (click)="showPopup('deleteTask', task.id)"
@@ -53,7 +55,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
               <p
                 class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
               >
-                Status
+                {{ 'task.status' | translate }}
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
                 {{ task.status.name }}
@@ -63,7 +65,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
               <p
                 class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
               >
-                Due Date
+                {{ 'task.dueDate' | translate }}
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
                 {{ task.dueDate | date : 'longDate' }}
@@ -73,7 +75,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
               <p
                 class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
               >
-                Priority
+                {{ 'task.priority' | translate }}
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
                 {{ task.priority }}
@@ -87,20 +89,22 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                   <h2
                     class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
                   >
-                    Assignee
+                    {{ 'task.assignee' | translate }}
                   </h2>
                   <ui-button
-                    label="{{
-                      task.assignee ? 'Change Assignee' : 'Assign Member'
-                    }}"
-                    icon="{{
+                    [label]="
+                      task.assignee
+                        ? ('task.changeAssignee' | translate)
+                        : ('task.assignMember' | translate)
+                    "
+                    [icon]="
                       task.assignee ? 'fi fi-rr-user-pen' : 'fi fi-rr-user-add'
-                    }}"
+                    "
                     (click)="showPopup('addAssignee', task.id)"
                   />
                   @if (task.assignee) {
                   <ui-button
-                    label="Remove Assignee"
+                    [label]="'task.removeAssignee' | translate"
                     icon="fi fi-rr-trash"
                     variant="danger"
                     (click)="showPopup('deleteAssignee', task.id)"
@@ -115,7 +119,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <p
                       class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
                     >
-                      Username
+                      {{ 'task.username' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
                       {{ task.assignee.username }}
@@ -125,7 +129,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <p
                       class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
                     >
-                      Email
+                      {{ 'task.email' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
                       {{ task.assignee.email }}
@@ -133,7 +137,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                   </div>
                   } @else {
                   <p class="text-neutral-600 dark:text-neutral-400">
-                    No assignee assigned to this task.
+                    {{ 'task.noAssignee' | translate }}
                   </p>
                   }
                 </div>
@@ -143,10 +147,10 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                   <h2
                     class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
                   >
-                    Project
+                    {{ 'task.project' | translate }}
                   </h2>
                   <ui-button
-                    label="Go to Project"
+                    [label]="'task.goToProject' | translate"
                     icon="fi fi-rr-door-open"
                     (click)="goToProject(task.project.id)"
                   />
@@ -158,7 +162,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <p
                       class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
                     >
-                      Project Name
+                      {{ 'task.projectName' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
                       {{ task.project.name }}
@@ -168,7 +172,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <p
                       class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
                     >
-                      Project Description
+                      {{ 'task.projectDescription' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
                       {{
@@ -180,7 +184,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <p
                       class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
                     >
-                      Start Date
+                      {{ 'task.startDate' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
                       {{ task.project.startDate | date : 'longDate' }}
@@ -190,13 +194,13 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <p
                       class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
                     >
-                      End Date
+                      {{ 'task.endDate' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
                       {{
                         task.project.endDate
                           ? (task.project.endDate | date : 'longDate')
-                          : 'Ongoing'
+                          : ('task.ongoing' | translate)
                       }}
                     </p>
                   </div>
@@ -204,7 +208,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <p
                       class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
                     >
-                      Project Status
+                      {{ 'task.projectStatus' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
                       {{ task.project.status.name }}
@@ -219,7 +223,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                   <h2
                     class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
                   >
-                    Task History
+                    {{ 'task.taskHistory' | translate }}
                   </h2>
                 </header>
                 @if (task.taskHistory.length > 0) {
@@ -243,7 +247,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     <div>
                       <p class="text-sm">
                         <strong class="text-neutral-900 dark:text-neutral-100"
-                          >Date:</strong
+                          >{{ 'task.date' | translate }}:</strong
                         >
                         <span class="text-neutral-700 dark:text-neutral-400">
                           {{ history.date | date : 'longDate' }}
@@ -255,7 +259,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                 </div>
                 } @else {
                 <p class="text-neutral-600 dark:text-neutral-400">
-                  No history available for this task.
+                  {{ 'task.noHistory' | translate }}
                 </p>
                 }
               </section>
@@ -265,24 +269,24 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
       </div>
       } @else {
       <p class="text-neutral-600 dark:text-neutral-400">
-        Task not found. Redirecting...
+        {{ 'task.taskNotFound' | translate }}
       </p>
       }
     </default-layout>
 
     @switch (activePopup()) { @case ('deleteTask') {
-    <ui-popup title="Delete Task" (close)="hidePopup()">
-      Are you sure you want to delete this task?
-      <ui-button label="Confirm" (click)="deleteTask()" />
+    <ui-popup [title]="'task.deleteTask' | translate" (close)="hidePopup()">
+      {{ 'task.confirmDelete' | translate }}
+      <ui-button [label]="'task.confirm' | translate" (click)="deleteTask()" />
     </ui-popup>
     } @case ('addAssignee') {
-    <ui-popup title="Assign Member" (close)="hidePopup()">
+    <ui-popup [title]="'task.assignMember' | translate" (close)="hidePopup()">
       <!-- Assign member form goes here -->
     </ui-popup>
     } }
   `,
 })
-export class TaskComponent {
+export class TaskDetailsComponent {
   private readonly taskService = inject(TaskService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);

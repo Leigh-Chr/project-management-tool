@@ -19,17 +19,25 @@ import {
 import { ToastService } from '../toast/toast.service';
 import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
+import { AuthService } from '../../services/auth.service';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
 
-const CURRENT_USER_ID = 1; // This is a mock value for the current user ID.
 @Component({
   selector: 'add-project-member-popup',
-  imports: [ReactiveFormsModule, SelectFieldComponent, PopupComponent],
+  imports: [
+    ReactiveFormsModule,
+    SelectFieldComponent,
+    PopupComponent,
+    TranslatorPipe,
+  ],
+  providers: [TranslatorPipe],
   template: `
     @if (project) {
     <ui-popup
-      title="Add Project Member - {{ project.name }}"
+      title="{{ 'project.addMemberTitle' | translate }} - {{ project.name }}"
       [isSubmitDisabled]="memberForm.invalid"
-      submitLabel="Add Member"
+      [submitLabel]="'project.addMember' | translate"
+      [cancelLabel]="'project.cancel' | translate"
       (onSubmit)="addMember()"
       (onClose)="close()"
     >
@@ -38,21 +46,24 @@ const CURRENT_USER_ID = 1; // This is a mock value for the current user ID.
           [options]="userOptions"
           [control]="userControl"
           id="user"
-          label="User"
-          errorMessage="Please select a user."
+          [label]="'project.user' | translate"
+          [errorMessage]="'project.selectUserError' | translate"
         />
         <ui-select-field
           [options]="roleOptions"
           [control]="roleControl"
           id="role"
-          label="Role"
-          errorMessage="Please select a role."
+          [label]="'project.role' | translate"
+          [errorMessage]="'project.selectRoleError' | translate"
         />
       </form>
     </ui-popup>
     } @else {
-    <ui-popup title="Add Project Member" [isSubmitDisabled]="true">
-      <p>Loading...</p>
+    <ui-popup
+      [title]="'project.addMember' | translate"
+      [isSubmitDisabled]="true"
+    >
+      <p>{{ 'project.loading' | translate }}</p>
     </ui-popup>
     }
   `,
@@ -60,8 +71,10 @@ const CURRENT_USER_ID = 1; // This is a mock value for the current user ID.
 export class AddProjectMemberPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
+  private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
+  private readonly translator = inject(TranslatorPipe);
 
   @Input() projectId!: number;
   @Output() onClose = new EventEmitter<void>();
@@ -86,9 +99,8 @@ export class AddProjectMemberPopupComponent {
     if (!this.project) {
       this.toastService.showToast(
         {
-          title: 'Project not found.',
-          message:
-            'The project you are trying to add a member to does not exist.',
+          title: this.translator.transform('project.notFoundTitle'),
+          message: this.translator.transform('project.notFoundMessage'),
           type: 'error',
           duration: 5000,
         },
@@ -106,7 +118,7 @@ export class AddProjectMemberPopupComponent {
     );
     this.userOptions = userStatuses
       .filter(({ isNotMember }) => isNotMember)
-      .filter(({ user }) => user.id !== CURRENT_USER_ID)
+      .filter(({ user }) => user.id !== this.authService.authUser()?.id)
       .map(({ user }) => ({
         value: user,
         label: user.username,
@@ -115,8 +127,8 @@ export class AddProjectMemberPopupComponent {
     if (this.userOptions.length === 0) {
       this.toastService.showToast(
         {
-          title: 'No users available to add.',
-          message: 'All users are already members of this project.',
+          title: this.translator.transform('project.noUsersTitle'),
+          message: this.translator.transform('project.noUsersMessage'),
           type: 'error',
           duration: 5000,
         },
@@ -131,9 +143,9 @@ export class AddProjectMemberPopupComponent {
     if (this.roleOptions.length === 0) {
       this.toastService.showToast(
         {
-          message: 'No roles available to add.',
+          title: this.translator.transform('project.noRolesTitle'),
+          message: this.translator.transform('project.noRolesMessage'),
           type: 'error',
-          title: 'No Roles',
           duration: 5000,
         },
         'root'

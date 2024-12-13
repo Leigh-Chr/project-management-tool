@@ -5,27 +5,34 @@ import { UserService } from '../../services/data/user.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
 import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'delete-project-member-popup',
-  imports: [PopupComponent],
+  imports: [PopupComponent, TranslatorPipe],
+  providers: [TranslatorPipe],
   template: `
     @if (user) {
     <ui-popup
-      title="Delete Project Member - {{ user.username }}"
-      submitLabel="Delete"
+      title="{{ 'project.deleteMemberTitle' | translate }} - {{
+        user.username
+      }}"
+      submitLabel="{{ 'project.deleteMember' | translate }}"
+      cancelLabel="{{ 'project.cancel' | translate }}"
       submitVariant="danger"
       (onSubmit)="deleteMember()"
       (onClose)="close()"
     >
       <p class="mb-4">
-        Are you sure you want to delete this project member? This action cannot
-        be undone.
+        {{ 'project.confirmDeleteMember' | translate }}
       </p>
     </ui-popup>
     } @else {
-    <ui-popup title="Delete Project Member" [isSubmitDisabled]="true">
-      <p>Loading...</p>
+    <ui-popup
+      title="{{ 'project.deleteMemberTitle' | translate }}"
+      [isSubmitDisabled]="true"
+    >
+      <p>{{ 'project.loading' | translate }}</p>
     </ui-popup>
     }
   `,
@@ -34,6 +41,7 @@ export class DeleteProjectMemberPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly projectMemberService = inject(ProjectMemberService);
   private readonly userService = inject(UserService);
+  private readonly translator = inject(TranslatorPipe);
 
   @Input({ required: true }) projectMemberIds!: {
     projectId: number;
@@ -51,8 +59,8 @@ export class DeleteProjectMemberPopupComponent {
     if (!this.projectMember || !this.user) {
       this.toastService.showToast(
         {
-          title: 'Error',
-          message: 'Project member not found.',
+          title: this.translator.transform('project.errorTitle'),
+          message: this.translator.transform('project.memberNotFoundMessage'),
           duration: 5000,
           type: 'error',
         },

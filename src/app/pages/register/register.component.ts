@@ -11,6 +11,7 @@ import { AuthService } from '../../shared/services/auth.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { InputFieldComponent } from '../../shared/components/ui/input-field.component';
 import { RegisterRequest } from '../../shared/models/Auth/RegisterRequest';
+import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 
 @Component({
   imports: [
@@ -18,6 +19,7 @@ import { RegisterRequest } from '../../shared/models/Auth/RegisterRequest';
     ReactiveFormsModule,
     InputFieldComponent,
     RouterModule,
+    TranslatorPipe,
   ],
   host: {
     class: 'grid h-screen place-items-center',
@@ -26,31 +28,33 @@ import { RegisterRequest } from '../../shared/models/Auth/RegisterRequest';
     <div
       class="shadow-md p-8 rounded-lg w-full max-w-md bg-neutral-50 dark:bg-neutral-900"
     >
-      <h1 class="mb-6 font-semibold text-4xl text-center">Sign Up</h1>
+      <h1 class="mb-6 font-semibold text-4xl text-center">
+        {{ 'register.title' | translate }}
+      </h1>
       <form (ngSubmit)="onSubmit()" [formGroup]="registerForm" novalidate>
         <ui-input-field
           [control]="username"
           id="username"
-          label="Username"
+          [label]="'register.username' | translate"
           type="text"
           autocomplete="username"
-          errorMessage="Username is required."
+          [errorMessage]="'register.usernameRequired' | translate"
         />
         <ui-input-field
           [control]="email"
           id="email"
-          label="Email"
+          [label]="'register.email' | translate"
           type="email"
           autocomplete="email"
-          errorMessage="A valid email is required."
+          [errorMessage]="'register.emailRequired' | translate"
         />
         <ui-input-field
           [control]="password"
           id="password"
-          label="Password"
+          [label]="'register.password' | translate"
           type="password"
           autocomplete="new-password"
-          errorMessage="Password must be at least 8 characters long."
+          [errorMessage]="'register.passwordRequired' | translate"
         />
 
         <div class="mt-6">
@@ -58,7 +62,7 @@ import { RegisterRequest } from '../../shared/models/Auth/RegisterRequest';
             class="w-full"
             type="submit"
             [disabled]="registerForm.invalid"
-            label="Sign Up"
+            [label]="'register.submit' | translate"
           ></ui-button>
         </div>
       </form>
@@ -67,7 +71,7 @@ import { RegisterRequest } from '../../shared/models/Auth/RegisterRequest';
           routerLink="/login"
           class="text-sm text-indigo-500 hover:underline cursor-pointer"
         >
-          Already have an account? Sign in here
+          {{ 'register.loginLink' | translate }}
         </a>
       </div>
     </div>

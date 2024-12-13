@@ -17,6 +17,7 @@ import {
   SelectOption,
 } from '../ui/select-field.component';
 import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'add-task-popup',
@@ -25,12 +26,15 @@ import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
     InputFieldComponent,
     PopupComponent,
     SelectFieldComponent,
+    TranslatorPipe,
   ],
+  providers: [TranslatorPipe],
   template: `
     <ui-popup
-      title="Add New Task"
+      [title]="'task.addTask' | translate"
       [isSubmitDisabled]="taskForm.invalid"
-      submitLabel="Add Task"
+      [submitLabel]="'task.addTask' | translate"
+      [cancelLabel]="'task.cancel' | translate"
       (onSubmit)="submit()"
       (onClose)="close()"
     >
@@ -38,36 +42,36 @@ import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
         <ui-input-field
           [control]="name"
           id="name"
-          label="Name"
+          [label]="'task.name' | translate"
           type="text"
-          errorMessage="Name is required."
+          [errorMessage]="'task.nameRequired' | translate"
         />
         <ui-input-field
           [control]="description"
           id="description"
-          label="Description"
+          [label]="'task.description' | translate"
           type="text"
         />
         <ui-input-field
           [control]="dueDate"
           id="dueDate"
-          label="Due Date"
+          [label]="'task.dueDate' | translate"
           type="date"
-          errorMessage="Due Date is required."
+          [errorMessage]="'task.dueDateRequired' | translate"
         />
         <ui-input-field
           [control]="priority"
           id="priority"
-          label="Priority"
+          [label]="'task.priority' | translate"
           type="number"
-          errorMessage="Priority is required."
+          [errorMessage]="'task.priorityRequired' | translate"
         />
         <ui-select-field
           [control]="assigneeId"
           id="assigneeId"
-          label="Assignee"
+          [label]="'task.assignee' | translate"
           [options]="userOptions"
-          errorMessage="Assignee is required."
+          [errorMessage]="'task.assigneeRequired' | translate"
         />
       </form>
     </ui-popup>

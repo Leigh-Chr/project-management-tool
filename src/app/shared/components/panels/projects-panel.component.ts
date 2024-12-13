@@ -6,23 +6,26 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
+import { ProjectResponse } from '../../models/Projects/ProjectResponse';
+import { ProjectSummaryResponse } from '../../models/Projects/ProjectSummaryResponse';
+import { ProjectService } from '../../services/data/project.service';
 import { AddProjectPopupComponent } from '../popups/add-project-popup.component';
 import { DeleteProjectPopupComponent } from '../popups/delete-project-popup.component';
 import { ButtonComponent } from '../ui/button.component';
 import { TableColumn, TableComponent } from '../ui/table.component';
-import { ProjectResponse } from '../../models/Projects/ProjectResponse';
-import { ProjectSummaryResponse } from '../../models/Projects/ProjectSummaryResponse';
-import { ProjectService } from '../../services/data/project.service';
 
 type PopupType = 'addProject' | 'deleteProject';
 
 @Component({
   selector: 'projects-panel',
+  providers: [TranslatorPipe],
   imports: [
     ButtonComponent,
     AddProjectPopupComponent,
     DeleteProjectPopupComponent,
     TableComponent,
+    TranslatorPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -33,11 +36,11 @@ type PopupType = 'addProject' | 'deleteProject';
     <div
       class="flex justify-between items-center bg-neutral-50 dark:bg-neutral-950 shadow-sm p-4"
     >
-      <h2 class="font-semibold text-lg">Projects</h2>
+      <h2 class="font-semibold text-lg">{{ 'projects' | translate }}</h2>
       <ui-button
         [disabled]="false"
         icon="fi fi-rr-square-plus"
-        label="Add Project"
+        [label]="'project.addProject' | translate"
         (click)="showPopup('addProject')"
       />
     </div>
@@ -47,14 +50,14 @@ type PopupType = 'addProject' | 'deleteProject';
           @if (toProjectSummary(projectSummary); as projectSummary) {
           <div class="flex gap-2">
             <ui-button
-              label="Go to project"
+              [label]="'project.goToProject' | translate"
               [iconOnly]="true"
               icon="fi fi-rr-door-open"
               (click)="goToProject(projectSummary.id)"
             />
             @if (projectSummary.permissions.deleteProject) {
             <ui-button
-              label="Delete project"
+              [label]="'project.deleteProject' | translate"
               [iconOnly]="true"
               variant="danger"
               icon="fi fi-rr-trash"
@@ -84,17 +87,46 @@ type PopupType = 'addProject' | 'deleteProject';
 export class ProjectsPanelComponent {
   private readonly router = inject(Router);
   private readonly projectService = inject(ProjectService);
+  private readonly translator = inject(TranslatorPipe);
 
   readonly assignedOnly = input<boolean>(false);
 
   readonly columns: TableColumn<ProjectSummaryResponse>[] = [
-    { name: 'ID', key: 'id', type: 'number' },
-    { name: 'Name', key: 'name', type: 'text' },
-    { name: 'Description', key: 'description', type: 'text' },
-    { name: 'Start Date', key: 'startDate', type: 'date' },
-    { name: 'End Date', key: 'endDate', type: 'date' },
-    { name: 'Status', key: 'status', type: 'text' },
-    { name: 'Members', key: 'memberCount', type: 'number' },
+    {
+      name: this.translator.transform('project.id'),
+      key: 'id',
+      type: 'number',
+    },
+    {
+      name: this.translator.transform('project.name'),
+      key: 'name',
+      type: 'text',
+    },
+    {
+      name: this.translator.transform('project.description'),
+      key: 'description',
+      type: 'text',
+    },
+    {
+      name: this.translator.transform('project.startDate'),
+      key: 'startDate',
+      type: 'date',
+    },
+    {
+      name: this.translator.transform('project.endDate'),
+      key: 'endDate',
+      type: 'date',
+    },
+    {
+      name: this.translator.transform('project.status'),
+      key: 'status',
+      type: 'text',
+    },
+    {
+      name: this.translator.transform('project.members'),
+      key: 'memberCount',
+      type: 'number',
+    },
   ];
 
   readonly projects = signal<ProjectSummaryResponse[]>([]);
@@ -131,7 +163,8 @@ export class ProjectsPanelComponent {
     );
   }
 
-  async addProject(project: ProjectResponse): Promise<void> {
+  async addProject(project: ProjectResponse | null): Promise<void> {
+    if (!project) return;
     const projectSummary = await this.projectService.getProjectSummary(
       project.id
     );

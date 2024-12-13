@@ -6,16 +6,17 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
+import { DeleteProjectMemberPopupComponent } from '../../shared/components/popups/delete-project-member-popup.component';
+import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
+import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { ProjectDetailsResponse } from '../../shared/models/Projects/ProjectDetailsResponse';
-import { ProjectService } from '../../shared/services/data/project.service';
-import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
-import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
-import { ToastService } from '../../shared/components/toast/toast.service';
-import { DeleteProjectMemberPopupComponent } from '../../shared/components/popups/delete-project-member-popup.component';
 import { ProjectMemberResponse } from '../../shared/models/Projects/ProjectMemberResponse';
+import { ProjectService } from '../../shared/services/data/project.service';
 
 type PopupType =
   | 'deleteProject'
@@ -36,6 +37,7 @@ type PopupType =
     DeleteProjectPopupComponent,
     DeleteProjectMemberPopupComponent,
     AddProjectMemberPopupComponent,
+    TranslatorPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -52,12 +54,12 @@ type PopupType =
               {{ project.name }}
             </h1>
             <p class="text-neutral-700 dark:text-neutral-300">
-              {{ project.description || 'No description provided.' }}
+              {{ project.description || ('project.noDescription' | translate) }}
             </p>
           </div>
           @if (project.permissions.deleteProject) {
           <ui-button
-            label="Delete Project"
+            [label]="'project.deleteProject' | translate"
             icon="fi fi-rr-trash"
             variant="danger"
             (click)="showPopup('deleteProject', project.id)"
@@ -74,7 +76,7 @@ type PopupType =
               <p
                 class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
               >
-                Status
+                {{ 'project.status' | translate }}
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
                 {{ project.status.name }}
@@ -84,7 +86,7 @@ type PopupType =
               <p
                 class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
               >
-                Start Date
+                {{ 'project.startDate' | translate }}
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
                 {{ project.startDate | date : 'longDate' }}
@@ -95,7 +97,7 @@ type PopupType =
               <p
                 class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
               >
-                End Date
+                {{ 'project.endDate' | translate }}
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
                 {{ project.endDate | date : 'longDate' }}
@@ -113,11 +115,11 @@ type PopupType =
               <h2
                 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
               >
-                Project Members
+                {{ 'project.members' | translate }}
               </h2>
               @if (project.permissions.addMember) {
               <ui-button
-                label="Add Member"
+                [label]="'project.addMember' | translate"
                 icon="fi fi-rr-user-add"
                 (click)="showPopup('addMember', project.id)"
               />
@@ -139,7 +141,7 @@ type PopupType =
                 <div>
                   <p class="text-sm">
                     <strong class="text-neutral-900 dark:text-neutral-100">
-                      Email:
+                      {{ 'project.email' | translate }}:
                     </strong>
 
                     <span class="text-neutral-700 dark:text-neutral-400">
@@ -148,7 +150,7 @@ type PopupType =
                   </p>
                   <p class="text-sm ">
                     <strong class="text-neutral-900 dark:text-neutral-100">
-                      Role:
+                      {{ 'project.role' | translate }}:
                     </strong>
                     <span class="text-neutral-700 dark:text-neutral-400">
                       {{ member.role.name }}
@@ -158,7 +160,7 @@ type PopupType =
                 <footer class="flex gap-1 text-[.75rem]">
                   @if (project.permissions.assignTask) {
                   <ui-button
-                    label="Assign Task"
+                    [label]="'project.assignTask' | translate"
                     [iconOnly]="true"
                     icon="fi fi-rr-link-horizontal"
                     (click)="showPopup('assignTask', member.user.id)"
@@ -166,7 +168,7 @@ type PopupType =
                   } @if (project.permissions.deleteMember && member.role.id !==
                   1) {
                   <ui-button
-                    label="Remove Member"
+                    [label]="'project.removeMember' | translate"
                     [iconOnly]="true"
                     variant="danger"
                     icon="fi fi-rr-trash"
@@ -179,7 +181,7 @@ type PopupType =
             </div>
             } @else {
             <p class="text-neutral-600 dark:text-neutral-400">
-              No members assigned to this project.
+              {{ 'project.noMembers' | translate }}
             </p>
             }
           </section>
@@ -193,11 +195,11 @@ type PopupType =
               <h2
                 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
               >
-                Tasks
+                {{ 'project.tasks' | translate }}
               </h2>
               @if (project.permissions.addTask) {
               <ui-button
-                label="Add Task"
+                [label]="'project.addTask' | translate"
                 icon="fi fi-rr-square-plus"
                 (click)="showPopup('addTask', project.id)"
               />
@@ -218,13 +220,15 @@ type PopupType =
                   <p
                     class="text-sm text-neutral-700 dark:text-neutral-300 truncate"
                   >
-                    {{ task.description || 'No description provided.' }}
+                    {{
+                      task.description || ('project.noDescription' | translate)
+                    }}
                   </p>
                 </header>
                 <div>
                   <p class="text-sm">
                     <strong class="text-neutral-900 dark:text-neutral-100"
-                      >Due Date:</strong
+                      >{{ 'project.dueDate' | translate }}:</strong
                     >
                     <span class="text-neutral-700 dark:text-neutral-400">
                       {{ task.dueDate | date : 'longDate' }}
@@ -232,7 +236,7 @@ type PopupType =
                   </p>
                   <p class="text-sm">
                     <strong class="text-neutral-900 dark:text-neutral-100"
-                      >Assigned to:</strong
+                      >{{ 'project.assignedTo' | translate }}:</strong
                     >
                     @if (task.assignee) {
                     <span class="text-neutral-700 dark:text-neutral-400">
@@ -240,13 +244,13 @@ type PopupType =
                     </span>
                     } @else {
                     <span class="text-neutral-700 dark:text-neutral-400">
-                      Unassigned
+                      {{ 'project.unassigned' | translate }}
                     </span>
                     }
                   </p>
                   <p class="text-sm">
                     <strong class="text-neutral-900 dark:text-neutral-100"
-                      >Priority:</strong
+                      >{{ 'project.priority' | translate }}:</strong
                     >
                     <span class="text-neutral-700 dark:text-neutral-400">
                       {{ task.priority }}
@@ -254,7 +258,7 @@ type PopupType =
                   </p>
                   <p class="text-sm">
                     <strong class="text-neutral-900 dark:text-neutral-100"
-                      >Status:</strong
+                      >{{ 'project.status' | translate }}:</strong
                     >
                     <span class="text-neutral-700 dark:text-neutral-400">
                       {{ task.status.name }}
@@ -263,21 +267,21 @@ type PopupType =
                 </div>
                 <footer class="flex gap-1 text-[.75rem]">
                   <ui-button
-                    label="Go to Task"
+                    [label]="'project.goToTask' | translate"
                     [iconOnly]="true"
                     icon="fi fi-rr-door-open"
                     (click)="goToTask(task.id)"
                   />
                   @if (project.permissions.assignMember) {
                   <ui-button
-                    label="Assigned Member"
+                    [label]="'project.assignMember' | translate"
                     [iconOnly]="true"
                     icon="fi fi-rr-link-horizontal"
                     (click)="showPopup('assignMember', task.id)"
                   />
                   } @if (project.permissions.deleteTask) {
                   <ui-button
-                    label="Delete Task"
+                    [label]="'project.deleteTask' | translate"
                     [iconOnly]="true"
                     variant="danger"
                     icon="fi fi-rr-trash"
@@ -290,7 +294,7 @@ type PopupType =
             </div>
             } @else {
             <p class="text-neutral-600 dark:text-neutral-400">
-              No tasks assigned to this project.
+              {{ 'project.noTasks' | translate }}
             </p>
             }
           </section>
@@ -309,7 +313,10 @@ type PopupType =
         (onClose)="hidePopup()"
       />
       } @case ('assignTask') {
-      <ui-popup title="Assign Task" (onClose)="hidePopup()">
+      <ui-popup
+        [title]="'project.assignTask' | translate"
+        (onClose)="hidePopup()"
+      >
         Lorem ipsum dolor, sit amet consectetur adipisicing elit.
       </ui-popup>
       } @case ('deleteMember') {
@@ -319,26 +326,32 @@ type PopupType =
         (onDeleteMember)="deleteMember($event)"
       />
       } @case ('addTask') {
-      <ui-popup title="Add Task" (onClose)="hidePopup()">
+      <ui-popup [title]="'project.addTask' | translate" (onClose)="hidePopup()">
         Lorem ipsum dolor, sit amet consectetur adipisicing elit.
       </ui-popup>
       } @case ('assignMember') {
-      <ui-popup title="Asign Member" (onClose)="hidePopup()">
+      <ui-popup
+        [title]="'project.assignMember' | translate"
+        (onClose)="hidePopup()"
+      >
         Lorem ipsum dolor, sit amet consectetur adipisicing elit.
       </ui-popup>
       } @case ('deleteTask') {
-      <ui-popup title="Delete Task" (onClose)="hidePopup()">
+      <ui-popup
+        [title]="'project.deleteTask' | translate"
+        (onClose)="hidePopup()"
+      >
         Lorem ipsum dolor, sit amet consectetur adipisicing elit.
       </ui-popup>
       } } } @else {
       <p class="text-neutral-600 dark:text-neutral-400">
-        Project not found. Redirecting...
+        {{ 'project.notFound' | translate }}
       </p>
       }
     </default-layout>
   `,
 })
-export class ProjectComponent {
+export class ProjectDetailsComponent {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
   private readonly router = inject(Router);

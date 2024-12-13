@@ -3,27 +3,34 @@ import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { ProjectService } from '../../services/data/project.service';
 import { PopupComponent } from '../ui/popup.component';
 import { ToastService } from '../toast/toast.service';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'delete-project-popup',
-  imports: [PopupComponent],
+  imports: [PopupComponent, TranslatorPipe],
+  providers: [TranslatorPipe],
   template: `
     @if (project) {
     <ui-popup
-      title="Delete Project - {{ project.name }}"
-      submitLabel="Delete"
+      title="{{ 'project.deleteProjectTitle' | translate }} - {{
+        project.name
+      }}"
+      submitLabel="{{ 'project.deleteProject' | translate }}"
+      cancelLabel="{{ 'project.cancel' | translate }}"
       submitVariant="danger"
       (onSubmit)="deleteProject()"
       (onClose)="close()"
     >
       <p class="mb-4">
-        Are you sure you want to delete this project? This action cannot be
-        undone.
+        {{ 'project.confirmDeleteProject' | translate }}
       </p>
     </ui-popup>
     } @else {
-    <ui-popup title="Delete Project" [isSubmitDisabled]="true">
-      <p>Loading...</p>
+    <ui-popup
+      title="{{ 'project.deleteProjectTitle' | translate }}"
+      [isSubmitDisabled]="true"
+    >
+      <p>{{ 'project.loading' | translate }}</p>
     </ui-popup>
     }
   `,
@@ -31,6 +38,7 @@ import { ToastService } from '../toast/toast.service';
 export class DeleteProjectPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
+  private readonly translator = inject(TranslatorPipe);
 
   @Input({ required: true }) projectId!: number;
   project: ProjectResponse | null = null;
@@ -43,8 +51,8 @@ export class DeleteProjectPopupComponent {
     if (!this.project) {
       this.toastService.showToast(
         {
-          title: 'Error',
-          message: 'Project not found.',
+          title: this.translator.transform('project.errorTitle'),
+          message: this.translator.transform('project.projectNotFoundMessage'),
           duration: 5000,
           type: 'error',
         },

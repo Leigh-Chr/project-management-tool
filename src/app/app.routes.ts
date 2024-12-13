@@ -4,9 +4,9 @@ import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { ProjectsComponent } from './pages/projects/projects.component';
 import { RegisterComponent } from './pages/register/register.component';
-import { TaskComponent } from './pages/tasks/task-details.component';
+import { TaskDetailsComponent } from './pages/tasks/task-details.component';
 import { TasksComponent } from './pages/tasks/tasks.component';
-import { ProjectComponent } from './pages/projects/project-details.component';
+import { ProjectDetailsComponent } from './pages/projects/project-details.component';
 import { AuthGuard } from './shared/guards/auth.guard';
 import { UnauthGuard } from './shared/guards/unauth.guard';
 
@@ -16,7 +16,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', component: TasksComponent },
-      { path: ':id', component: TaskComponent },
+      { path: ':id', component: TaskDetailsComponent },
     ],
   },
   {
@@ -24,10 +24,10 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', component: ProjectsComponent },
-      { path: ':id', component: ProjectComponent },
+      { path: ':id', component: ProjectDetailsComponent },
     ],
   },
-  { path: 'home', component: HomeComponent },
+  { path: 'home', component: HomeComponent, canActivate: [UnauthGuard] },
   {
     path: 'dashboard',
     component: DashboardComponent,

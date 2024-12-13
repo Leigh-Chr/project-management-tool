@@ -12,9 +12,9 @@ import {
 } from '@angular/core';
 
 @Component({
-    selector: 'ui-paginator',
-    imports: [NgClass],
-    template: `
+  selector: 'ui-paginator',
+  imports: [NgClass],
+  template: `
     <nav
       class="
       flex flex-col items-center
@@ -37,12 +37,11 @@ import {
             aria-label="Previous Page"
           >
             <i class="fi fi-br-angle-left" aria-hidden="true"></i>
-            <span class="sr-only">Previous Page</span>
           </button>
 
-          <span aria-live="polite"
-            >Page {{ pageIndex() }} of {{ totalPages() }}</span
-          >
+          <span aria-live="polite">
+            {{ pageIndex() }} / {{ totalPages() }}
+          </span>
 
           <button
             class="cursor-pointer"
@@ -52,17 +51,11 @@ import {
             aria-label="Next Page"
           >
             <i class="fi fi-br-angle-right" aria-hidden="true"></i>
-            <span class="sr-only">Next Page</span>
           </button>
         </div>
 
         @if (showPageSizeSelector) {
         <div class="page-size-selector flex items-center gap-2">
-          <label
-            [for]="uniqueId"
-            class="text-sm text-neutral-600 dark:text-neutral-400"
-            >Items per page:</label
-          >
           <select
             [id]="uniqueId"
             [value]="pageSize()"
@@ -85,15 +78,15 @@ import {
       @if (showTotalPages || showTotalItems) {
       <div class="text-sm text-neutral-600 dark:text-neutral-400 mt-2">
         @if (showTotalItems) {
-        <span> Total items: {{ totalItems() }} </span>
+        <span>{{ totalItems() }}</span>
         } @if (showTotalPages) {
-        <span class="ml-4"> Total pages: {{ totalPages() }} </span>
+        <span class="ml-4">{{ totalPages() }}</span>
         }
       </div>
       }
     </nav>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginatorComponent {
   readonly totalItems = input.required<number>();

@@ -8,13 +8,14 @@ import {
 import { ButtonComponent, ButtonVariant } from './button.component';
 
 @Component({
-    imports: [ButtonComponent],
-    selector: 'ui-popup',
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        class: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center',
-    },
-    template: `
+  imports: [ButtonComponent],
+  selector: 'ui-popup',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class:
+      'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center',
+  },
+  template: `
     <div
       class="rounded-lg bg-white dark:bg-neutral-800 p-4 shadow-lg w-full max-w-md"
     >
@@ -28,6 +29,7 @@ import { ButtonComponent, ButtonVariant } from './button.component';
           (click)="close()"
           label="Cancel"
           class="mr-2"
+          [label]="cancelLabel"
         ></ui-button>
         <ui-button
           type="button"
@@ -38,12 +40,13 @@ import { ButtonComponent, ButtonVariant } from './button.component';
         ></ui-button>
       </div>
     </div>
-  `
+  `,
 })
 export class PopupComponent {
   @Input() title: string = '';
   @Input() isSubmitDisabled: boolean = false;
   @Input() submitLabel: string = 'Submit';
+  @Input() cancelLabel: string = 'Cancel';
   @Input() submitVariant: ButtonVariant = 'primary';
 
   @Output() onClose = new EventEmitter<void>();

@@ -3,26 +3,32 @@ import { TaskResponse } from '../../models/Tasks/TaskResponse';
 import { TaskService } from '../../services/data/task.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'delete-task-popup',
-  imports: [PopupComponent],
+  imports: [PopupComponent, TranslatorPipe],
+  providers: [TranslatorPipe],
   template: `
     @if (task) {
     <ui-popup
-      title="Delete Task - {{ task.name }}"
-      submitLabel="Delete"
+      title="{{ 'task.deleteTaskTitle' | translate }} - {{ task.name }}"
+      submitLabel="{{ 'task.deleteTask' | translate }}"
+      cancelLabel="{{ 'task.cancel' | translate }}"
       submitVariant="danger"
       (onSubmit)="deleteTask()"
       (onClose)="close()"
     >
       <p class="mb-4">
-        Are you sure you want to delete this task? This action cannot be undone.
+        {{ 'task.confirmDeleteTask' | translate }}
       </p>
     </ui-popup>
     } @else {
-    <ui-popup title="Delete Task" [isSubmitDisabled]="true">
-      <p>Loading...</p>
+    <ui-popup
+      title="{{ 'task.deleteTaskTitle' | translate }}"
+      [isSubmitDisabled]="true"
+    >
+      <p>{{ 'task.loading' | translate }}</p>
     </ui-popup>
     }
   `,
@@ -30,6 +36,7 @@ import { PopupComponent } from '../ui/popup.component';
 export class DeleteTaskPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly taskService = inject(TaskService);
+  private readonly translator = inject(TranslatorPipe);
 
   @Input({ required: true }) taskId!: number;
   task: TaskResponse | null = null;
@@ -42,8 +49,8 @@ export class DeleteTaskPopupComponent {
     if (!this.task) {
       this.toastService.showToast(
         {
-          title: 'Error',
-          message: 'Task not found.',
+          title: this.translator.transform('task.errorTitle'),
+          message: this.translator.transform('task.taskNotFoundMessage'),
           duration: 5000,
           type: 'error',
         },
