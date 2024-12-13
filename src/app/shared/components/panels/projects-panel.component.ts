@@ -18,7 +18,7 @@ import { TableColumn, TableComponent } from '../ui/table.component';
 type PopupType = 'addProject' | 'deleteProject';
 
 @Component({
-  selector: 'projects-panel',
+  selector: 'pmt-projects-panel',
   providers: [TranslatorPipe],
   imports: [
     ButtonComponent,
@@ -71,12 +71,12 @@ type PopupType = 'addProject' | 'deleteProject';
     </div>
 
     @switch (activePopup()) { @case ('addProject') {
-    <add-project-popup
+    <pmt-add-project-popup
       (onClose)="hidePopup()"
       (onSubmit)="addProject($event)"
     />
     } @case ('deleteProject') {
-    <delete-project-popup
+    <pmt-delete-project-popup
       [projectId]="activeProjectId()!"
       (onClose)="hidePopup()"
       (onDeleteProject)="deleteProject($event)"

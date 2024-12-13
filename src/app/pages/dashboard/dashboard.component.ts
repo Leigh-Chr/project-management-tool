@@ -5,6 +5,7 @@ import { TasksPanelComponent } from '../../shared/components/panels/tasks-panel.
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 
 @Component({
+  selector: 'pmt-dashboard',
   imports: [
     DefaultLayoutComponent,
     ProjectsPanelComponent,
@@ -12,15 +13,15 @@ import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.comp
     TaskHistoriesPanelComponent,
   ],
   template: `
-    <default-layout>
+    <pmt-default-layout>
       <div class="gap-2 grid lg:grid-cols-[2fr,1fr] p-2 h-full">
         <div class="gap-2 grid lg:grid-cols-1">
-          <projects-panel [assignedOnly]="true" />
-          <tasks-panel [assignedOnly]="true" />
+          <pmt-projects-panel [assignedOnly]="true" />
+          <pmt-tasks-panel [assignedOnly]="true" />
         </div>
-        <task-histories-panel />
+        <pmt-task-histories-panel />
       </div>
-    </default-layout>
+    </pmt-default-layout>
   `,
 })
 export class DashboardComponent {}

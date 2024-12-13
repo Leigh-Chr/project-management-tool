@@ -18,7 +18,7 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
 type PopupType = 'addTask' | 'deleteTask';
 
 @Component({
-  selector: 'tasks-panel',
+  selector: 'pmt-tasks-panel',
   imports: [
     TableComponent,
     ButtonComponent,
@@ -71,9 +71,9 @@ type PopupType = 'addTask' | 'deleteTask';
     </div>
 
     @switch (activePopup()) { @case ('addTask') {
-    <add-task-popup (onClose)="hidePopup()" (onSubmit)="addTask($event)" />
+    <pmt-add-task-popup (onClose)="hidePopup()" (onSubmit)="addTask($event)" />
     } @case ('deleteTask') {
-    <delete-task-popup
+    <pmt-delete-task-popup
       [taskId]="activeTaskId()!"
       (onClose)="hidePopup()"
       (onDeleteTask)="deleteTask($event)"

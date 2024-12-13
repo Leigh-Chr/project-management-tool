@@ -9,7 +9,7 @@ import { TableColumn, TableComponent } from '../ui/table.component';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
-  selector: 'task-histories-panel',
+  selector: 'pmt-task-histories-panel',
   imports: [TableComponent, TranslatorPipe],
   host: {
     class:

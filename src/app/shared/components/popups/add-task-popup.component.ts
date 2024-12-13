@@ -20,7 +20,7 @@ import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
-  selector: 'add-task-popup',
+  selector: 'pmt-add-task-popup',
   imports: [
     ReactiveFormsModule,
     InputFieldComponent,

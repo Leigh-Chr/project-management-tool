@@ -7,9 +7,9 @@ export type SelectOption<T> = {
 };
 
 @Component({
-    imports: [ReactiveFormsModule],
-    selector: 'ui-select-field',
-    template: `
+  imports: [ReactiveFormsModule],
+  selector: 'ui-select-field',
+  template: `
     <div class="mt-6">
       <label
         class="
@@ -43,7 +43,7 @@ export type SelectOption<T> = {
       </small>
       }
     </div>
-  `
+  `,
 })
 export class SelectFieldComponent<T> {
   @Input() control!: FormControl;

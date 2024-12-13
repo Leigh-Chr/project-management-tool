@@ -14,7 +14,7 @@ import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
-  selector: 'add-project-popup',
+  selector: 'pmt-add-project-popup',
   imports: [
     ReactiveFormsModule,
     InputFieldComponent,

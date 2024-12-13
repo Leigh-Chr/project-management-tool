@@ -14,9 +14,9 @@ export type ToastType = 'success' | 'error' | 'info';
  * Component to display a toast notification.
  */
 @Component({
-    selector: 'ui-toast',
-    imports: [NgClass, NgTemplateOutlet],
-    template: `
+  selector: 'ui-toast',
+  imports: [NgClass, NgTemplateOutlet],
+  template: `
     <div
       [ngClass]="toastClasses"
       class="relative p-4 rounded shadow-md border-l-4 bg-neutral-100 dark:bg-neutral-800"
@@ -38,7 +38,7 @@ export type ToastType = 'success' | 'error' | 'info';
       }
     </div>
   `,
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastComponent {
   /**

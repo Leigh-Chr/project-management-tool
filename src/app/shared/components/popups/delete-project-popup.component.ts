@@ -6,7 +6,7 @@ import { ToastService } from '../toast/toast.service';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
-  selector: 'delete-project-popup',
+  selector: 'pmt-delete-project-popup',
   imports: [PopupComponent, TranslatorPipe],
   providers: [TranslatorPipe],
   template: `

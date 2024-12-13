@@ -5,7 +5,7 @@ import { AuthService } from '../services/auth.service';
 import { TranslatorPipe } from '../i18n/translator.pipe';
 
 @Component({
-  selector: 'default-layout',
+  selector: 'pmt-default-layout',
   imports: [RouterLink, RouterLinkActive, ButtonComponent, TranslatorPipe],
   template: `
     <div

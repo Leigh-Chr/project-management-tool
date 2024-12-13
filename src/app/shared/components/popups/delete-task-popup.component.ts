@@ -6,7 +6,7 @@ import { PopupComponent } from '../ui/popup.component';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
-  selector: 'delete-task-popup',
+  selector: 'pmt-delete-task-popup',
   imports: [PopupComponent, TranslatorPipe],
   providers: [TranslatorPipe],
   template: `

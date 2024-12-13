@@ -3,12 +3,13 @@ import { TasksPanelComponent } from '../../shared/components/panels/tasks-panel.
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 
 @Component({
+  selector: 'pmt-tasks',
   imports: [DefaultLayoutComponent, TasksPanelComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <default-layout>
-      <tasks-panel />
-    </default-layout>
+    <pmt-default-layout>
+      <pmt-tasks-panel />
+    </pmt-default-layout>
   `,
 })
 export class TasksComponent {}

@@ -8,7 +8,7 @@ import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberRespon
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
-  selector: 'delete-project-member-popup',
+  selector: 'pmt-delete-project-member-popup',
   imports: [PopupComponent, TranslatorPipe],
   providers: [TranslatorPipe],
   template: `

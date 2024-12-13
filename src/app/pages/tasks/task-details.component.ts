@@ -26,7 +26,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <default-layout>
+    <pmt-default-layout>
       @if (task) {
       <div
         class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900 shadow-sm grid gap-6"
@@ -272,7 +272,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
         {{ 'task.taskNotFound' | translate }}
       </p>
       }
-    </default-layout>
+    </pmt-default-layout>
 
     @switch (activePopup()) { @case ('deleteTask') {
     <ui-popup [title]="'task.deleteTask' | translate" (close)="hidePopup()">

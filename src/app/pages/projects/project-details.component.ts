@@ -41,7 +41,7 @@ type PopupType =
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <default-layout>
+    <pmt-default-layout>
       @if (project) {
       <div
         class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900 shadow-sm grid gap-6"
@@ -302,13 +302,13 @@ type PopupType =
       </div>
 
       @switch (activePopup()) { @case ('deleteProject') {
-      <delete-project-popup
+      <pmt-delete-project-popup
         [projectId]="activeId()!"
         (onClose)="hidePopup()"
         (onDeleteProject)="redirectToProjects()"
       />
       } @case ('addMember') {
-      <add-project-member-popup
+      <pmt-add-project-member-popup
         [projectId]="activeId()!"
         (onClose)="hidePopup()"
       />
@@ -320,7 +320,7 @@ type PopupType =
         Lorem ipsum dolor, sit amet consectetur adipisicing elit.
       </ui-popup>
       } @case ('deleteMember') {
-      <delete-project-member-popup
+      <pmt-delete-project-member-popup
         [projectMemberIds]="{ projectId: project.id, userId: activeId()! }"
         (onClose)="hidePopup()"
         (onDeleteMember)="deleteMember($event)"
@@ -348,7 +348,7 @@ type PopupType =
         {{ 'project.notFound' | translate }}
       </p>
       }
-    </default-layout>
+    </pmt-default-layout>
   `,
 })
 export class ProjectDetailsComponent {

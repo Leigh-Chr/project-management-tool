@@ -23,7 +23,7 @@ import { AuthService } from '../../services/auth.service';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
-  selector: 'add-project-member-popup',
+  selector: 'pmt-add-project-member-popup',
   imports: [
     ReactiveFormsModule,
     SelectFieldComponent,
