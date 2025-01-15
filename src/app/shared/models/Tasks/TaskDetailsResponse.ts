@@ -8,6 +8,7 @@ export interface TaskDetailsResponse {
   status: Status;
   project: Project;
   taskHistory: TaskHistory[];
+  permissions: TaskDetailsPermissions;
 }
 
 export interface Project {
@@ -40,4 +41,8 @@ export interface TaskHistory {
   name: string;
   description?: string;
   date: Date;
+}
+
+export interface TaskDetailsPermissions {
+  editAssignee: boolean;
 }

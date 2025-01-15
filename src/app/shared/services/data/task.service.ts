@@ -30,7 +30,7 @@ export class TaskService {
     return this.taskController.deleteTask(taskId);
   }
 
-  async addTask(task: AddTaskRequest): Promise<TaskResponse> {
+  async addTask(task: AddTaskRequest): Promise<TaskResponse | null> {
     return this.taskController.addTask(task);
   }
 

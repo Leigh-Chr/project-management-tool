@@ -22,8 +22,15 @@ export class TaskController {
 
   async getTaskDetails(taskId: number): Promise<TaskDetailsResponse | null> {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
-
     if (!taskEntity) return null;
+
+    
+    const canView = this.database.projectMembers.some(
+      (pm) =>
+        pm.projectId === taskEntity.projectId &&
+        pm.userId === this.authService.authUser()!.id
+    );
+    if (!canView) return null;
 
     const assigneeEntity = filterEntitiesByField<UserEntity, 'id'>(
       this.database.users,
@@ -55,6 +62,10 @@ export class TaskController {
       TaskHistoryEntity,
       'taskId'
     >(this.database.taskHistory, 'taskId', taskId);
+
+    const permissions = {
+      editAssignee:(await this.isAdmin(taskId, this.authService.authUser()!.id))
+    };
 
     return {
       id: taskEntity.id,
@@ -88,6 +99,7 @@ export class TaskController {
         description: th.description,
         date: th.date,
       })),
+      permissions,
     };
   }
 
@@ -143,8 +155,14 @@ export class TaskController {
     if (!userId) return null;
 
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
-
     if (!taskEntity) return null;
+
+    const canView = this.database.projectMembers.some(
+      (pm) =>
+        pm.projectId === taskEntity.projectId &&
+        pm.userId === userId
+    );
+    if (!canView) return null;
 
     const statusEntities = this.database.statuses.find(
       (s) => s.id === taskEntity.statusId
@@ -171,8 +189,14 @@ export class TaskController {
 
   async getTask(taskId: number): Promise<TaskResponse | null> {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
-
     if (!taskEntity) return null;
+
+    const canView = this.database.projectMembers.some(
+      (pm) =>
+        pm.projectId === taskEntity.projectId &&
+        pm.userId === this.authService.authUser()!.id
+    );
+    if (!canView) return null;
 
     return {
       id: taskEntity.id,
@@ -189,8 +213,11 @@ export class TaskController {
   async deleteTask(taskId: number): Promise<TaskResponse | null> {
     const task: TaskResponse | null =
       this.database.tasks.find((t) => t.id === taskId) ?? null;
-
     if (!task) return null;
+
+    const canDelete = await this.isAdmin(taskId, this.authService.authUser()!.id);
+    if (!canDelete) return null;
+    
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
     this.database.taskHistory.splice(
       this.database.taskHistory.findIndex((th) => th.taskId === taskId),
@@ -200,15 +227,21 @@ export class TaskController {
     return task;
   }
 
-  async addTask(task: AddTaskRequest): Promise<TaskResponse> {
+  async addTask(task: AddTaskRequest): Promise<TaskResponse | null> {
     const taskEntity: TaskEntity = {
       id: this.database.tasks.length + 1,
       ...task,
       statusId: 1,
     };
 
-    this.database.tasks.push(taskEntity);
+    const canAdd = this.database.projectMembers.some(
+      (pm) =>
+        pm.projectId === task.projectId &&
+        pm.userId === this.authService.authUser()!.id
+    );
+    if (!canAdd) return null;
 
+    this.database.tasks.push(taskEntity);
     return taskEntity;
   }
 

@@ -12,6 +12,7 @@ import { TaskService } from '../../shared/services/data/task.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
+import { DeleteTaskPopupComponent } from "../../shared/components/popups/delete-task-popup.component";
 
 type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
 
@@ -23,7 +24,8 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
     ButtonComponent,
     PopupComponent,
     TranslatorPipe,
-  ],
+    DeleteTaskPopupComponent
+],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <pmt-default-layout
@@ -93,6 +95,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                   >
                     {{ 'task.assignee' | translate }}
                   </h2>
+                  @if (task.permissions.editAssignee) {
                   <ui-button
                     [label]="
                       task.assignee
@@ -111,6 +114,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     variant="danger"
                     (click)="showPopup('deleteAssignee', task.id)"
                   />
+                  }
                   }
                 </header>
                 <div
@@ -277,10 +281,10 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
     </pmt-default-layout>
 
     @switch (activePopup()) { @case ('deleteTask') {
-    <ui-popup [title]="'task.deleteTask' | translate" (close)="hidePopup()">
-      {{ 'task.confirmDelete' | translate }}
-      <ui-button [label]="'task.confirm' | translate" (click)="deleteTask()" />
-    </ui-popup>
+    <pmt-delete-task-popup [taskId]="activeId()!" (close)="hidePopup()" 
+    (onClose)="hidePopup()"
+    (onDeleteTask)="redirectToTasks()"
+    />
     } @case ('addAssignee') {
     <ui-popup [title]="'task.assignMember' | translate" (close)="hidePopup()">
       <!-- Assign member form goes here -->
@@ -324,5 +328,9 @@ export class TaskDetailsComponent {
 
   goToProject(projectId: number): void {
     this.router.navigate(['/projects', projectId]);
+  }
+
+  redirectToTasks(): void {
+    this.router.navigate(['/tasks']);
   }
 }
