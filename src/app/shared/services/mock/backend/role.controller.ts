@@ -14,4 +14,13 @@ export class RoleController {
       name: role.name,
     }));
   }
+
+  async getRole(roleId: number): Promise<RoleResponse | null> {
+    const roleEntity = this.database.roles.find((role) => role.id === roleId);
+    if (!roleEntity) return null;
+    return {
+      id: roleEntity.id,
+      name: roleEntity.name,
+    };
+  }
 }

@@ -20,6 +20,7 @@ import { ProjectDetailsResponse } from '../../shared/models/Projects/ProjectDeta
 import { ProjectMemberResponse } from '../../shared/models/Projects/ProjectMemberResponse';
 import { TaskResponse } from '../../shared/models/Tasks/TaskResponse';
 import { ProjectService } from '../../shared/services/data/project.service';
+import { RoleService } from '../../shared/services/data/role.service';
 import { UserService } from '../../shared/services/data/user.service';
 
 type PopupType =
@@ -50,7 +51,7 @@ type PopupType =
   template: `
     <pmt-default-layout
       title="
-      {{ project() ? project.name : ('project.loading' | translate) }}
+      {{ project() ? project()!.name : ('project.loading' | translate) }}
     "
     >
       @if (project(); as project) {
@@ -322,6 +323,7 @@ type PopupType =
       <pmt-add-project-member-popup
         [projectId]="activeId()!"
         (onClose)="hidePopup()"
+        (onAddMember)="addMember($event)"
       />
       } @case ('assignTask') {
       <ui-popup
@@ -359,6 +361,7 @@ export class ProjectDetailsComponent {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
   private readonly userService = inject(UserService);
+  private readonly roleService = inject(RoleService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -412,6 +415,25 @@ export class ProjectDetailsComponent {
         ),
         1
       );
+      return project;
+    });
+  }
+
+  async addMember(member: ProjectMemberResponse | null): Promise<void> {
+    if (!member) return;
+
+    const user = await this.userService.getUser(member.userId);
+    if (!user) return;
+    const role = await this.roleService.getRole(member.roleId);
+    if (!role) return;
+
+    this.project.update((project) => {
+      project?.projectMembers.push({
+        ...member,
+        user,
+        role,
+        id: project.projectMembers.length + 1,
+      });
       return project;
     });
   }

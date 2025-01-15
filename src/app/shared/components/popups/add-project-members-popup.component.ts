@@ -6,21 +6,21 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
+import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
+import { ProjectResponse } from '../../models/Projects/ProjectResponse';
 import { RoleResponse } from '../../models/RoleResponse';
 import { UserResponse } from '../../models/UserResponse';
+import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/data/project.service';
 import { RoleService } from '../../services/data/role.service';
 import { UserService } from '../../services/data/user.service';
+import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
 import {
   SelectFieldComponent,
   SelectOption,
 } from '../ui/select-field.component';
-import { ToastService } from '../toast/toast.service';
-import { ProjectResponse } from '../../models/Projects/ProjectResponse';
-import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
-import { AuthService } from '../../services/auth.service';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'pmt-add-project-member-popup',
@@ -78,10 +78,12 @@ export class AddProjectMemberPopupComponent {
 
   @Input() projectId!: number;
   @Output() onClose = new EventEmitter<void>();
-  @Output() onAddMember = new EventEmitter<void>();
+  @Output() onAddMember = new EventEmitter<
+    ProjectMemberResponse
+  >();
 
-  userOptions: SelectOption<UserResponse>[] = [];
-  roleOptions: SelectOption<RoleResponse>[] = [];
+  userOptions: SelectOption<number>[] = [];
+  roleOptions: SelectOption<number>[] = [];
 
   project: ProjectResponse | null = null;
 
@@ -120,7 +122,7 @@ export class AddProjectMemberPopupComponent {
       .filter(({ isNotMember }) => isNotMember)
       .filter(({ user }) => user.id !== this.authService.authUser()?.id)
       .map(({ user }) => ({
-        value: user,
+        value: user.id,
         label: user.username,
       }));
 
@@ -137,7 +139,7 @@ export class AddProjectMemberPopupComponent {
       this.close();
     }
     this.roleOptions = (await this.roleService.getRoles()).map((role) => ({
-      value: role,
+      value: role.id,
       label: role.name,
     }));
     if (this.roleOptions.length === 0) {
@@ -163,7 +165,7 @@ export class AddProjectMemberPopupComponent {
 
     const newMember: ProjectMemberResponse = {
       projectId: this.projectId,
-      userId: +this.userControl.value.id,
+      userId: +this.userControl.value,
       roleId: +this.roleControl.value,
     };
 
@@ -172,7 +174,9 @@ export class AddProjectMemberPopupComponent {
       newMember.userId,
       newMember.roleId
     );
-    this.onAddMember.emit();
+    this.onAddMember.emit(
+      newMember
+    )
     this.close();
   }
 

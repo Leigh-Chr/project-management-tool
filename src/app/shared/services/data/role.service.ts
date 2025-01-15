@@ -11,4 +11,8 @@ export class RoleService {
   async getRoles(): Promise<RoleResponse[]> {
     return this.roleController.getRoles();
   }
+
+  async getRole(roleId: number): Promise<RoleResponse | null> {
+    return this.roleController.getRole(roleId);
+  }
 }
