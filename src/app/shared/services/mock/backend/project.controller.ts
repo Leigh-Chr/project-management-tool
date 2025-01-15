@@ -36,6 +36,9 @@ export class ProjectController {
       return null;
     }
 
+    const canView = await this.isMember(projectId, userId);
+    if (!canView) return null;
+
     const projectMembersEntities = filterEntitiesByField<
       ProjectMemberEntity,
       'projectId'
@@ -168,6 +171,9 @@ export class ProjectController {
       projectId
     );
 
+    const canView = await this.isMember(projectId, userId);
+    if (!canView) return null;
+
     if (!projectEntity) {
       return null;
     }
@@ -198,12 +204,16 @@ export class ProjectController {
   }
 
   async getProject(projectId: number): Promise<ProjectResponse | null> {
+    const userId = this.authService.authUser()!.id;
+
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
       projectId
     );
-
     if (!projectEntity) return null;
+
+const canView = await this.isMember(projectId, userId);
+    if (!canView) return null;
 
     return {
       id: projectEntity.id,
@@ -220,6 +230,10 @@ export class ProjectController {
       (p) => p.id === projectId
     );
     if (!project) return null;
+
+    const canDelete = await this.isAdmin(projectId, this.authService.authUser()!.id);
+    if (!canDelete) return null;
+
     this.database.projects.splice(this.database.projects.indexOf(project), 1);
     const projectMembers = this.database.projectMembers.filter(
       (pm) => pm.projectId === projectId
@@ -261,6 +275,11 @@ export class ProjectController {
       statusId: 1,
     };
 
+    const canAdd = this.database.projectMembers.some(
+      (pm) => pm.projectId === projectEntity.id && pm.userId === userId
+    );
+    if (!canAdd) return null;
+
     this.database.projects.push(projectEntity);
 
     const projectMemberEntity: ProjectMemberEntity = {
@@ -300,12 +319,16 @@ export class ProjectController {
     projectId: number,
     userId: number,
     roleId: number
-  ): Promise<ProjectMemberResponse> {
+  ): Promise<ProjectMemberResponse | null> {
+    const canAdd = await this.isAdmin(projectId, this.authService.authUser()!.id);
+    
     const projectMemberEntity: ProjectMemberEntity = {
       projectId,
       userId,
       roleId,
     };
+
+    if (!canAdd) return null;
 
     this.database.projectMembers.push(projectMemberEntity);
 

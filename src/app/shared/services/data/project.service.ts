@@ -48,7 +48,7 @@ export class ProjectService {
     projectId: number,
     userId: number,
     roleId: number
-  ): Promise<ProjectMemberResponse> {
+  ): Promise<ProjectMemberResponse | null> {
     return this.projectController.addProjectMember(projectId, userId, roleId);
   }
 
