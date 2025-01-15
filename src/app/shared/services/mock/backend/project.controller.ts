@@ -80,6 +80,11 @@ export class ProjectController {
       assignMember: isAdmin,
     };
 
+    const assignee = usersEntities.find(
+      (user) => user.id === tasksEntities[0].assigneeId
+    );
+    if (!assignee) return null;
+
     return {
       id: projectEntity.id,
       name: projectEntity.name,
@@ -101,7 +106,7 @@ export class ProjectController {
         description: task.description,
         dueDate: task.dueDate,
         priority: task.priority,
-        assignee: usersEntities.find((user) => user.id === task.assigneeId),
+        assignee,
         status: {
           id: taskStatusEntity.id,
           name: taskStatusEntity.name,
@@ -306,7 +311,7 @@ export class ProjectController {
   ): Promise<ProjectMemberResponse | null> {
     const canAdd = await this.isAdmin(projectId, this.authService.authUser()!.id);
     if (!canAdd) return null;
-    
+
     const projectMemberEntity: ProjectMemberEntity = {
       projectId,
       userId,

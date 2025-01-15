@@ -96,16 +96,16 @@ export class AddTaskPopupComponent {
   priority = this.taskForm.get('priority') as FormControl<number>;
   assigneeId = this.taskForm.get('assigneeId') as FormControl<number>;
 
-  @Input() projectId!: number;
+  @Input({ required: true }) projectId!: number;
   @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<TaskResponse | null>();
-  
-  userOptions: SelectOption<UserResponse>[] = [];
+  @Output() onAddTask = new EventEmitter<TaskResponse | null>();
+
+  userOptions: SelectOption<number>[] = [];
 
   async ngOnInit(): Promise<void> {
     const users = await this.userService.getUsers();
     this.userOptions = users.map((user) => ({
-      value: user,
+      value: user.id,
       label: user.username,
     }));
   }
@@ -118,12 +118,12 @@ export class AddTaskPopupComponent {
       description: this.description.value,
       dueDate: new Date(this.dueDate.value),
       priority: this.priority.value,
-      assigneeId: this.assigneeId.value,
+      assigneeId: +this.assigneeId.value,
       projectId: this.projectId,
     };
 
     const task = await this.taskService.addTask(newTask);
-    this.onSubmit.emit(task);
+    this.onAddTask.emit(task);
     this.close();
   }
 

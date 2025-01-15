@@ -71,7 +71,7 @@ type PopupType = 'addTask' | 'deleteTask';
     </div>
 
     @switch (activePopup()) { @case ('addTask') {
-    <pmt-add-task-popup (onClose)="hidePopup()" (onSubmit)="addTask($event)" />
+    <pmt-add-task-popup (onClose)="hidePopup()" (onAddTask)="addTask($event)" />
     } @case ('deleteTask') {
     <pmt-delete-task-popup
       [taskId]="activeTaskId()!"

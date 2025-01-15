@@ -7,8 +7,10 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
+import { AddTaskPopupComponent } from "../../shared/components/popups/add-task-popup.component";
 import { DeleteProjectMemberPopupComponent } from '../../shared/components/popups/delete-project-member-popup.component';
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
+import { DeleteTaskPopupComponent } from "../../shared/components/popups/delete-task-popup.component";
 import { ToastService } from '../../shared/components/toast/toast.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
@@ -16,7 +18,9 @@ import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { ProjectDetailsResponse } from '../../shared/models/Projects/ProjectDetailsResponse';
 import { ProjectMemberResponse } from '../../shared/models/Projects/ProjectMemberResponse';
+import { TaskResponse } from '../../shared/models/Tasks/TaskResponse';
 import { ProjectService } from '../../shared/services/data/project.service';
+import { UserService } from '../../shared/services/data/user.service';
 
 type PopupType =
   | 'deleteProject'
@@ -38,15 +42,18 @@ type PopupType =
     DeleteProjectMemberPopupComponent,
     AddProjectMemberPopupComponent,
     TranslatorPipe,
+    AddTaskPopupComponent,
+    DeleteTaskPopupComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   template: `
     <pmt-default-layout
       title="
-      {{ project ? project.name : ('project.loading' | translate) }}
+      {{ project() ? project.name : ('project.loading' | translate) }}
     "
     >
-      @if (project) {
+      @if (project(); as project) {
       <div
         class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900 shadow-sm grid gap-6"
       >
@@ -330,9 +337,7 @@ type PopupType =
         (onDeleteMember)="deleteMember($event)"
       />
       } @case ('addTask') {
-      <ui-popup [title]="'project.addTask' | translate" (onClose)="hidePopup()">
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-      </ui-popup>
+      <pmt-add-task-popup (onClose)="hidePopup()" (onAddTask)="addTask($event)" [projectId]="activeId()!"/>
       } @case ('assignMember') {
       <ui-popup
         [title]="'project.assignMember' | translate"
@@ -341,12 +346,7 @@ type PopupType =
         Lorem ipsum dolor, sit amet consectetur adipisicing elit.
       </ui-popup>
       } @case ('deleteTask') {
-      <ui-popup
-        [title]="'project.deleteTask' | translate"
-        (onClose)="hidePopup()"
-      >
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-      </ui-popup>
+      <pmt-delete-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" (onDeleteTask)="deleteTask($event)"/>
       } } } @else {
       <p class="text-neutral-600 dark:text-neutral-400">
         {{ 'project.notFound' | translate }}
@@ -358,17 +358,18 @@ type PopupType =
 export class ProjectDetailsComponent {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
+  private readonly userService = inject(UserService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  project: ProjectDetailsResponse | null = null;
+  readonly project = signal<ProjectDetailsResponse | null>(null);
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    this.project = await this.projectService.getProjectDetails(this.id);
+    this.project.set(await this.projectService.getProjectDetails(this.id));
     if (!this.project) {
       this.toastService.showToast(
         {
@@ -403,11 +404,45 @@ export class ProjectDetailsComponent {
 
   deleteMember(projectMember: ProjectMemberResponse | null): void {
     if (!projectMember) return;
-    this.project?.projectMembers.splice(
-      this.project.projectMembers.findIndex(
-        (member) => member.user.id === projectMember.userId
-      ),
-      1
-    );
+
+    this.project.update((project) => {
+      project?.projectMembers.splice(
+        project.projectMembers.findIndex(
+          (member) => member.user.id === projectMember.userId
+        ),
+        1
+      );
+      return project;
+    });
   }
+
+  async addTask(task: TaskResponse | null): Promise<void> {
+    if (!task) return;
+
+    const assignee = await this.userService.getUser(task.assigneeId);
+    if (!assignee) return;
+
+    this.project.update((project) => {
+      project?.tasks.push({
+        ...task,
+        assignee,
+        status: { id: 1, name: 'Non commencé' },
+      });
+      return project;
+    });
+    console.log(this.project());
+  }
+
+  async deleteTask(taskId: number): Promise<void> {
+    if (!taskId) return;
+
+    this.project.update((project) => {
+      project?.tasks.splice(
+        project.tasks.findIndex((t) => t.id === taskId),
+        1
+      );
+      return project;
+    });
+  }
+
 }
