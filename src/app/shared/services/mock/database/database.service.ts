@@ -7,7 +7,7 @@ import {
   ProjectMemberEntity,
   TaskEntity,
 } from './entities';
-import { TaskEventResponse } from '../../../models/TaskEventResponse';
+import { TaskEventResponse } from '../../../models/Tasks/TaskEventResponse';
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseMockService {

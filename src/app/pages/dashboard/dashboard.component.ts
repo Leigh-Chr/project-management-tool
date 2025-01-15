@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ProjectsPanelComponent } from '../../shared/components/panels/projects-panel.component';
-import { TaskHistoriesPanelComponent } from '../../shared/components/panels/task-histories-panel.component';
+import { TaskHistoryPanelComponent } from '../../shared/components/panels/task-history-panel.component';
 import { TasksPanelComponent } from '../../shared/components/panels/tasks-panel.component';
 import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
@@ -11,7 +11,7 @@ import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.comp
     DefaultLayoutComponent,
     ProjectsPanelComponent,
     TasksPanelComponent,
-    TaskHistoriesPanelComponent,
+    TaskHistoryPanelComponent,
     TranslatorPipe,
   ],
   template: `

@@ -13,6 +13,7 @@ import {
 import { TaskSummaryResponse } from '../../../models/Tasks/TaskSummaryResponse';
 import { AddTaskRequest } from '../../../models/Tasks/AddTaskRequest';
 import { AuthService } from '../../auth.service';
+import { TaskEventResponse } from '../../../models/Tasks/TaskEventResponse';
 
 @Injectable({ providedIn: 'root' })
 export class TaskController {
@@ -191,6 +192,10 @@ export class TaskController {
 
     if (!task) return null;
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
+    this.database.taskHistory.splice(
+      this.database.taskHistory.findIndex((th) => th.taskId === taskId),
+      1
+    );
 
     return task;
   }
@@ -216,5 +221,26 @@ export class TaskController {
       (pm) =>
         pm.projectId === projectId && pm.userId === userId && pm.roleId === 1
     );
+  }
+
+  async getTaskHistory(): Promise<TaskEventResponse[]> {
+    const userId = this.authService.authUser()?.id;
+    if (!userId) return [];
+
+    const taskIds = this.database.tasks
+      .filter((task) => task.assigneeId === userId)
+      .map((task) => task.id);
+
+    const taskHistoryEntities = this.database.taskHistory.filter((th) =>
+      taskIds.includes(th.taskId)
+    );
+
+    return taskHistoryEntities.map((th) => ({
+      id: th.id,
+      taskId: th.taskId,
+      name: th.name,
+      description: th.description,
+      date: th.date,
+    }));
   }
 }

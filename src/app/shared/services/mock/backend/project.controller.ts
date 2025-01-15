@@ -230,6 +230,20 @@ export class ProjectController {
         1
       );
     });
+    const taskIds = this.database.tasks
+      .filter((t) => t.projectId === projectId)
+      .map((t) => t.id);
+    taskIds.forEach((taskId) => {
+      this.database.tasks.splice(
+        this.database.tasks.indexOf(this.database.tasks.find((t): t is TaskEntity => t.id === taskId)!),
+        1
+      );
+      this.database.taskHistory.splice(
+        this.database.taskHistory.findIndex((th) => th.taskId === taskId),
+        1
+      );
+    }
+    );
     return project;
   }
 

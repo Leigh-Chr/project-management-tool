@@ -4,6 +4,7 @@ import { TaskDetailsResponse } from '../../models/Tasks/TaskDetailsResponse';
 import { TaskController } from '../mock/backend/task.controller';
 import { TaskSummaryResponse } from '../../models/Tasks/TaskSummaryResponse';
 import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
+import { TaskEventResponse } from '../../models/Tasks/TaskEventResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -35,5 +36,10 @@ export class TaskService {
 
   async getTask(taskId: number): Promise<TaskResponse | null> {
     return this.taskController.getTask(taskId);
+  }
+
+  async getTaskHistory(
+  ): Promise<TaskEventResponse[]> {
+    return this.taskController.getTaskHistory();
   }
 }

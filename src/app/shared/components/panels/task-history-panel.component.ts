@@ -4,9 +4,10 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { TaskEventResponse } from '../../models/TaskEventResponse';
+import { TaskEventResponse } from '../../models/Tasks/TaskEventResponse';
 import { TableColumn, TableComponent } from '../ui/table.component';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
+import { TaskService } from '../../services/data/task.service';
 
 @Component({
   selector: 'pmt-task-histories-panel',
@@ -32,7 +33,8 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TaskHistoriesPanelComponent {
+export class TaskHistoryPanelComponent {
+  private readonly taskService = inject(TaskService);
   private readonly translator = inject(TranslatorPipe);
   readonly typeName = 'Task History';
 
@@ -48,4 +50,8 @@ export class TaskHistoriesPanelComponent {
   ];
 
   readonly taskHistories = signal<TaskEventResponse[]>([]);
+
+  async ngOnInit(): Promise<void> {
+    this.taskHistories.set(await this.taskService.getTaskHistory());
+  }
 }
