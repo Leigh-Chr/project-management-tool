@@ -6,15 +6,15 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { TaskDetailsResponse } from '../../shared/models/Tasks/TaskDetailsResponse';
-import { TaskService } from '../../shared/services/data/task.service';
-import { ButtonComponent } from '../../shared/components/ui/button.component';
-import { PopupComponent } from '../../shared/components/ui/popup.component';
-import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DeleteTaskPopupComponent } from "../../shared/components/popups/delete-task-popup.component";
+import { ButtonComponent } from '../../shared/components/ui/button.component';
+import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
+import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { TaskDetailsResponse, User } from '../../shared/models/Tasks/TaskDetailsResponse';
+import { TaskService } from '../../shared/services/data/task.service';
+import { ChangeAssigneePopupComponent } from '../../shared/components/popups/change-assignee-popup.component';
 
-type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee' | 'changeAssignee';
+type PopupType = 'deleteTask' | 'changeAssignee';
 
 @Component({
   imports: [
@@ -22,16 +22,17 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee' | 'changeAssign
     DatePipe,
     RouterModule,
     ButtonComponent,
-    PopupComponent,
     TranslatorPipe,
-    DeleteTaskPopupComponent
+    DeleteTaskPopupComponent,
+    ChangeAssigneePopupComponent
 ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  standalone: true,
   template: `
     <pmt-default-layout
-      title="{{ task ? task.name : ('task.loading' | translate) }}"
+      title="{{ task() ? task()!.name : ('task.loading' | translate) }}"
     >
-      @if (task) {
+      @if (task(); as task) {
       <div
         class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900 shadow-sm grid gap-6"
       >
@@ -98,25 +99,12 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee' | 'changeAssign
                     {{ 'task.assignee' | translate }}
                   </h2>
                   @if (task.permissions.editTask) {
-                  @if (!task.assignee) {
-                  <ui-button
-                    [label]="'task.assignMember' | translate"
-                    icon="fi fi-rr-user-add"
-                    (click)="showPopup('addAssignee', task.id)"
-                  />
-                }
                   @if (task.assignee) {
                     <ui-button
                       [label]="'task.changeAssignee' | translate"
                       icon="fi fi-rr-user-pen"
                       (click)="showPopup('changeAssignee', task.id)"
                     />
-                  <ui-button
-                    [label]="'task.removeAssignee' | translate"
-                    icon="fi fi-rr-trash"
-                    variant="danger"
-                    (click)="showPopup('deleteAssignee', task.id)"
-                  />
                   }
                 }
                 </header>
@@ -288,11 +276,9 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee' | 'changeAssign
     (onClose)="hidePopup()"
     (onDeleteTask)="redirectToTasks()"
     />
-    } @case ('addAssignee') {
-    <ui-popup [title]="'task.assignMember' | translate" (close)="hidePopup()">
-      <!-- Assign member form goes here -->
-    </ui-popup>
-    } }
+    } @case ('changeAssignee') {
+    <pmt-change-assignee-popup [taskId]="activeId()!" (onClose)="hidePopup()" (onChangeAssignee)="changeAssignee($event)" />
+    }}
   `,
 })
 export class TaskDetailsComponent {
@@ -301,13 +287,14 @@ export class TaskDetailsComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  task: TaskDetailsResponse | null = null;
+  readonly task = signal<TaskDetailsResponse | null>(null); 
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
 
+
   async ngOnInit(): Promise<void> {
-    this.task = await this.taskService.getTaskDetails(this.id);
+    this.task.set(await this.taskService.getTaskDetails(this.id));
     if (!this.task) this.router.navigate(['/tasks']);
   }
 
@@ -322,11 +309,10 @@ export class TaskDetailsComponent {
   }
 
   deleteTask(): void {
-    if (this.task) {
-      this.taskService.deleteTask(this.task.id).then(() => {
+    if (!this.task()) return; 
+      this.taskService.deleteTask(this.task()!.id).then(() => {
         this.router.navigate(['/tasks']);
-      });
-    }
+      }); 
   }
 
   goToProject(projectId: number): void {
@@ -335,5 +321,14 @@ export class TaskDetailsComponent {
 
   redirectToTasks(): void {
     this.router.navigate(['/tasks']);
+  }
+
+  changeAssignee(assignee: User | null): void {
+    if (!this.task() || !assignee) return;
+    this.task.update((task) => {
+      task!.assignee = assignee;
+      return task;
+    });
+    console.log(this.task());
   }
 }

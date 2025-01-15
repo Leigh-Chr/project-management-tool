@@ -14,6 +14,7 @@ import { TaskSummaryResponse } from '../../../models/Tasks/TaskSummaryResponse';
 import { AddTaskRequest } from '../../../models/Tasks/AddTaskRequest';
 import { AuthService } from '../../auth.service';
 import { TaskEventResponse } from '../../../models/Tasks/TaskEventResponse';
+import { UserResponse } from '../../../models/UserResponse';
 
 @Injectable({ providedIn: 'root' })
 export class TaskController {
@@ -203,7 +204,7 @@ export class TaskController {
 
     const canDelete = await this.isAdmin(taskId, this.authService.authUser()!.id);
     if (!canDelete) return null;
-    
+
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
     this.database.taskHistory.splice(
       this.database.taskHistory.findIndex((th) => th.taskId === taskId),
@@ -214,18 +215,27 @@ export class TaskController {
   }
 
   async addTask(task: AddTaskRequest): Promise<TaskResponse | null> {
-    const taskEntity: TaskEntity = {
-      id: this.database.tasks.length + 1,
-      ...task,
-      statusId: 1,
-    };
-
     const canAdd = this.database.projectMembers.some(
       (pm) =>
         pm.projectId === task.projectId &&
         pm.userId === this.authService.authUser()!.id
     );
     if (!canAdd) return null;
+
+    const doesProjectExist = this.database.projects.some(
+      (p) => p.id === task.projectId
+    );
+    if (!doesProjectExist) return null;
+    const doesAssigneeExist = this.database.users.some(
+      (u) => u.id === task.assigneeId
+    );
+    if (!doesAssigneeExist) return null;
+
+    const taskEntity: TaskEntity = {
+      id: this.database.tasks.length + 1,
+      ...task,
+      statusId: 1,
+    };
 
     this.database.tasks.push(taskEntity);
     return taskEntity;
@@ -261,5 +271,17 @@ export class TaskController {
       description: th.description,
       date: th.date,
     }));
+  }
+
+  async changeAssignee(taskId: number, newAssigneeId: number): Promise<UserResponse | null> {
+    const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
+    if (!taskEntity) return null;
+
+    const newAssignee = this.database.users.find((u) => u.id === newAssigneeId);
+    if (!newAssignee) return null;
+
+    taskEntity.assigneeId = newAssigneeId;
+
+    return newAssignee;
   }
 }

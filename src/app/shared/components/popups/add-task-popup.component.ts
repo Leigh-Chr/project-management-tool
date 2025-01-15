@@ -99,7 +99,7 @@ export class AddTaskPopupComponent {
   @Input() projectId!: number;
   @Output() onClose = new EventEmitter<void>();
   @Output() onSubmit = new EventEmitter<TaskResponse | null>();
-
+  
   userOptions: SelectOption<UserResponse>[] = [];
 
   async ngOnInit(): Promise<void> {

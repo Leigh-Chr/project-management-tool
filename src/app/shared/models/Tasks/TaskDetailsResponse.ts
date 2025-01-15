@@ -4,7 +4,7 @@ export interface TaskDetailsResponse {
   description?: string;
   dueDate: Date;
   priority: number;
-  assignee?: User;
+  assignee: User;
   status: Status;
   project: Project;
   taskHistory: TaskHistory[];
