@@ -36,9 +36,6 @@ export class ProjectController {
       return null;
     }
 
-    const canView = await this.isMember(projectId, userId);
-    if (!canView) return null;
-
     const projectMembersEntities = filterEntitiesByField<
       ProjectMemberEntity,
       'projectId'
@@ -171,9 +168,6 @@ export class ProjectController {
       projectId
     );
 
-    const canView = await this.isMember(projectId, userId);
-    if (!canView) return null;
-
     if (!projectEntity) {
       return null;
     }
@@ -204,16 +198,11 @@ export class ProjectController {
   }
 
   async getProject(projectId: number): Promise<ProjectResponse | null> {
-    const userId = this.authService.authUser()!.id;
-
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
       projectId
     );
     if (!projectEntity) return null;
-
-const canView = await this.isMember(projectId, userId);
-    if (!canView) return null;
 
     return {
       id: projectEntity.id,
@@ -275,11 +264,6 @@ const canView = await this.isMember(projectId, userId);
       statusId: 1,
     };
 
-    const canAdd = this.database.projectMembers.some(
-      (pm) => pm.projectId === projectEntity.id && pm.userId === userId
-    );
-    if (!canAdd) return null;
-
     this.database.projects.push(projectEntity);
 
     const projectMemberEntity: ProjectMemberEntity = {
@@ -321,14 +305,13 @@ const canView = await this.isMember(projectId, userId);
     roleId: number
   ): Promise<ProjectMemberResponse | null> {
     const canAdd = await this.isAdmin(projectId, this.authService.authUser()!.id);
+    if (!canAdd) return null;
     
     const projectMemberEntity: ProjectMemberEntity = {
       projectId,
       userId,
       roleId,
     };
-
-    if (!canAdd) return null;
 
     this.database.projectMembers.push(projectMemberEntity);
 

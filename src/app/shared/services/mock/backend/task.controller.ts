@@ -24,14 +24,6 @@ export class TaskController {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
     if (!taskEntity) return null;
 
-    
-    const canView = this.database.projectMembers.some(
-      (pm) =>
-        pm.projectId === taskEntity.projectId &&
-        pm.userId === this.authService.authUser()!.id
-    );
-    if (!canView) return null;
-
     const assigneeEntity = filterEntitiesByField<UserEntity, 'id'>(
       this.database.users,
       'id',
@@ -63,8 +55,9 @@ export class TaskController {
       'taskId'
     >(this.database.taskHistory, 'taskId', taskId);
 
+    const isAdmin = await this.isAdmin(taskId, this.authService.authUser()!.id);
     const permissions = {
-      editAssignee:(await this.isAdmin(taskId, this.authService.authUser()!.id))
+      editTask: isAdmin,
     };
 
     return {
@@ -156,13 +149,6 @@ export class TaskController {
 
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
     if (!taskEntity) return null;
-
-    const canView = this.database.projectMembers.some(
-      (pm) =>
-        pm.projectId === taskEntity.projectId &&
-        pm.userId === userId
-    );
-    if (!canView) return null;
 
     const statusEntities = this.database.statuses.find(
       (s) => s.id === taskEntity.statusId

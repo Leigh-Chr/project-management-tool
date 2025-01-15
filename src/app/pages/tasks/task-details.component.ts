@@ -14,7 +14,7 @@ import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DeleteTaskPopupComponent } from "../../shared/components/popups/delete-task-popup.component";
 
-type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
+type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee' | 'changeAssignee';
 
 @Component({
   imports: [
@@ -46,12 +46,14 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
               {{ task.description || 'No description provided.' }}
             </p>
           </div>
+          @if (task.permissions.editTask) {
           <ui-button
             [label]="'task.deleteTask' | translate"
             icon="fi fi-rr-trash"
             variant="danger"
             (click)="showPopup('deleteTask', task.id)"
           />
+          }
         </header>
         <div class="grid gap-6">
           <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -95,19 +97,20 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                   >
                     {{ 'task.assignee' | translate }}
                   </h2>
-                  @if (task.permissions.editAssignee) {
+                  @if (task.permissions.editTask) {
+                  @if (!task.assignee) {
                   <ui-button
-                    [label]="
-                      task.assignee
-                        ? ('task.changeAssignee' | translate)
-                        : ('task.assignMember' | translate)
-                    "
-                    [icon]="
-                      task.assignee ? 'fi fi-rr-user-pen' : 'fi fi-rr-user-add'
-                    "
+                    [label]="'task.assignMember' | translate"
+                    icon="fi fi-rr-user-add"
                     (click)="showPopup('addAssignee', task.id)"
                   />
+                }
                   @if (task.assignee) {
+                    <ui-button
+                      [label]="'task.changeAssignee' | translate"
+                      icon="fi fi-rr-user-pen"
+                      (click)="showPopup('changeAssignee', task.id)"
+                    />
                   <ui-button
                     [label]="'task.removeAssignee' | translate"
                     icon="fi fi-rr-trash"
@@ -115,7 +118,7 @@ type PopupType = 'deleteTask' | 'addAssignee' | 'deleteAssignee';
                     (click)="showPopup('deleteAssignee', task.id)"
                   />
                   }
-                  }
+                }
                 </header>
                 <div
                   class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"

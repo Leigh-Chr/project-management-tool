@@ -44,5 +44,5 @@ export interface TaskHistory {
 }
 
 export interface TaskDetailsPermissions {
-  editAssignee: boolean;
+  editTask: boolean;
 }

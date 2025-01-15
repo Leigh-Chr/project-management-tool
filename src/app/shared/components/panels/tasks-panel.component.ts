@@ -146,7 +146,8 @@ export class TasksPanelComponent {
     this.tasks.set(this.tasks().filter((task) => task.id !== taskId));
   }
 
-  async addTask(task: TaskResponse): Promise<void> {
+  async addTask(task: TaskResponse | null): Promise<void> {
+    if (!task) return;
     const taskSummary = await this.taskService.getTaskSummary(task.id);
     if (!taskSummary) return;
     this.tasks.set([...this.tasks(), taskSummary]);
