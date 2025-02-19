@@ -250,9 +250,9 @@ type PopupType =
                     <strong class="text-neutral-900 dark:text-neutral-100"
                       >{{ 'project.assignedTo' | translate }}:</strong
                     >
-                    @if (task.assignee) {
+                    @if (getAssignee(task.assigneeId); as assignee) {
                     <span class="text-neutral-700 dark:text-neutral-400">
-                      {{ task.assignee.username }}
+                      {{ assignee.user.username }}
                     </span>
                     } @else {
                     <span class="text-neutral-700 dark:text-neutral-400">
@@ -432,7 +432,7 @@ export class ProjectDetailsComponent {
         ...member,
         user,
         role,
-        id: project.projectMembers.length + 1,
+        projectId: project.id,
       });
       return project;
     });
@@ -447,8 +447,9 @@ export class ProjectDetailsComponent {
     this.project.update((project) => {
       project?.tasks.push({
         ...task,
-        assignee,
+        assigneeId: assignee.id,
         status: { id: 1, name: 'Non commencé' },
+        description: task.description,
       });
       return project;
     });
@@ -467,4 +468,9 @@ export class ProjectDetailsComponent {
     });
   }
 
+  getAssignee(taskId: number): ProjectDetailsResponse['projectMembers'][0] | null {
+    return this.project()?.projectMembers.find(
+      (member) => member.user.id === taskId
+    ) ?? null;
+  }
 }

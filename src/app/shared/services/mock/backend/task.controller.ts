@@ -116,30 +116,34 @@ export class TaskController {
 
     const statusEntities = this.database.statuses;
 
-    const taskSummaries: TaskSummaryResponse[] = await Promise.all(
-      taskEntities.map(async (task) => {
-        const status =
-          statusEntities.find((status) => status.id === task.statusId)?.name ??
-          statusEntities[0].name;
+    const taskSummaries =
+      taskEntities.filter((task) => this.database.projects.some(
+        (p) => p.id === task.projectId
 
-        const permissions = {
-          deleteTask: await this.isAdmin(task.id, userId),
-        };
+      )).
+        map((task) => {
+          const project = this.database.projects.find(
+            (p) => p.id === task.projectId
+          )!;
 
-        return {
-          id: task.id,
-          name: task.name,
-          description: task.description,
-          dueDate: task.dueDate,
-          priority: task.priority,
-          status,
-          project:
-            this.database.projects.find((p) => p.id === task.projectId)?.name ??
-            'Unknown',
-          permissions,
-        };
-      })
-    );
+          const status =
+            statusEntities.find((status) => status.id === task.statusId);
+
+          const permissions = {
+            deleteTask: this.isAdmin(task.id, userId),
+          };
+
+          return {
+            id: task.id,
+            name: task.name,
+            description: task.description,
+            dueDate: task.dueDate,
+            priority: task.priority,
+            status,
+            project,
+            permissions,
+          };
+        })
 
     return taskSummaries;
   }
@@ -154,11 +158,15 @@ export class TaskController {
     const statusEntities = this.database.statuses.find(
       (s) => s.id === taskEntity.statusId
     );
-    const status = statusEntities?.name ?? 'Unknown';
 
     const permissions = {
       deleteTask: await this.isAdmin(taskEntity.id, userId),
     };
+
+    const project = this.database.projects.find(
+      (p) => p.id === taskEntity.projectId
+    );
+    if (!project) return null;
 
     return {
       id: taskEntity.id,
@@ -166,10 +174,8 @@ export class TaskController {
       description: taskEntity.description,
       dueDate: taskEntity.dueDate,
       priority: taskEntity.priority,
-      status,
-      project:
-        this.database.projects.find((p) => p.id === taskEntity.projectId)
-          ?.name ?? 'Unknown',
+      status: statusEntities,
+      project,
       permissions,
     };
   }
@@ -248,7 +254,7 @@ export class TaskController {
     return taskEntity;
   }
 
-  async isAdmin(taskId: number, userId: number): Promise<boolean> {
+  isAdmin(taskId: number, userId: number): boolean {
     const projectId = this.database.tasks.find(
       (t) => t.id === taskId
     )?.projectId;

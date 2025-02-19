@@ -96,7 +96,7 @@ export class ProjectController {
         name: projectStatusEntity.name,
       },
       projectMembers: projectMembersEntities.map((pm) => ({
-        id: pm.userId,
+        projectId: pm.projectId,
         user: usersEntities.find((user) => user.id === pm.userId)!,
         role: rolesEntities.find((role) => role.id === pm.roleId)!,
       })),
@@ -106,7 +106,7 @@ export class ProjectController {
         description: task.description,
         dueDate: task.dueDate,
         priority: task.priority,
-        assignee,
+        assigneeId: task.assigneeId,
         status: {
           id: taskStatusEntity.id,
           name: taskStatusEntity.name,
@@ -136,10 +136,8 @@ export class ProjectController {
 
     const projectSummaries = await Promise.all(
       projectEntities.map(async (project) => {
-        const status =
+        const statusEntity =
           statusEntities.find((status) => status.id === project.statusId)
-            ?.name ?? statusEntities[0].name;
-
         const memberCount = this.database.projectMembers.filter(
           (pm) => pm.projectId === project.id
         ).length;
@@ -151,9 +149,10 @@ export class ProjectController {
         return {
           id: project.id,
           name: project.name,
+          description: project.description,
           startDate: project.startDate,
           endDate: project.endDate,
-          status,
+          status: statusEntity,
           memberCount,
           permissions,
         };
@@ -181,8 +180,6 @@ export class ProjectController {
       (status) => status.id === projectEntity.statusId
     );
 
-    const status = statusEntity?.name ?? 'Unknown';
-
     const memberCount = this.database.projectMembers.filter(
       (pm) => pm.projectId === projectEntity.id
     ).length;
@@ -194,9 +191,10 @@ export class ProjectController {
     return {
       id: projectEntity.id,
       name: projectEntity.name,
+      description: projectEntity.description,
       startDate: projectEntity.startDate,
       endDate: projectEntity.endDate,
-      status,
+      status: statusEntity,
       memberCount,
       permissions,
     };
@@ -220,15 +218,15 @@ export class ProjectController {
   }
 
   async deleteProject(projectId: number): Promise<ProjectResponse | null> {
-    const project: ProjectResponse | undefined = this.database.projects.find(
+    const projectEntity: ProjectEntity | undefined = this.database.projects.find(
       (p) => p.id === projectId
     );
-    if (!project) return null;
+    if (!projectEntity) return null;
 
     const canDelete = await this.isAdmin(projectId, this.authService.authUser()!.id);
     if (!canDelete) return null;
 
-    this.database.projects.splice(this.database.projects.indexOf(project), 1);
+    this.database.projects.splice(this.database.projects.indexOf(projectEntity), 1);
     const projectMembers = this.database.projectMembers.filter(
       (pm) => pm.projectId === projectId
     );
@@ -252,7 +250,15 @@ export class ProjectController {
       );
     }
     );
-    return project;
+
+    return {
+      id: projectEntity.id,
+      name: projectEntity.name,
+      description: projectEntity.description,
+      startDate: projectEntity.startDate,
+      endDate: projectEntity.endDate,
+      statusId: projectEntity.statusId,
+    }
   }
 
   async addProject(

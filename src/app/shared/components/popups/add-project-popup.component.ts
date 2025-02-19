@@ -80,6 +80,7 @@ export class AddProjectPopupComponent {
       name: this.name.value,
       description: this.description.value,
       startDate: new Date(this.startDate.value),
+      endDate: undefined,
     };
 
     const project = await this.projectService.addProject(newProject);
