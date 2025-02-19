@@ -6,13 +6,13 @@ import { AuthService } from '../services/auth.service';
   providedIn: 'root',
 })
 export class UnauthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router) { }
 
   canActivate(): boolean {
     if (!this.authService.authUser()) {
       return true;
     } else {
-      this.router.navigate(['/']);
+      this.router.navigate(['/projects']);
       return false;
     }
   }

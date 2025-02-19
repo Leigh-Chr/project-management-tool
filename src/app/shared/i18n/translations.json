@@ -1,8 +1,5 @@
 {
     "en": {
-        "dashboard": "Dashboard",
-        "projects": "Projects",
-        "tasks": "Tasks",
         "logout": "Logout",
         "home": {
             "welcome": "Welcome to Project Management Tool",
@@ -124,9 +121,6 @@
         }
     },
     "fr": {
-        "dashboard": "Tableau de bord",
-        "projects": "Projets",
-        "tasks": "Tâches",
         "logout": "Déconnexion",
         "home": {
             "welcome": "Bienvenue dans l'outil de gestion de projet",

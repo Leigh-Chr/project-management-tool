@@ -6,18 +6,17 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { InputFieldComponent } from '../ui/input-field.component';
-import { PopupComponent } from '../ui/popup.component';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
+import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
 import { TaskResponse } from '../../models/Tasks/TaskResponse';
 import { TaskService } from '../../services/data/task.service';
 import { UserService } from '../../services/data/user.service';
-import { UserResponse } from '../../models/UserResponse';
+import { InputFieldComponent } from '../ui/input-field.component';
+import { PopupComponent } from '../ui/popup.component';
 import {
   SelectFieldComponent,
   SelectOption,
 } from '../ui/select-field.component';
-import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'pmt-add-task-popup',

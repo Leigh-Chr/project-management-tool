@@ -5,15 +5,14 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { ButtonComponent } from '../components/ui/button.component';
 import { TranslatorPipe } from '../i18n/translator.pipe';
 import { AuthService } from '../services/auth.service';
-import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'pmt-default-layout',
-  imports: [RouterLink, RouterLinkActive, ButtonComponent, TranslatorPipe],
+  imports: [ButtonComponent, TranslatorPipe],
   template: `
     <div
       class="
@@ -28,32 +27,6 @@ import { Title } from '@angular/platform-browser';
             <i class="fi fi-br-tools"></i>
             Project Management Tool
           </h1>
-          <ul class="flex items-center gap-4">
-            <li>
-              <a
-                class="hover:underline cursor-pointer"
-                routerLink="/dashboard"
-                routerLinkActive="text-indigo-500"
-                >{{ 'dashboard' | translate }}</a
-              >
-            </li>
-            <li>
-              <a
-                class="hover:underline cursor-pointer"
-                routerLink="/projects"
-                routerLinkActive="text-indigo-500"
-                >{{ 'projects' | translate }}</a
-              >
-            </li>
-            <li>
-              <a
-                class="hover:underline cursor-pointer"
-                routerLink="/tasks"
-                routerLinkActive="text-indigo-500"
-                >{{ 'tasks' | translate }}</a
-              >
-            </li>
-          </ul>
         </div>
 
         <div class="flex items-center gap-4">

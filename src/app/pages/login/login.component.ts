@@ -92,7 +92,7 @@ export class LoginComponent {
 
   constructor() {
     if (this.authService.authUser()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/projects']);
     }
   }
 
@@ -106,6 +106,6 @@ export class LoginComponent {
       );
       return;
     }
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/projects']);
   }
 }
