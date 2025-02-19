@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { UserController } from '../mock/backend/user.controller';
-import { UserResponse } from '../../models/UserResponse';
+import { GetUserResponse } from '../../models/GetUserResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -8,11 +8,11 @@ import { UserResponse } from '../../models/UserResponse';
 export class UserService {
   private readonly userController = inject(UserController);
 
-  async getUsers(): Promise<UserResponse[]> {
+  async getUsers(): Promise<GetUserResponse[]> {
     return this.userController.getUsers();
   }
 
-  async getUser(userId: number): Promise<UserResponse | null> {
+  async getUser(userId: number): Promise<GetUserResponse | null> {
     return this.userController.getUser(userId);
   }
 }

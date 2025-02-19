@@ -4,7 +4,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { TaskEventResponse } from '../../models/Tasks/TaskEventResponse';
+import { GetTaskEventResponse } from '../../models/Tasks/GetTaskEventResponse';
 import { TableColumn, TableComponent } from '../ui/table.component';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 import { TaskService } from '../../services/data/task.service';
@@ -38,7 +38,7 @@ export class TaskHistoryPanelComponent {
   private readonly translator = inject(TranslatorPipe);
   readonly typeName = 'Task History';
 
-  readonly columns: TableColumn<TaskEventResponse>[] = [
+  readonly columns: TableColumn<GetTaskEventResponse>[] = [
     { name: this.translator.transform('task.id'), key: 'id', type: 'number' },
     { name: this.translator.transform('task.name'), key: 'name', type: 'text' },
     {
@@ -49,7 +49,7 @@ export class TaskHistoryPanelComponent {
     { name: this.translator.transform('task.date'), key: 'date', type: 'date' },
   ];
 
-  readonly taskHistories = signal<TaskEventResponse[]>([]);
+  readonly taskHistories = signal<GetTaskEventResponse[]>([]);
 
   async ngOnInit(): Promise<void> {
     this.taskHistories.set(await this.taskService.getTaskHistory());

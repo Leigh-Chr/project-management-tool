@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
-import { ProjectResponse } from '../../models/Projects/ProjectResponse';
+import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
 import { ProjectService } from '../../services/data/project.service';
 import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
@@ -71,7 +71,7 @@ export class AddProjectPopupComponent {
   startDate = this.projectForm.get('startDate') as FormControl<string>;
 
   @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<ProjectResponse | null>();
+  @Output() onSubmit = new EventEmitter<GetProjectResponse | null>();
 
   async submit(): Promise<void> {
     if (!this.projectForm.valid) return;

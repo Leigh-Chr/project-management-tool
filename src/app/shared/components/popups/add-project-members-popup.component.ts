@@ -7,10 +7,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { ProjectMemberResponse } from '../../models/Projects/ProjectMemberResponse';
-import { ProjectResponse } from '../../models/Projects/ProjectResponse';
-import { RoleResponse } from '../../models/RoleResponse';
-import { UserResponse } from '../../models/UserResponse';
+import { GetProjectMemberResponse } from '../../models/Projects/GetProjectMemberResponse';
+import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
+import { GetRoleResponse } from '../../models/GetRoleResponse';
+import { GetUserResponse } from '../../models/GetUserResponse';
 import { AuthService } from '../../services/auth.service';
 import { ProjectService } from '../../services/data/project.service';
 import { RoleService } from '../../services/data/role.service';
@@ -79,13 +79,13 @@ export class AddProjectMemberPopupComponent {
   @Input() projectId!: number;
   @Output() onClose = new EventEmitter<void>();
   @Output() onAddMember = new EventEmitter<
-    ProjectMemberResponse
+    GetProjectMemberResponse
   >();
 
   userOptions: SelectOption<number>[] = [];
   roleOptions: SelectOption<number>[] = [];
 
-  project: ProjectResponse | null = null;
+  project: GetProjectResponse | null = null;
 
   private readonly formBuilder = inject(FormBuilder);
   memberForm: FormGroup = this.formBuilder.group({
@@ -93,8 +93,8 @@ export class AddProjectMemberPopupComponent {
     role: ['', [Validators.required]],
   });
 
-  userControl = this.memberForm.get('user') as FormControl<UserResponse>;
-  roleControl = this.memberForm.get('role') as FormControl<RoleResponse>;
+  userControl = this.memberForm.get('user') as FormControl<GetUserResponse>;
+  roleControl = this.memberForm.get('role') as FormControl<GetRoleResponse>;
 
   async ngOnInit(): Promise<void> {
     this.project = await this.projectService.getProject(this.projectId);
@@ -163,7 +163,7 @@ export class AddProjectMemberPopupComponent {
   addMember(): void {
     if (this.memberForm.invalid) return;
 
-    const newMember: ProjectMemberResponse = {
+    const newMember: GetProjectMemberResponse = {
       projectId: this.projectId,
       userId: +this.userControl.value,
       roleId: +this.roleControl.value,

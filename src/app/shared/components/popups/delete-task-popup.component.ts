@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { TaskResponse } from '../../models/Tasks/TaskResponse';
+import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
 import { TaskService } from '../../services/data/task.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
@@ -39,7 +39,7 @@ export class DeleteTaskPopupComponent {
   private readonly translator = inject(TranslatorPipe);
 
   @Input({ required: true }) taskId!: number;
-  task: TaskResponse | null = null;
+  task: GetTaskResponse | null = null;
 
   @Output() onClose = new EventEmitter<void>();
   @Output() onDeleteTask = new EventEmitter<number>();
@@ -60,7 +60,7 @@ export class DeleteTaskPopupComponent {
     }
   }
 
-  async getTask(): Promise<TaskResponse | null> {
+  async getTask(): Promise<GetTaskResponse | null> {
     return this.taskService.getTask(this.taskId);
   }
 

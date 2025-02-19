@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { DatabaseMockService } from '../database/database.service';
-import { ProjectMemberResponse } from '../../../models/Projects/ProjectMemberResponse';
+import { GetProjectMemberResponse } from '../../../models/Projects/GetProjectMemberResponse';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectMemberController {
@@ -9,14 +9,14 @@ export class ProjectMemberController {
   async getProjectMember(
     projectId: number,
     userId: number
-  ): Promise<ProjectMemberResponse | null> {
+  ): Promise<GetProjectMemberResponse | null> {
     const projectMemberEntity = this.database.projectMembers.find(
       (pm) => pm.projectId === projectId && pm.userId === userId
     );
 
     if (!projectMemberEntity) return null;
 
-    const projectMember: ProjectMemberResponse = {
+    const projectMember: GetProjectMemberResponse = {
       projectId: projectMemberEntity.projectId,
       userId: projectMemberEntity.userId,
       roleId: projectMemberEntity.roleId,
@@ -28,14 +28,14 @@ export class ProjectMemberController {
   async deleteProjectMember(
     projectId: number,
     userId: number
-  ): Promise<ProjectMemberResponse | null> {
+  ): Promise<GetProjectMemberResponse | null> {
     const projectMemberEntity = this.database.projectMembers.find(
       (pm) => pm.projectId === projectId && pm.userId === userId
     );
 
     if (!projectMemberEntity) return null;
 
-    const projectMember: ProjectMemberResponse = {
+    const projectMember: GetProjectMemberResponse = {
       projectId: projectMemberEntity.projectId,
       userId: projectMemberEntity.userId,
       roleId: projectMemberEntity.roleId,

@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { TaskResponse } from '../../../models/Tasks/TaskResponse';
-import { TaskDetailsResponse } from '../../../models/Tasks/TaskDetailsResponse';
+import { GetTaskResponse } from '../../../models/Tasks/GetTaskResponse';
+import { GetTaskDetailsResponse } from '../../../models/Tasks/GetTaskDetailsResponse';
 import { filterEntitiesByField, findEntityById } from '../database/utils';
 import { DatabaseMockService } from '../database/database.service';
 import {
@@ -10,18 +10,18 @@ import {
   TaskHistoryEntity,
   UserEntity,
 } from '../database/entities';
-import { TaskSummaryResponse } from '../../../models/Tasks/TaskSummaryResponse';
+import { GetTaskSummaryResponse } from '../../../models/Tasks/GetTaskSummaryResponse';
 import { AddTaskRequest } from '../../../models/Tasks/AddTaskRequest';
 import { AuthService } from '../../auth.service';
-import { TaskEventResponse } from '../../../models/Tasks/TaskEventResponse';
-import { UserResponse } from '../../../models/UserResponse';
+import { GetTaskEventResponse } from '../../../models/Tasks/GetTaskEventResponse';
+import { GetUserResponse } from '../../../models/GetUserResponse';
 
 @Injectable({ providedIn: 'root' })
 export class TaskController {
   private readonly database = inject(DatabaseMockService);
   private readonly authService = inject(AuthService);
 
-  async getTaskDetails(taskId: number): Promise<TaskDetailsResponse | null> {
+  async getTaskDetails(taskId: number): Promise<GetTaskDetailsResponse | null> {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
     if (!taskEntity) return null;
 
@@ -99,7 +99,7 @@ export class TaskController {
 
   async getTaskSummaries(
     assignedOnly: boolean = false
-  ): Promise<TaskSummaryResponse[]> {
+  ): Promise<GetTaskSummaryResponse[]> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return [];
     let taskEntities = this.database.tasks;
@@ -148,7 +148,7 @@ export class TaskController {
     return taskSummaries;
   }
 
-  async getTaskSummary(taskId: number): Promise<TaskSummaryResponse | null> {
+  async getTaskSummary(taskId: number): Promise<GetTaskSummaryResponse | null> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return null;
 
@@ -180,7 +180,7 @@ export class TaskController {
     };
   }
 
-  async getTask(taskId: number): Promise<TaskResponse | null> {
+  async getTask(taskId: number): Promise<GetTaskResponse | null> {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
     if (!taskEntity) return null;
 
@@ -203,8 +203,8 @@ export class TaskController {
     };
   }
 
-  async deleteTask(taskId: number): Promise<TaskResponse | null> {
-    const task: TaskResponse | null =
+  async deleteTask(taskId: number): Promise<GetTaskResponse | null> {
+    const task: GetTaskResponse | null =
       this.database.tasks.find((t) => t.id === taskId) ?? null;
     if (!task) return null;
 
@@ -220,7 +220,7 @@ export class TaskController {
     return task;
   }
 
-  async addTask(task: AddTaskRequest): Promise<TaskResponse | null> {
+  async addTask(task: AddTaskRequest): Promise<GetTaskResponse | null> {
     console.log('task', task);
     console.log('projectMembers', this.database.projectMembers);
     const userId = this.authService.authUser()!.id;
@@ -265,7 +265,7 @@ export class TaskController {
     );
   }
 
-  async getTaskHistory(): Promise<TaskEventResponse[]> {
+  async getTaskHistory(): Promise<GetTaskEventResponse[]> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return [];
 
@@ -286,7 +286,7 @@ export class TaskController {
     }));
   }
 
-  async changeAssignee(taskId: number, newAssigneeId: number): Promise<UserResponse | null> {
+  async changeAssignee(taskId: number, newAssigneeId: number): Promise<GetUserResponse | null> {
     const taskEntity = findEntityById<TaskEntity>(this.database.tasks, taskId);
     if (!taskEntity) return null;
 

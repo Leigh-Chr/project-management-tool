@@ -8,7 +8,7 @@ import {
 } from '@angular/forms';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
 import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
-import { TaskResponse } from '../../models/Tasks/TaskResponse';
+import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
 import { TaskService } from '../../services/data/task.service';
 import { UserService } from '../../services/data/user.service';
 import { InputFieldComponent } from '../ui/input-field.component';
@@ -97,7 +97,7 @@ export class AddTaskPopupComponent {
 
   @Input({ required: true }) projectId!: number;
   @Output() onClose = new EventEmitter<void>();
-  @Output() onAddTask = new EventEmitter<TaskResponse | null>();
+  @Output() onAddTask = new EventEmitter<GetTaskResponse | null>();
 
   userOptions: SelectOption<number>[] = [];
 

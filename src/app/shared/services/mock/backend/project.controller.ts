@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
-import { ProjectResponse } from '../../../models/Projects/ProjectResponse';
+import { GetProjectResponse } from '../../../models/Projects/GetProjectResponse';
 import {
-  ProjectDetailsResponse,
+  GetProjectDetailsResponse,
   ProjectDetailsPermissions,
-} from '../../../models/Projects/ProjectDetailsResponse';
+} from '../../../models/Projects/GetProjectDetailsResponse';
 import { filterEntitiesByField, findEntityById } from '../database/utils';
 import { DatabaseMockService } from '../database/database.service';
 import {
@@ -12,8 +12,8 @@ import {
   StatusEntity,
   TaskEntity,
 } from '../database/entities';
-import { ProjectSummaryResponse } from '../../../models/Projects/ProjectSummaryResponse';
-import { ProjectMemberResponse } from '../../../models/Projects/ProjectMemberResponse';
+import { GetProjectSummaryResponse } from '../../../models/Projects/GetProjectSummaryResponse';
+import { GetProjectMemberResponse } from '../../../models/Projects/GetProjectMemberResponse';
 import { AddProjectRequest } from '../../../models/Projects/AddProjectRequest';
 import { AuthService } from '../../auth.service';
 
@@ -24,7 +24,7 @@ export class ProjectController {
 
   async getProjectDetails(
     projectId: number
-  ): Promise<ProjectDetailsResponse | null> {
+  ): Promise<GetProjectDetailsResponse | null> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return null;
     const projectEntity = findEntityById<ProjectEntity>(
@@ -118,7 +118,7 @@ export class ProjectController {
 
   async getProjectSummaries(
     assignedOnly: boolean = false
-  ): Promise<ProjectSummaryResponse[]> {
+  ): Promise<GetProjectSummaryResponse[]> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return [];
     let projectEntities = this.database.projects;
@@ -164,7 +164,7 @@ export class ProjectController {
 
   async getProjectSummary(
     projectId: number
-  ): Promise<ProjectSummaryResponse | null> {
+  ): Promise<GetProjectSummaryResponse | null> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return null;
     const projectEntity = findEntityById<ProjectEntity>(
@@ -200,7 +200,7 @@ export class ProjectController {
     };
   }
 
-  async getProject(projectId: number): Promise<ProjectResponse | null> {
+  async getProject(projectId: number): Promise<GetProjectResponse | null> {
     const projectEntity = findEntityById<ProjectEntity>(
       this.database.projects,
       projectId
@@ -217,7 +217,7 @@ export class ProjectController {
     };
   }
 
-  async deleteProject(projectId: number): Promise<ProjectResponse | null> {
+  async deleteProject(projectId: number): Promise<GetProjectResponse | null> {
     const projectEntity: ProjectEntity | undefined = this.database.projects.find(
       (p) => p.id === projectId
     );
@@ -263,7 +263,7 @@ export class ProjectController {
 
   async addProject(
     project: AddProjectRequest
-  ): Promise<ProjectResponse | null> {
+  ): Promise<GetProjectResponse | null> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return null;
 
@@ -314,7 +314,7 @@ export class ProjectController {
     projectId: number,
     userId: number,
     roleId: number
-  ): Promise<ProjectMemberResponse | null> {
+  ): Promise<GetProjectMemberResponse | null> {
     const canAdd = await this.isAdmin(projectId, this.authService.authUser()!.id);
     if (!canAdd) return null;
 

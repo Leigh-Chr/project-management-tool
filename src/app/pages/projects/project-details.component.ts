@@ -16,9 +16,9 @@ import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { ProjectDetailsResponse } from '../../shared/models/Projects/ProjectDetailsResponse';
-import { ProjectMemberResponse } from '../../shared/models/Projects/ProjectMemberResponse';
-import { TaskResponse } from '../../shared/models/Tasks/TaskResponse';
+import { GetProjectDetailsResponse } from '../../shared/models/Projects/GetProjectDetailsResponse';
+import { GetProjectMemberResponse } from '../../shared/models/Projects/GetProjectMemberResponse';
+import { GetTaskResponse } from '../../shared/models/Tasks/GetTaskResponse';
 import { ProjectService } from '../../shared/services/data/project.service';
 import { RoleService } from '../../shared/services/data/role.service';
 import { UserService } from '../../shared/services/data/user.service';
@@ -366,7 +366,7 @@ export class ProjectDetailsComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  readonly project = signal<ProjectDetailsResponse | null>(null);
+  readonly project = signal<GetProjectDetailsResponse | null>(null);
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
@@ -405,7 +405,7 @@ export class ProjectDetailsComponent {
     this.router.navigate(['/projects']);
   }
 
-  deleteMember(projectMember: ProjectMemberResponse | null): void {
+  deleteMember(projectMember: GetProjectMemberResponse | null): void {
     if (!projectMember) return;
 
     this.project.update((project) => {
@@ -419,7 +419,7 @@ export class ProjectDetailsComponent {
     });
   }
 
-  async addMember(member: ProjectMemberResponse | null): Promise<void> {
+  async addMember(member: GetProjectMemberResponse | null): Promise<void> {
     if (!member) return;
 
     const user = await this.userService.getUser(member.userId);
@@ -438,7 +438,7 @@ export class ProjectDetailsComponent {
     });
   }
 
-  async addTask(task: TaskResponse | null): Promise<void> {
+  async addTask(task: GetTaskResponse | null): Promise<void> {
     if (!task) return;
 
     const assignee = await this.userService.getUser(task.assigneeId);
@@ -468,7 +468,7 @@ export class ProjectDetailsComponent {
     });
   }
 
-  getAssignee(taskId: number): ProjectDetailsResponse['projectMembers'][0] | null {
+  getAssignee(taskId: number): GetProjectDetailsResponse['projectMembers'][0] | null {
     return this.project()?.projectMembers.find(
       (member) => member.user.id === taskId
     ) ?? null;

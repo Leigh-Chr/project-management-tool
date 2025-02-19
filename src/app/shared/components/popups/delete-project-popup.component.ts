@@ -1,5 +1,5 @@
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { ProjectResponse } from '../../models/Projects/ProjectResponse';
+import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
 import { ProjectService } from '../../services/data/project.service';
 import { PopupComponent } from '../ui/popup.component';
 import { ToastService } from '../toast/toast.service';
@@ -41,7 +41,7 @@ export class DeleteProjectPopupComponent {
   private readonly translator = inject(TranslatorPipe);
 
   @Input({ required: true }) projectId!: number;
-  project: ProjectResponse | null = null;
+  project: GetProjectResponse | null = null;
 
   @Output() onClose = new EventEmitter<void>();
   @Output() onDeleteProject = new EventEmitter<number>();
@@ -62,7 +62,7 @@ export class DeleteProjectPopupComponent {
     }
   }
 
-  async getProject(): Promise<ProjectResponse | null> {
+  async getProject(): Promise<GetProjectResponse | null> {
     return this.projectService.getProject(this.projectId);
   }
 

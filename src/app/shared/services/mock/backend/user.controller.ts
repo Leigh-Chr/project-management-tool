@@ -1,12 +1,12 @@
 import { inject, Injectable } from '@angular/core';
-import { UserResponse } from '../../../models/UserResponse';
+import { GetUserResponse } from '../../../models/GetUserResponse';
 import { DatabaseMockService } from '../database/database.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserController {
   private readonly database = inject(DatabaseMockService);
 
-  async getUsers(): Promise<UserResponse[]> {
+  async getUsers(): Promise<GetUserResponse[]> {
     const userEntities = this.database.users;
     return userEntities.map((user) => ({
       id: user.id,
@@ -15,12 +15,12 @@ export class UserController {
     }));
   }
 
-  async getUser(userId: number): Promise<UserResponse | null> {
+  async getUser(userId: number): Promise<GetUserResponse | null> {
     const userEntity = this.database.users.find((user) => user.id === userId);
 
     if (!userEntity) return null;
 
-    const user: UserResponse = {
+    const user: GetUserResponse = {
       id: userEntity.id,
       username: userEntity.username,
       email: userEntity.email,

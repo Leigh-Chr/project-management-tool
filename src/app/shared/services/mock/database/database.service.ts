@@ -7,7 +7,7 @@ import {
   ProjectMemberEntity,
   TaskEntity,
 } from './entities';
-import { TaskEventResponse } from '../../../models/Tasks/TaskEventResponse';
+import { GetTaskEventResponse } from '../../../models/Tasks/GetTaskEventResponse';
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseMockService {
@@ -154,7 +154,7 @@ export class DatabaseMockService {
     },
   ];
 
-  readonly taskHistory: TaskEventResponse[] = [
+  readonly taskHistory: GetTaskEventResponse[] = [
     {
       id: 1,
       taskId: 1,

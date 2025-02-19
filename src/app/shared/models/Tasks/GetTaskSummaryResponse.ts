@@ -1,6 +1,6 @@
 import { TaskEntity } from "../../services/mock/database/entities";
 
-export interface TaskSummaryResponse {
+export interface GetTaskSummaryResponse {
   id: TaskEntity['id'];
   name: TaskEntity['name'];
   description: TaskEntity['description'];

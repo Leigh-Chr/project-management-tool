@@ -10,7 +10,7 @@ import { DeleteTaskPopupComponent } from "../../shared/components/popups/delete-
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { TaskDetailsResponse, User } from '../../shared/models/Tasks/TaskDetailsResponse';
+import { GetTaskDetailsResponse, User } from '../../shared/models/Tasks/GetTaskDetailsResponse';
 import { TaskService } from '../../shared/services/data/task.service';
 import { ChangeAssigneePopupComponent } from '../../shared/components/popups/change-assignee-popup.component';
 
@@ -25,7 +25,7 @@ type PopupType = 'deleteTask' | 'changeAssignee';
     TranslatorPipe,
     DeleteTaskPopupComponent,
     ChangeAssigneePopupComponent
-],
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
@@ -287,7 +287,7 @@ export class TaskDetailsComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly id: number = +this.route.snapshot.params['id'];
-  readonly task = signal<TaskDetailsResponse | null>(null); 
+  readonly task = signal<GetTaskDetailsResponse | null>(null);
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
@@ -309,10 +309,10 @@ export class TaskDetailsComponent {
   }
 
   deleteTask(): void {
-    if (!this.task()) return; 
-      this.taskService.deleteTask(this.task()!.id).then(() => {
-        this.router.navigate(['/tasks']);
-      }); 
+    if (!this.task()) return;
+    this.taskService.deleteTask(this.task()!.id).then(() => {
+      this.router.navigate(['/tasks']);
+    });
   }
 
   goToProject(projectId: number): void {

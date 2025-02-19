@@ -1,6 +1,6 @@
 import { ProjectEntity, RoleEntity, StatusEntity, TaskEntity, TaskHistoryEntity, UserEntity } from "../../services/mock/database/entities";
 
-export interface TaskDetailsResponse {
+export interface GetTaskDetailsResponse {
   id: TaskEntity['id'];
   name: TaskEntity['name'];
   description?: TaskEntity['description'];

@@ -7,8 +7,8 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { ProjectResponse } from '../../models/Projects/ProjectResponse';
-import { ProjectSummaryResponse } from '../../models/Projects/ProjectSummaryResponse';
+import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
+import { GetProjectSummaryResponse } from '../../models/Projects/GetProjectSummaryResponse';
 import { ProjectService } from '../../services/data/project.service';
 import { AddProjectPopupComponent } from '../popups/add-project-popup.component';
 import { DeleteProjectPopupComponent } from '../popups/delete-project-popup.component';
@@ -91,7 +91,7 @@ export class ProjectsPanelComponent {
 
   readonly assignedOnly = input<boolean>(false);
 
-  readonly columns: TableColumn<ProjectSummaryResponse>[] = [
+  readonly columns: TableColumn<GetProjectSummaryResponse>[] = [
     {
       name: this.translator.transform('project.id'),
       key: 'id',
@@ -129,7 +129,7 @@ export class ProjectsPanelComponent {
     },
   ];
 
-  readonly projects = signal<ProjectSummaryResponse[]>([]);
+  readonly projects = signal<GetProjectSummaryResponse[]>([]);
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
 
@@ -153,8 +153,8 @@ export class ProjectsPanelComponent {
     this.router.navigate(['/projects', projectId]);
   }
 
-  toProjectSummary(projectSummary: unknown): ProjectSummaryResponse {
-    return projectSummary as ProjectSummaryResponse;
+  toProjectSummary(projectSummary: unknown): GetProjectSummaryResponse {
+    return projectSummary as GetProjectSummaryResponse;
   }
 
   deleteProject(projectId: number): void {
@@ -163,7 +163,7 @@ export class ProjectsPanelComponent {
     );
   }
 
-  async addProject(project: ProjectResponse | null): Promise<void> {
+  async addProject(project: GetProjectResponse | null): Promise<void> {
     if (!project) return;
     const projectSummary = await this.projectService.getProjectSummary(
       project.id

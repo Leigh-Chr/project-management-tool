@@ -7,8 +7,8 @@ import {
     Validators,
 } from '@angular/forms';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { TaskResponse } from '../../models/Tasks/TaskResponse';
-import { UserResponse } from '../../models/UserResponse';
+import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
+import { GetUserResponse } from '../../models/GetUserResponse';
 import { AuthService } from '../../services/auth.service';
 import { TaskService } from '../../services/data/task.service';
 import { UserService } from '../../services/data/user.service';
@@ -67,18 +67,18 @@ export class ChangeAssigneePopupComponent {
 
     @Input() taskId!: number;
     @Output() onClose = new EventEmitter<void>();
-    @Output() onChangeAssignee = new EventEmitter<UserResponse | null>();
+    @Output() onChangeAssignee = new EventEmitter<GetUserResponse | null>();
 
     userOptions: SelectOption<number>[] = [];
 
-    task: TaskResponse | null = null;
+    task: GetTaskResponse | null = null;
 
     private readonly formBuilder = inject(FormBuilder);
     assigneeForm: FormGroup = this.formBuilder.group({
         user: ['', [Validators.required]],
     });
 
-    userControl = this.assigneeForm.get('user') as FormControl<UserResponse>;
+    userControl = this.assigneeForm.get('user') as FormControl<GetUserResponse>;
 
     async ngOnInit(): Promise<void> {
         this.task = await this.taskService.getTask(this.taskId);

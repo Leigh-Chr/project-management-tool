@@ -1,6 +1,6 @@
 import { ProjectEntity } from "../../services/mock/database/entities";
 
-export interface ProjectResponse {
+export interface GetProjectResponse {
   id: ProjectEntity['id'];
   name: ProjectEntity['name'];
   description: ProjectEntity['description'];
