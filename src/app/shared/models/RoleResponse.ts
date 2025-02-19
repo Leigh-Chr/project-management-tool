@@ -1,4 +1,6 @@
+import { RoleEntity } from "../services/mock/database/entities";
+
 export interface RoleResponse {
-  id: number;
-  name: string;
+  id: RoleEntity['id'];
+  name: RoleEntity['name'];
 }

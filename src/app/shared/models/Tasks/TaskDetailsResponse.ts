@@ -1,9 +1,11 @@
+import { ProjectEntity, RoleEntity, StatusEntity, TaskEntity, TaskHistoryEntity, UserEntity } from "../../services/mock/database/entities";
+
 export interface TaskDetailsResponse {
-  id: number;
-  name: string;
-  description?: string;
-  dueDate: Date;
-  priority: number;
+  id: TaskEntity['id'];
+  name: TaskEntity['name'];
+  description?: TaskEntity['description'];
+  dueDate: TaskEntity['dueDate'];
+  priority: TaskEntity['priority'];
   assignee: User;
   status: Status;
   project: Project;
@@ -12,35 +14,35 @@ export interface TaskDetailsResponse {
 }
 
 export interface Project {
-  id: number;
-  name: string;
-  description?: string;
-  startDate: Date;
-  endDate?: Date;
+  id: ProjectEntity['id'];
+  name: ProjectEntity['name'];
+  description: ProjectEntity['description'];
+  startDate: ProjectEntity['startDate'];
+  endDate: ProjectEntity['endDate'];
   status: Status;
 }
 
 export interface Status {
-  id: number;
-  name: string;
+  id: StatusEntity['id'];
+  name: StatusEntity['name'];
 }
 
 export interface User {
-  id: number;
-  username: string;
-  email: string;
+  id: UserEntity['id'];
+  username: UserEntity['username'];
+  email: UserEntity['email'];
 }
 
 export interface Role {
-  id: number;
-  name: string;
+  id: RoleEntity['id'];
+  name: RoleEntity['name'];
 }
 
 export interface TaskHistory {
-  id: number;
-  name: string;
-  description?: string;
-  date: Date;
+  id: TaskHistoryEntity['id'];
+  name: TaskHistoryEntity['name'];
+  description?: TaskHistoryEntity['description'];
+  date: TaskHistoryEntity['date'];
 }
 
 export interface TaskDetailsPermissions {

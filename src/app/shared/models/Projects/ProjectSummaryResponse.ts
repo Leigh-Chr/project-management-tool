@@ -1,12 +1,19 @@
+import { ProjectEntity, StatusEntity } from "../../services/mock/database/entities";
+
 export interface ProjectSummaryResponse {
-  id: number;
-  name: string;
-  description?: string;
-  startDate: Date;
-  endDate?: Date;
-  status: string;
+  id: ProjectEntity['id'];
+  name: ProjectEntity['name'];
+  description: ProjectEntity['description'];
+  startDate: ProjectEntity['startDate'];
+  endDate: ProjectEntity['endDate'];
+  status?: Status;
   memberCount: number;
   permissions: Permissions;
+}
+
+export interface Status {
+  id: StatusEntity['id'];
+  name: StatusEntity['name'];
 }
 
 export interface Permissions {

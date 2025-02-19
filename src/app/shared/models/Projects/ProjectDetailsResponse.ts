@@ -1,9 +1,11 @@
+import { ProjectEntity, ProjectMemberEntity, RoleEntity, StatusEntity, TaskEntity, UserEntity } from "../../services/mock/database/entities";
+
 export interface ProjectDetailsResponse {
-  id: number;
-  name: string;
-  description?: string;
-  startDate: Date;
-  endDate?: Date;
+  id: ProjectEntity['id'];
+  name: ProjectEntity['name'];
+  description: ProjectEntity['description'];
+  startDate: ProjectEntity['startDate'];
+  endDate: ProjectEntity['endDate'];
   status: Status;
   projectMembers: ProjectMember[];
   tasks: Task[];
@@ -11,34 +13,34 @@ export interface ProjectDetailsResponse {
 }
 
 export interface Status {
-  id: number;
-  name: string;
+  id: StatusEntity['id'];
+  name: StatusEntity['name'];
 }
 
 export interface ProjectMember {
-  id: number;
+  projectId: ProjectMemberEntity['projectId'];
   user: User;
   role: Role;
 }
 
 export interface User {
-  id: number;
-  username: string;
-  email: string;
+  id: UserEntity['id'];
+  username: UserEntity['username'];
+  email: UserEntity['email'];
 }
 
 export interface Role {
-  id: number;
-  name: string;
+  id: RoleEntity['id'];
+  name: RoleEntity['name'];
 }
 
 export interface Task {
-  id: number;
-  name: string;
-  description?: string;
-  dueDate: Date;
-  priority: number;
-  assignee: User;
+  id: TaskEntity['id'];
+  name: TaskEntity['name'];
+  description: TaskEntity['description'];
+  dueDate: TaskEntity['dueDate'];
+  priority: TaskEntity['priority'];
+  assigneeId: TaskEntity['assigneeId'];
   status: Status;
 }
 

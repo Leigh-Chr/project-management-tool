@@ -1,5 +1,7 @@
+import { ProjectMemberEntity } from "../../services/mock/database/entities";
+
 export interface ProjectMemberResponse {
-  projectId: number;
-  userId: number;
-  roleId: number;
+  projectId: ProjectMemberEntity['projectId'];
+  userId: ProjectMemberEntity['userId'];
+  roleId: ProjectMemberEntity['roleId'];
 }

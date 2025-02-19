@@ -1,4 +1,6 @@
+import { UserEntity } from "../../services/mock/database/entities";
+
 export interface LoginRequest {
-  email: string;
-  password: string;
+  email: UserEntity['email'];
+  password: UserEntity['password'];
 }

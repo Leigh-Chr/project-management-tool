@@ -1,5 +1,7 @@
+import { UserEntity } from "../../services/mock/database/entities";
+
 export interface RegisterRequest {
-  email: string;
-  password: string;
-  username: string;
+  email: UserEntity['email'];
+  password: UserEntity['password'];
+  username: UserEntity['username'];
 }

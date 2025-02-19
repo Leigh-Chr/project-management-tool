@@ -1,6 +1,8 @@
+import { ProjectEntity } from "../../services/mock/database/entities";
+
 export interface AddProjectRequest {
-  name: string;
-  description?: string;
-  startDate: Date;
-  endDate?: Date;
+  name: ProjectEntity['name'];
+  description: ProjectEntity['description'];
+  startDate: ProjectEntity['startDate'];
+  endDate: ProjectEntity['endDate'];
 }

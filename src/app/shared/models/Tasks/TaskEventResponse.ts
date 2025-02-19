@@ -1,7 +1,9 @@
+import { TaskHistoryEntity } from "../../services/mock/database/entities";
+
 export interface TaskEventResponse {
-  id: number;
-  taskId: number;
-  name: string;
-  description: string;
-  date: Date;
+  id: TaskHistoryEntity['id'];
+  taskId: TaskHistoryEntity['taskId'];
+  name: TaskHistoryEntity['name'];
+  description: TaskHistoryEntity['description'];
+  date: TaskHistoryEntity['date'];
 }
