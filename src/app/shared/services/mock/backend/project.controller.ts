@@ -1,21 +1,19 @@
 import { inject, Injectable } from '@angular/core';
-import { GetProjectResponse } from '../../../models/Projects/GetProjectResponse';
+import { AddProjectRequest } from '../../../models/Projects/AddProjectRequest';
 import {
   GetProjectDetailsResponse,
   ProjectDetailsPermissions,
 } from '../../../models/Projects/GetProjectDetailsResponse';
-import { filterEntitiesByField, findEntityById } from '../database/utils';
+import { GetProjectMemberResponse } from '../../../models/Projects/GetProjectMemberResponse';
+import { GetProjectResponse } from '../../../models/Projects/GetProjectResponse';
+import { GetProjectSummaryResponse } from '../../../models/Projects/GetProjectSummaryResponse';
+import { AuthService } from '../../auth.service';
 import { DatabaseMockService } from '../database/database.service';
 import {
   ProjectEntity,
   ProjectMemberEntity,
-  StatusEntity,
-  TaskEntity,
+  TaskEntity
 } from '../database/entities';
-import { GetProjectSummaryResponse } from '../../../models/Projects/GetProjectSummaryResponse';
-import { GetProjectMemberResponse } from '../../../models/Projects/GetProjectMemberResponse';
-import { AddProjectRequest } from '../../../models/Projects/AddProjectRequest';
-import { AuthService } from '../../auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectController {
@@ -27,19 +25,15 @@ export class ProjectController {
   ): Promise<GetProjectDetailsResponse | null> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return null;
-    const projectEntity = findEntityById<ProjectEntity>(
-      this.database.projects,
-      projectId
-    );
+    const projectEntity = this.database.projects.find((p) => p.id === projectId);
 
     if (!projectEntity) {
       return null;
     }
 
-    const projectMembersEntities = filterEntitiesByField<
-      ProjectMemberEntity,
-      'projectId'
-    >(this.database.projectMembers, 'projectId', projectId);
+    const projectMembersEntities = this.database.projectMembers.filter(
+      (pm) => pm.projectId === projectId
+    );
 
     const userIds = projectMembersEntities.map((pm) => pm.userId);
     const roleIds = projectMembersEntities.map((pm) => pm.roleId);
@@ -52,16 +46,14 @@ export class ProjectController {
       roleIds.includes(role.id)
     );
 
-    const tasksEntities = filterEntitiesByField<TaskEntity, 'projectId'>(
-      this.database.tasks,
-      'projectId',
-      projectId
+    const tasksEntities = this.database.tasks.filter(
+      (task) => task.projectId === projectId
     );
 
     const defaultStatusEntity = this.database.statuses[0];
-    const taskStatusEntity =
-      findEntityById<StatusEntity>(this.database.statuses, 1) ??
-      defaultStatusEntity;
+    const taskStatusEntity = this.database.statuses.find(
+      (status) => status.id === tasksEntities[0].statusId
+    ) ?? defaultStatusEntity;
 
     const projectStatusEntity =
       this.database.statuses.find(
@@ -167,11 +159,8 @@ export class ProjectController {
   ): Promise<GetProjectSummaryResponse | null> {
     const userId = this.authService.authUser()?.id;
     if (!userId) return null;
-    const projectEntity = findEntityById<ProjectEntity>(
-      this.database.projects,
-      projectId
-    );
 
+    const projectEntity = this.database.projects.find((p) => p.id === projectId);
     if (!projectEntity) {
       return null;
     }
@@ -201,10 +190,7 @@ export class ProjectController {
   }
 
   async getProject(projectId: number): Promise<GetProjectResponse | null> {
-    const projectEntity = findEntityById<ProjectEntity>(
-      this.database.projects,
-      projectId
-    );
+    const projectEntity = this.database.projects.find((p) => p.id === projectId);
     if (!projectEntity) return null;
 
     return {

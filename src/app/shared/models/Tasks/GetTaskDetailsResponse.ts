@@ -7,7 +7,7 @@ export interface GetTaskDetailsResponse {
   dueDate: TaskEntity['dueDate'];
   priority: TaskEntity['priority'];
   assignee: User;
-  status: Status;
+  status?: Status;
   project: Project;
   taskHistory: TaskHistory[];
   permissions: TaskDetailsPermissions;
@@ -19,7 +19,7 @@ export interface Project {
   description: ProjectEntity['description'];
   startDate: ProjectEntity['startDate'];
   endDate: ProjectEntity['endDate'];
-  status: Status;
+  status?: Status;
 }
 
 export interface Status {
