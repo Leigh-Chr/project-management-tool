@@ -7,7 +7,6 @@ export interface GetProjectSummaryResponse {
   startDate: ProjectEntity['startDate'];
   endDate: ProjectEntity['endDate'];
   status?: Status;
-  memberCount: number;
   permissions: Permissions;
 }
 

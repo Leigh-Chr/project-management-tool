@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   inject,
   input,
   signal,
@@ -16,6 +17,10 @@ import { ButtonComponent } from '../ui/button.component';
 import { TableColumn, TableComponent } from '../ui/table.component';
 
 type PopupType = 'addProject' | 'deleteProject';
+
+type DisplayedProject = Omit<GetProjectSummaryResponse, 'status'> & {
+  status?: string;
+};
 
 @Component({
   selector: 'pmt-projects-panel',
@@ -45,7 +50,7 @@ type PopupType = 'addProject' | 'deleteProject';
       />
     </div>
     <div>
-      <ui-table [columns]="columns" [data]="projects()">
+      <ui-table [columns]="columns" [data]="displayProjects()">
         <ng-template #actionTemplate let-projectSummary>
           @if (toProjectSummary(projectSummary); as projectSummary) {
           <div class="flex gap-2">
@@ -91,7 +96,7 @@ export class ProjectsPanelComponent {
 
   readonly assignedOnly = input<boolean>(false);
 
-  readonly columns: TableColumn<GetProjectSummaryResponse>[] = [
+  readonly columns: TableColumn<DisplayedProject>[] = [
     {
       name: this.translator.transform('project.id'),
       key: 'id',
@@ -122,14 +127,12 @@ export class ProjectsPanelComponent {
       key: 'status',
       type: 'text',
     },
-    {
-      name: this.translator.transform('project.members'),
-      key: 'memberCount',
-      type: 'number',
-    },
   ];
 
   readonly projects = signal<GetProjectSummaryResponse[]>([]);
+  readonly displayProjects = computed(() =>
+    this.projects().map(this.toDisplayProject)
+  );
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
 
@@ -165,10 +168,17 @@ export class ProjectsPanelComponent {
 
   async addProject(project: GetProjectResponse | null): Promise<void> {
     if (!project) return;
-    const projectSummary = await this.projectService.getProjectSummary(
+    const projectSummary = (await this.projectService.getProjectSummary(
       project.id
-    );
+    ));
     if (!projectSummary) return;
     this.projects.set([...this.projects(), projectSummary]);
+  }
+
+  private toDisplayProject(projectSummary: GetProjectSummaryResponse): DisplayedProject {
+    return {
+      ...projectSummary,
+      status: projectSummary.status?.name
+    };
   }
 }

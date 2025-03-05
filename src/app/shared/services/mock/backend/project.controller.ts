@@ -169,10 +169,6 @@ export class ProjectController {
       (status) => status.id === projectEntity.statusId
     );
 
-    const memberCount = this.database.projectMembers.filter(
-      (pm) => pm.projectId === projectEntity.id
-    ).length;
-
     const permissions = {
       deleteProject: await this.isAdmin(projectEntity.id, userId),
     };
@@ -184,7 +180,6 @@ export class ProjectController {
       startDate: projectEntity.startDate,
       endDate: projectEntity.endDate,
       status: statusEntity,
-      memberCount,
       permissions,
     };
   }

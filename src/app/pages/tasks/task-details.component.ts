@@ -65,7 +65,7 @@ type PopupType = 'deleteTask' | 'changeAssignee';
                 {{ 'task.status' | translate }}
               </p>
               <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                {{ task.status.name }}
+                {{ task.status?.name }}
               </p>
             </div>
             <div>
@@ -208,7 +208,7 @@ type PopupType = 'deleteTask' | 'changeAssignee';
                       {{ 'task.projectStatus' | translate }}
                     </p>
                     <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{ task.project.status.name }}
+                      {{ task.project.status?.name }}
                     </p>
                   </div>
                 </div>

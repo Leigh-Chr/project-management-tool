@@ -1,6 +1,7 @@
 {
     "en": {
         "logout": "Logout",
+        "projects": "Projects",
         "home": {
             "welcome": "Welcome to Project Management Tool",
             "description": "Plan, track, and collaborate on projects efficiently.",
@@ -122,6 +123,7 @@
     },
     "fr": {
         "logout": "Déconnexion",
+        "projects": "Projets",
         "home": {
             "welcome": "Bienvenue dans l'outil de gestion de projet",
             "description": "Planifiez, suivez et collaborez efficacement sur les projets.",

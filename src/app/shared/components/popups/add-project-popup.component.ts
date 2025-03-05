@@ -78,7 +78,7 @@ export class AddProjectPopupComponent {
 
     const newProject: AddProjectRequest = {
       name: this.name.value,
-      description: this.description.value,
+      description: this.description.value || undefined,
       startDate: new Date(this.startDate.value),
       endDate: undefined,
     };
