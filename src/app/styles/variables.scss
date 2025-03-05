@@ -1,0 +1,436 @@
+@use "sass:map";
+@use "sass:color";
+
+// Maps essentiels
+$colors: (
+  'primary': (
+    'hue': 204,
+    'saturation': 70%,
+    'lightness': 53%
+  ),
+  'secondary': (
+    'hue': 145,
+    'saturation': 63%,
+    'lightness': 49%
+  ),
+  'danger': (
+    'hue': 6,
+    'saturation': 78%,
+    'lightness': 57%
+  ),
+  'warning': (
+    'hue': 48,
+    'saturation': 96%,
+    'lightness': 53%
+  ),
+  'success': (
+    'hue': 142,
+    'saturation': 76%,
+    'lightness': 36%
+  )
+);
+
+$spacing: (
+  '1': 0.25rem,
+  '2': 0.5rem,
+  '3': 0.75rem,
+  '4': 1rem,
+  '6': 1.5rem,
+  '8': 2rem,
+  '12': 3rem,
+  '16': 4rem
+);
+
+$breakpoints: (
+  'sm': 640px,
+  'md': 768px,
+  'lg': 1024px,
+  'xl': 1280px
+);
+
+$z-index: (
+  'negative': -1,
+  'elevate': 1,
+  'sticky': 100,
+  'drawer': 200,
+  'dropdown': 300,
+  'modal': 400,
+  'popover': 500,
+  'tooltip': 600
+);
+
+// Fonctions utilitaires améliorées
+@function color($name, $shade: 'base') {
+  $color: map.get($colors, $name);
+  @if not $color {
+    @return hsl(0, 0%, 0%);
+  }
+  
+  $hue: map.get($color, 'hue');
+  $saturation: map.get($color, 'saturation');
+  $lightness: map.get($color, 'lightness');
+  
+  @if $shade == 'base' {
+    @return hsl($hue, $saturation, $lightness);
+  } @else if $shade == 'hover' {
+    @return hsl($hue, $saturation, calc($lightness - 10%));
+  } @else if $shade == 'active' {
+    @return hsl($hue, $saturation, calc($lightness - 20%));
+  } @else if $shade == 'light' {
+    @return hsl($hue, $saturation, calc($lightness + 30%));
+  } @else if $shade == 'dark' {
+    @return hsl($hue, $saturation, calc($lightness - 30%));
+  } @else if $shade == 'contrast' {
+    @if $lightness > 50% {
+      @return hsl($hue, $saturation, 20%);
+    } @else {
+      @return hsl($hue, $saturation, 80%);
+    }
+  } @else {
+    @return hsl($hue, $saturation, $lightness);
+  }
+}
+
+@function space($size) {
+  @return map.get($spacing, $size);
+}
+
+@function breakpoint($size) {
+  @return map.get($breakpoints, $size);
+}
+
+@function z($layer) {
+  @return map.get($z-index, $layer);
+}
+
+// Mixins essentiels améliorés
+@mixin dark-mode {
+  @media (prefers-color-scheme: dark) {
+    @content;
+  }
+}
+
+@mixin reduced-motion {
+  @media (prefers-reduced-motion: reduce) {
+    @content;
+  }
+}
+
+@mixin high-contrast {
+  @media (prefers-contrast: more) {
+    @content;
+  }
+}
+
+@mixin responsive($breakpoint) {
+  @media (min-width: breakpoint($breakpoint)) {
+    @content;
+  }
+}
+
+@mixin focus-ring {
+  outline: var(--outline-size) var(--outline-style) var(--outline-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@mixin hover-lift {
+  transition: transform var(--transition);
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@mixin press-down {
+  transition: transform var(--transition);
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+// Variables CSS
+:root {
+  // Espacements
+  @each $size, $value in $spacing {
+    --space-#{$size}: #{$value};
+  }
+
+  // Typographie
+  --font-family-base: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+  --font-family-heading: 'Nunito Sans', system-ui, -apple-system, sans-serif;
+  --font-size-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --font-size-sm: clamp(0.875rem, 0.8rem + 0.375vw, 1rem);
+  --font-size-base: clamp(1rem, 0.925rem + 0.375vw, 1.125rem);
+  --font-size-lg: clamp(1.125rem, 1rem + 0.625vw, 1.25rem);
+  --font-size-xl: clamp(1.25rem, 1.125rem + 0.625vw, 1.5rem);
+  --font-size-2xl: clamp(1.5rem, 1.25rem + 1.25vw, 2rem);
+  --font-size-3xl: clamp(1.875rem, 1.5rem + 1.875vw, 2.5rem);
+
+  // Couleurs principales
+  --primary-color: #{color('primary')};
+  --primary-hover: #{color('primary', 'hover')};
+  --primary-active: #{color('primary', 'active')};
+  --secondary-color: #{color('secondary')};
+  --secondary-hover: #{color('secondary', 'hover')};
+  --secondary-active: #{color('secondary', 'active')};
+  --danger-color: #{color('danger')};
+  --danger-active: #{color('danger', 'active')};
+  --warning-color: #{color('warning')};
+  --warning-active: #{color('warning', 'active')};
+  --success-color: #{color('success')};
+  --success-active: #{color('success', 'active')};
+
+  // Couleurs neutres
+  --background-color: hsl(0, 0%, 100%);
+  --text-color: hsl(0, 0%, 20%);
+  --text-muted: hsl(0, 0%, 45%);
+  --border-color: hsl(0, 0%, 80%);
+  --surface-1: hsl(0, 0%, 100%);
+  --surface-2: hsl(0, 0%, 98%);
+  --surface-3: hsl(0, 0%, 96%);
+  --surface-4: hsl(0, 0%, 94%);
+
+  // Bordures et radius
+  --border-width: 1px;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-full: 9999px;
+
+  // Ombres
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+
+  // Transitions
+  --transition: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  // Breakpoints
+  @each $size, $value in $breakpoints {
+    --breakpoint-#{$size}: #{$value};
+  }
+
+  // Layout
+  --container-width: min(100% - 2rem, 1200px);
+  --header-height: 4rem;
+  --sidebar-width: 16rem;
+  --sidebar-collapsed-width: 4rem;
+
+  // Composants
+  --input-height: 2.25rem;
+  --button-height: 2.5rem;
+  --input-padding: #{space('2')} #{space('3')};
+  --input-border: var(--border-width) solid var(--border-color);
+  --input-radius: var(--border-radius-md);
+  --input-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+  --input-focus-shadow: 0 0 0 2px rgba(#{color('primary')}, 0.25);
+
+  // États
+  --hover-opacity: 0.8;
+  --active-opacity: 0.6;
+  --disabled-opacity: 0.5;
+
+  // Accessibilité
+  --focus-ring: 0 0 0 2px rgba(#{color('primary')}, 0.25);
+  --focus-ring-offset: 2px;
+
+  // Animations
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-in-out: cubic-bezier(0.42, 0, 0.58, 1);
+  --ease-in-sine: cubic-bezier(0.47, 0, 0.745, 0.715);
+  --ease-out-sine: cubic-bezier(0.39, 0.575, 0.565, 1);
+  --animation-scale: 1;
+
+  // Contrôles de formulaire
+  --input-placeholder-color: hsl(0, 0%, 60%);
+  --input-disabled-bg: hsl(0, 0%, 95%);
+  --input-disabled-color: hsl(0, 0%, 45%);
+
+  // États des contrôles
+  --state-focus-opacity: 0.9;
+
+  // Z-Index
+  @each $layer, $value in $z-index {
+    --z-#{$layer}: #{$value};
+  }
+
+  // Container
+  --container-padding: clamp(1rem, 5vw, 2rem);
+  --container-max-width: 90vw;
+
+  // Grille & Flexbox
+  --grid-gap: #{space('4')};
+  --flex-gap: #{space('3')};
+  --grid-columns: 12;
+  --grid-gutter: #{space('4')};
+
+  // Icônes
+  --icon-size-xs: 1rem;
+  --icon-size-sm: 1.25rem;
+  --icon-size-md: 1.5rem;
+  --icon-size-lg: 2rem;
+  --icon-size-xl: 2.5rem;
+  --icon-size-2xl: 3rem;
+  --icon-stroke-width: 1.5;
+  --icon-color: currentColor;
+  --icon-color-muted: var(--text-muted);
+
+  // Notifications & Badges
+  --badge-size-sm: 1.25rem;
+  --badge-size-md: 1.5rem;
+  --badge-size-lg: 2rem;
+  --badge-padding-x: #{space('2')};
+  --badge-padding-y: #{space('1')};
+  --badge-font-size: var(--font-size-xs);
+  --badge-border-radius: var(--border-radius-full);
+  --badge-dot-size: 0.5rem;
+  --badge-dot-offset: 0.125rem;
+  --notification-width: 24rem;
+  --notification-padding: #{space('4')};
+  --notification-border-radius: var(--border-radius-lg);
+  --notification-shadow: var(--shadow-lg);
+
+  // Cartes & Conteneurs
+  --card-padding: #{space('4')};
+  --card-border-radius: var(--border-radius-lg);
+  --card-shadow: var(--shadow-md);
+  --card-hover-shadow: var(--shadow-lg);
+  --card-background: var(--surface-1);
+  --card-border: var(--border-width) solid var(--border-color);
+  --card-header-padding: #{space('4')} #{space('4')} #{space('2')};
+  --card-footer-padding: #{space('2')} #{space('4')} #{space('4')};
+  --card-body-padding: #{space('4')};
+
+  // Tableaux
+  --table-cell-padding: #{space('3')} #{space('4')};
+  --table-header-padding: #{space('2')} #{space('4')};
+  --table-border-color: var(--border-color);
+  --table-stripe-color: var(--surface-2);
+  --table-hover-color: var(--surface-3);
+  --table-header-background: var(--surface-2);
+  --table-border-radius: var(--border-radius-md);
+  --table-compact-padding: #{space('2')} #{space('3')};
+
+  // Listes
+  --list-padding: #{space('2')} 0;
+  --list-item-padding: #{space('2')} #{space('4')};
+  --list-divider-color: var(--border-color);
+  --list-divider-style: solid;
+  --list-divider-width: var(--border-width);
+  --list-bullet-color: var(--text-muted);
+  --list-bullet-size: 0.5rem;
+  --list-bullet-margin: 0.5rem;
+
+  // Tooltips
+  --tooltip-padding: #{space('2')} #{space('3')};
+  --tooltip-font-size: var(--font-size-sm);
+  --tooltip-background: var(--dark-color);
+  --tooltip-color: var(--light-color);
+  --tooltip-border-radius: var(--border-radius-sm);
+  --tooltip-arrow-size: 0.5rem;
+  --tooltip-max-width: 16rem;
+  --tooltip-z-index: #{z('tooltip')};
+
+  // Messages d'état
+  --alert-padding: #{space('3')} #{space('4')};
+  --alert-border-radius: var(--border-radius-md);
+  --alert-icon-size: 1.25rem;
+  --alert-icon-margin: #{space('2')};
+  --alert-success-bg: #{color('success', 'light')};
+  --alert-success-border: #{color('success')};
+  --alert-success-color: #{color('success', 'dark')};
+  --alert-error-bg: #{color('danger', 'light')};
+  --alert-error-border: #{color('danger')};
+  --alert-error-color: #{color('danger', 'dark')};
+  --alert-warning-bg: #{color('warning', 'light')};
+  --alert-warning-border: #{color('warning')};
+  --alert-warning-color: #{color('warning', 'dark')};
+  --alert-info-bg: #{color('info', 'light')};
+  --alert-info-border: #{color('info')};
+  --alert-info-color: #{color('info', 'dark')};
+
+  // Avatars
+  --avatar-size-xs: 1.5rem;
+  --avatar-size-sm: 2rem;
+  --avatar-size-md: 2.5rem;
+  --avatar-size-lg: 3rem;
+  --avatar-size-xl: 4rem;
+  --avatar-size-2xl: 5rem;
+  --avatar-border-radius: var(--border-radius-full);
+  --avatar-border-width: 2px;
+  --avatar-border-color: var(--background-color);
+  --avatar-status-size: 0.75rem;
+  --avatar-status-border: 2px solid var(--background-color);
+  --avatar-status-online: #{color('success')};
+  --avatar-status-offline: var(--text-muted);
+  --avatar-status-away: #{color('warning')};
+  --avatar-status-busy: #{color('danger')};
+
+  // États de chargement
+  --skeleton-background: var(--surface-2);
+  --skeleton-highlight: var(--surface-3);
+  --skeleton-animation-duration: 1.5s;
+  --skeleton-border-radius: var(--border-radius-sm);
+
+  // États de survol et focus
+  --hover-brightness: 1.05;
+  --active-brightness: 0.95;
+  --focus-ring-spread: 2px;
+  --focus-ring-opacity: 0.25;
+
+  // Spinners
+  --loading-spinner-size: 1.5rem;
+  --loading-spinner-width: 2px;
+  --loading-spinner-color: #{color('primary')};
+  --loading-spinner-duration: 1s;
+  --loading-spinner-ease: var(--ease-in-out);
+
+  // Transitions
+  --transition-property-default: all;
+  --transition-property-transform: transform;
+  --transition-property-opacity: opacity;
+  --transition-property-colors: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  --transition-property-spacing: margin, padding;
+  --transition-property-size: width, height;
+  --transition-property-position: left, right, top, bottom;
+
+  // Couleurs neutres
+  --light-color: hsl(204, 33%, 97%);
+  --dark-color: hsl(210, 29%, 24%);
+
+  // Accessibilité
+  --focus-ring-style: 2px solid var(--focus-ring-color);
+  --outline-size: 2px;
+  --outline-style: solid;
+  --outline-color: var(--focus-ring-color);
+
+  // Préférences utilisateur
+  --reduced-motion: no-preference;
+  --preferred-contrast: no-preference;
+
+  // Mode sombre
+  @include dark-mode {
+    --background-color: hsl(0, 0%, 8%);
+    --text-color: hsl(0, 0%, 95%);
+    --text-muted: hsl(0, 0%, 70%);
+    --border-color: hsl(0, 0%, 30%);
+    --surface-1: hsl(0, 0%, 8%);
+    --surface-2: hsl(0, 0%, 12%);
+    --surface-3: hsl(0, 0%, 16%);
+    --surface-4: hsl(0, 0%, 20%);
+    --color-scheme: dark;
+  }
+
+  // Animations
+  @include reduced-motion {
+    --transition: 0s;
+    --transition-slow: 0s;
+  }
+
+  // Contraste élevé
+  @include high-contrast {
+    --preferred-contrast: more;
+    --text-muted: hsl(0, 0%, 25%);
+    --border-color: hsl(0, 0%, 50%);
+  }
+} 
