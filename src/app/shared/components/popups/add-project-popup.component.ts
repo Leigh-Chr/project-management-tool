@@ -31,7 +31,7 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
       (onSubmit)="submit()"
       (onClose)="close()"
     >
-      <form [formGroup]="projectForm" novalidate>
+      <form [formGroup]="projectForm" class="add-project-popup__form" novalidate>
         <ui-input-field
           [control]="name"
           id="name"
@@ -55,6 +55,13 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
       </form>
     </ui-popup>
   `,
+  styles: [`
+    .add-project-popup__form {
+      display: grid;
+      gap: var(--space-4);
+      padding: var(--space-4);
+    }
+  `],
 })
 export class AddProjectPopupComponent {
   private readonly projectService = inject(ProjectService);

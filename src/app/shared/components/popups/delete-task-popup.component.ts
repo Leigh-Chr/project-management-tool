@@ -7,6 +7,7 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'pmt-delete-task-popup',
+  standalone: true,
   imports: [PopupComponent, TranslatorPipe],
   providers: [TranslatorPipe],
   template: `
@@ -18,8 +19,13 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
       submitVariant="danger"
       (onSubmit)="deleteTask()"
       (onClose)="close()"
+      id="delete-task-popup"
     >
-      <p class="mb-4">
+      <p 
+        class="delete-task-popup__message"
+        role="alert"
+        aria-live="polite"
+      >
         {{ 'task.confirmDeleteTask' | translate }}
       </p>
     </ui-popup>
@@ -27,11 +33,25 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
     <ui-popup
       title="{{ 'task.deleteTaskTitle' | translate }}"
       [isSubmitDisabled]="true"
+      id="delete-task-popup-loading"
     >
-      <p>{{ 'task.loading' | translate }}</p>
+      <p 
+        class="delete-task-popup__message"
+        role="status"
+        aria-live="polite"
+      >
+        {{ 'task.loading' | translate }}
+      </p>
     </ui-popup>
     }
   `,
+  styles: [`
+    .delete-task-popup__message {
+      margin-bottom: var(--space-4);
+      color: var(--text-color);
+      font-size: var(--font-size-base);
+    }
+  `]
 })
 export class DeleteTaskPopupComponent {
   private readonly toastService = inject(ToastService);

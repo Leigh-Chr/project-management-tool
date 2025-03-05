@@ -22,8 +22,13 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
       submitVariant="danger"
       (onSubmit)="deleteMember()"
       (onClose)="close()"
+      id="delete-project-member-popup"
     >
-      <p class="mb-4">
+      <p 
+        class="delete-project-member-popup__message"
+        role="alert"
+        aria-live="polite"
+      >
         {{ 'project.confirmDeleteMember' | translate }}
       </p>
     </ui-popup>
@@ -31,11 +36,25 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
     <ui-popup
       title="{{ 'project.deleteMemberTitle' | translate }}"
       [isSubmitDisabled]="true"
+      id="delete-project-member-popup-loading"
     >
-      <p>{{ 'project.loading' | translate }}</p>
+      <p 
+        class="delete-project-member-popup__message"
+        role="status"
+        aria-live="polite"
+      >
+        {{ 'project.loading' | translate }}
+      </p>
     </ui-popup>
     }
   `,
+  styles: [`
+    .delete-project-member-popup__message {
+      margin-bottom: var(--space-4);
+      color: var(--text-color);
+      font-size: var(--font-size-base);
+    }
+  `],
 })
 export class DeleteProjectMemberPopupComponent {
   private readonly toastService = inject(ToastService);

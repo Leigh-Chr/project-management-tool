@@ -1,131 +1,133 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, inject, Input, OnInit, Output } from '@angular/core';
 import {
-    FormBuilder,
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
 } from '@angular/forms';
 import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
 import { GetUserResponse } from '../../models/GetUserResponse';
-import { AuthService } from '../../services/auth.service';
 import { TaskService } from '../../services/data/task.service';
 import { UserService } from '../../services/data/user.service';
 import { ToastService } from '../toast/toast.service';
-import { PopupComponent } from '../ui/popup.component';
-import {
-    SelectFieldComponent,
-    SelectOption,
-} from '../ui/select-field.component';
+import { SelectOption } from '../ui/select-field.component';
 
 @Component({
     selector: 'pmt-change-assignee-popup',
-    imports: [
-        ReactiveFormsModule,
-        SelectFieldComponent,
-        PopupComponent,
-        TranslatorPipe,
-    ],
-    providers: [TranslatorPipe],
+    standalone: true,
+    imports: [ReactiveFormsModule, TranslatorPipe],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
     template: `
-    @if (task) {
-    <ui-popup
-      title="{{ 'task.changeAssigneeTitle' | translate }} - {{ task.name }}"
-      [isSubmitDisabled]="assigneeForm.invalid"
-      [submitLabel]="'task.changeAssignee' | translate"
-      [cancelLabel]="'task.cancel' | translate"
-      (onSubmit)="changeAssignee()"
-      (onClose)="close()"
-    >
-      <form [formGroup]="assigneeForm" novalidate>
-        <ui-select-field
-          [options]="userOptions"
-          [control]="userControl"
-          id="user"
-          [label]="'task.user' | translate"
-          [errorMessage]="'task.selectUserError' | translate"
-        />
-      </form>
-    </ui-popup>
-    } @else {
-    <ui-popup
-      [title]="'task.changeAssignee' | translate"
-      [isSubmitDisabled]="true"
-    >
-      <p>{{ 'task.loading' | translate }}</p>
-    </ui-popup>
-    }
-  `,
+        <pmt-popup [isOpen]="true" (onClose)="close()">
+            <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                <h3 class="visually-hidden" id="change-assignee-title">Change Task Assignee</h3>
+                <div class="popup__content">
+                    <div class="popup__header">
+                        <h2 class="popup__title">{{ 'change_assignee' | translate }}</h2>
+                    </div>
+                    <div class="popup__body">
+                        <pmt-select-field
+                            [label]="'assignee' | translate"
+                            [options]="userOptions"
+                            [control]="userControl"
+                            [error]="getErrorMessage(userControl.errors)"
+                            aria-required="true"
+                            [attr.aria-invalid]="userControl.invalid"
+                            [attr.aria-describedby]="userControl.errors ? 'assignee-error' : null"
+                        ></pmt-select-field>
+                        <div id="assignee-error" class="visually-hidden" role="alert">
+                            {{ getErrorMessage(userControl.errors) }}
+                        </div>
+                    </div>
+                    <div class="popup__footer">
+                        <button type="button" class="btn btn-secondary" (click)="close()">
+                            {{ 'cancel' | translate }}
+                        </button>
+                        <button type="submit" class="btn btn-primary" [disabled]="form.invalid">
+                            {{ 'save' | translate }}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </pmt-popup>
+    `,
 })
-export class ChangeAssigneePopupComponent {
+export class ChangeAssigneePopupComponent implements OnInit {
     private readonly toastService = inject(ToastService);
     private readonly taskService = inject(TaskService);
-    private readonly authService = inject(AuthService);
     private readonly userService = inject(UserService);
-    private readonly translator = inject(TranslatorPipe);
 
     @Input() taskId!: number;
     @Output() onClose = new EventEmitter<void>();
     @Output() onChangeAssignee = new EventEmitter<GetUserResponse | null>();
 
     userOptions: SelectOption<number>[] = [];
+    form: FormGroup;
+    userControl: FormControl;
 
-    task: GetTaskResponse | null = null;
+    constructor(private fb: FormBuilder) {
+        this.userControl = new FormControl(null, [Validators.required]);
+        this.form = this.fb.group({
+            user: this.userControl,
+        });
+    }
 
-    private readonly formBuilder = inject(FormBuilder);
-    assigneeForm: FormGroup = this.formBuilder.group({
-        user: ['', [Validators.required]],
-    });
+    ngOnInit(): void {
+        this.loadUsers();
+    }
 
-    userControl = this.assigneeForm.get('user') as FormControl<GetUserResponse>;
-
-    async ngOnInit(): Promise<void> {
-        this.task = await this.taskService.getTask(this.taskId);
-        if (!this.task) {
-            this.toastService.showToast(
-                {
-                    title: this.translator.transform('task.notFoundTitle'),
-                    message: this.translator.transform('task.notFoundMessage'),
-                    type: 'error',
-                    duration: 5000,
-                },
-                'root'
-            );
-            this.close();
-        }
-
-        const users = await this.userService.getUsers();
-        this.userOptions = users
-            .filter((user) => user.id !== this.authService.authUser()?.id)
-            .map((user) => ({
+    private async loadUsers(): Promise<void> {
+        try {
+            const users = await this.userService.getUsers();
+            this.userOptions = users.map((user: GetUserResponse) => ({
                 value: user.id,
                 label: user.username,
             }));
-
-        if (this.userOptions.length === 0) {
+        } catch {
             this.toastService.showToast(
                 {
-                    title: this.translator.transform('task.noUsersTitle'),
-                    message: this.translator.transform('task.noUsersMessage'),
                     type: 'error',
-                    duration: 5000,
+                    title: 'Error',
+                    message: 'Failed to load users',
+                    duration: 3000,
                 },
                 'root'
             );
-            this.close();
         }
     }
 
-    async changeAssignee(): Promise<void> {
-        if (this.assigneeForm.invalid) return;
-        const newAssigneeId = +this.userControl.value;
-        const updatedUser = await this.taskService.changeAssignee(this.taskId, newAssigneeId);
-        this.onChangeAssignee.emit(updatedUser);
-        this.close();
+    async onSubmit(): Promise<void> {
+        if (this.form.valid) {
+            try {
+                const user = await this.taskService.changeAssignee(
+                    this.taskId,
+                    this.userControl.value
+                );
+                this.onChangeAssignee.emit(user || null);
+                this.close();
+            } catch {
+                this.toastService.showToast(
+                    {
+                        type: 'error',
+                        title: 'Error',
+                        message: 'Failed to change assignee',
+                        duration: 3000,
+                    },
+                    'root'
+                );
+            }
+        }
     }
 
     close(): void {
         this.onClose.emit();
+    }
+
+    getErrorMessage(errors: ValidationErrors | null): string {
+        if (!errors) return '';
+        if (errors['required']) return 'Please select an assignee';
+        return 'Invalid selection';
     }
 }

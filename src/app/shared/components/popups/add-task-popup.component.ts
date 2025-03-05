@@ -1,4 +1,10 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -6,17 +12,15 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
-import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
-import { TaskService } from '../../services/data/task.service';
-import { UserService } from '../../services/data/user.service';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
-import {
-  SelectFieldComponent,
-  SelectOption,
-} from '../ui/select-field.component';
+import { SelectFieldComponent } from '../ui/select-field.component';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
+import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
+import { SelectOption } from '../ui/select-field.component';
+import { TaskService } from '../../services/data/task.service';
+import { UserService } from '../../services/data/user.service';
+import { User } from '../../models/Tasks/GetTaskDetailsResponse';
 
 @Component({
   selector: 'pmt-add-task-popup',
@@ -36,20 +40,29 @@ import {
       [cancelLabel]="'task.cancel' | translate"
       (onSubmit)="submit()"
       (onClose)="close()"
+      id="add-task-popup"
     >
-      <form [formGroup]="taskForm" novalidate>
+      <form 
+        [formGroup]="taskForm" 
+        class="add-task-popup__form" 
+        novalidate
+        (keydown.enter)="$event.preventDefault(); submit()"
+      >
         <ui-input-field
           [control]="name"
           id="name"
           [label]="'task.name' | translate"
           type="text"
           [errorMessage]="'task.nameRequired' | translate"
+          [required]="true"
+          autocomplete="off"
         />
         <ui-input-field
           [control]="description"
           id="description"
           [label]="'task.description' | translate"
           type="text"
+          autocomplete="off"
         />
         <ui-input-field
           [control]="dueDate"
@@ -57,6 +70,8 @@ import {
           [label]="'task.dueDate' | translate"
           type="date"
           [errorMessage]="'task.dueDateRequired' | translate"
+          [required]="true"
+          autocomplete="off"
         />
         <ui-input-field
           [control]="priority"
@@ -64,6 +79,10 @@ import {
           [label]="'task.priority' | translate"
           type="number"
           [errorMessage]="'task.priorityRequired' | translate"
+          [required]="true"
+          min="1"
+          max="5"
+          autocomplete="off"
         />
         <ui-select-field
           [control]="assigneeId"
@@ -71,10 +90,18 @@ import {
           [label]="'task.assignee' | translate"
           [options]="userOptions"
           [errorMessage]="'task.assigneeRequired' | translate"
+          [required]="true"
         />
       </form>
     </ui-popup>
   `,
+  styles: [`
+    .add-task-popup__form {
+      display: grid;
+      gap: var(--space-4);
+      padding: var(--space-4);
+    }
+  `],
 })
 export class AddTaskPopupComponent {
   private readonly taskService = inject(TaskService);
@@ -85,7 +112,7 @@ export class AddTaskPopupComponent {
     name: ['', [Validators.required]],
     description: [''],
     dueDate: [new Date().toISOString().split('T')[0], [Validators.required]],
-    priority: [1, [Validators.required]],
+    priority: [1, [Validators.required, Validators.min(1), Validators.max(5)]],
     assigneeId: ['', [Validators.required]],
   });
 
@@ -103,27 +130,30 @@ export class AddTaskPopupComponent {
 
   async ngOnInit(): Promise<void> {
     const users = await this.userService.getUsers();
-    this.userOptions = users.map((user) => ({
+    this.userOptions = users.map((user: User) => ({
       value: user.id,
       label: user.username,
     }));
   }
 
   async submit(): Promise<void> {
-    if (!this.taskForm.valid) return;
+    if (this.taskForm.invalid) return;
 
-    const newTask: AddTaskRequest = {
-      name: this.name.value,
-      description: this.description.value,
-      dueDate: new Date(this.dueDate.value),
-      priority: this.priority.value,
-      assigneeId: +this.assigneeId.value,
-      projectId: this.projectId,
-    };
-
-    const task = await this.taskService.addTask(newTask);
-    this.onAddTask.emit(task);
-    this.close();
+    try {
+      const newTask = {
+        name: this.name.value,
+        description: this.description.value,
+        dueDate: new Date(this.dueDate.value),
+        priority: this.priority.value,
+        assigneeId: +this.assigneeId.value,
+        projectId: this.projectId,
+      };
+      const task = await this.taskService.addTask(newTask);
+      this.onAddTask.emit(task);
+      this.close();
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
   }
 
   close(): void {
