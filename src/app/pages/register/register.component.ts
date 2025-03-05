@@ -1,106 +1,219 @@
-import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import {
-  ReactiveFormsModule,
   FormBuilder,
-  FormGroup,
-  Validators,
   FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { AuthService } from '../../shared/services/auth.service';
+import { ToastService } from '../../shared/components/toast/toast.service';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { InputFieldComponent } from '../../shared/components/ui/input-field.component';
-import { RegisterRequest } from '../../shared/models/Auth/RegisterRequest';
-import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
-import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { AuthService } from '../../shared/services/auth.service';
 
 @Component({
+  selector: 'pmt-register',
+  standalone: true,
   imports: [
+    CommonModule,
     ButtonComponent,
     ReactiveFormsModule,
     InputFieldComponent,
     RouterModule,
-    TranslatorPipe,
-    DefaultLayoutComponent,
   ],
-  host: {
-    class: 'grid h-screen place-items-center',
-  },
   template: `
-    <pmt-default-layout title="{{ 'register.title' | translate }}">
-      <div
-        class="shadow-md p-8 rounded-lg w-full max-w-md bg-neutral-50 dark:bg-neutral-900"
-      >
-        <h1 class="mb-6 font-semibold text-4xl text-center">
-          {{ 'register.title' | translate }}
-        </h1>
-        <form (ngSubmit)="onSubmit()" [formGroup]="registerForm" novalidate>
+    <div class="register">
+      <div class="register__card">
+        <h1 class="register__title" id="register-title">Register</h1>
+        <form 
+          [formGroup]="registerForm" 
+          (ngSubmit)="onSubmit()" 
+          class="register__form"
+          aria-labelledby="register-title"
+        >
           <ui-input-field
-            [control]="username"
-            id="username"
-            [label]="'register.username' | translate"
-            type="text"
-            autocomplete="username"
-            [errorMessage]="'register.usernameRequired' | translate"
-          />
-          <ui-input-field
-            [control]="email"
-            id="email"
-            [label]="'register.email' | translate"
+            [control]="emailControl"
+            label="Email"
             type="email"
+            [errorMessage]="emailControl.errors?.['required'] ? 'Email is required' : ''"
+            [required]="true"
             autocomplete="email"
-            [errorMessage]="'register.emailRequired' | translate"
-          />
-          <ui-input-field
-            [control]="password"
-            id="password"
-            [label]="'register.password' | translate"
-            type="password"
-            autocomplete="new-password"
-            [errorMessage]="'register.passwordRequired' | translate"
+            aria-required="true"
+            [attr.aria-invalid]="emailControl.invalid"
+            [attr.aria-describedby]="emailControl.invalid ? 'email-error' : null"
           />
 
-          <div class="mt-6">
-            <ui-button
-              class="w-full"
-              type="submit"
-              [disabled]="registerForm.invalid"
-              [label]="'register.submit' | translate"
-            ></ui-button>
-          </div>
-        </form>
-        <div class="mt-4 text-center">
-          <a
-            routerLink="/login"
-            class="text-sm text-indigo-500 hover:underline cursor-pointer"
+          <ui-input-field
+            [control]="passwordControl"
+            label="Password"
+            type="password"
+            [errorMessage]="passwordControl.errors?.['required'] ? 'Password is required' : ''"
+            [required]="true"
+            autocomplete="new-password"
+            aria-required="true"
+            [attr.aria-invalid]="passwordControl.invalid"
+            [attr.aria-describedby]="passwordControl.invalid ? 'password-error' : null"
+          />
+
+          <ui-input-field
+            [control]="confirmPasswordControl"
+            label="Confirm Password"
+            type="password"
+            [errorMessage]="confirmPasswordControl.errors?.['required'] ? 'Please confirm your password' : ''"
+            [required]="true"
+            autocomplete="new-password"
+            aria-required="true"
+            [attr.aria-invalid]="confirmPasswordControl.invalid"
+            [attr.aria-describedby]="confirmPasswordControl.invalid ? 'confirm-password-error' : null"
+          />
+
+          <small 
+            class="register__error" 
+            *ngIf="error"
+            role="alert"
+            id="register-error"
           >
-            {{ 'register.loginLink' | translate }}
-          </a>
+            {{ error }}
+          </small>
+
+          <ui-button
+            [label]="'Register'"
+            [disabled]="registerForm.invalid"
+            class="register__button"
+            type="submit"
+            aria-label="Create new account"
+          />
+        </form>
+
+        <div class="register__footer">
+          <p class="register__text">
+            Already have an account?
+            <a 
+              routerLink="/login" 
+              class="register__link"
+              aria-label="Go to login page"
+            >
+              Login
+            </a>
+          </p>
         </div>
       </div>
-    </pmt-default-layout>
+    </div>
   `,
+  styles: [`
+    .register {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: var(--space-4);
+      background-color: var(--surface-1);
+    }
+
+    .register__card {
+      width: 100%;
+      max-width: 28rem;
+      padding: var(--space-8);
+      background-color: var(--surface-2);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+    }
+
+    .register__title {
+      margin-bottom: var(--space-6);
+      font-size: var(--font-size-4xl);
+      font-weight: 600;
+      text-align: center;
+      color: var(--text-color);
+    }
+
+    .register__form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .register__error {
+      font-size: var(--font-size-xs);
+      color: var(--danger-color);
+    }
+
+    .register__button {
+      width: 100%;
+    }
+
+    .register__footer {
+      margin-top: var(--space-4);
+      text-align: center;
+    }
+
+    .register__text {
+      font-size: var(--font-size-sm);
+      color: var(--text-color);
+    }
+
+    .register__link {
+      color: var(--primary-color);
+      text-decoration: none;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  `],
 })
 export class RegisterComponent {
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
+  registerForm: FormGroup;
+  error: string | null = null;
 
-  registerForm: FormGroup = this.formBuilder.group({
-    username: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-  });
+  get emailControl(): FormControl {
+    return this.registerForm.get('email') as FormControl;
+  }
 
-  username = this.registerForm.get('username') as FormControl<string>;
-  email = this.registerForm.get('email') as FormControl<string>;
-  password = this.registerForm.get('password') as FormControl<string>;
+  get passwordControl(): FormControl {
+    return this.registerForm.get('password') as FormControl;
+  }
 
-  onSubmit(): void {
-    if (!this.registerForm.valid) return;
-    const registerRequest: RegisterRequest = this.registerForm
-      .value as RegisterRequest;
-    this.authService.register(registerRequest);
-    this.router.navigate(['/login']);
+  get confirmPasswordControl(): FormControl {
+    return this.registerForm.get('confirmPassword') as FormControl;
+  }
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private toastService: ToastService
+  ) {
+    this.registerForm = this.fb.group({
+      email: ['', [Validators.required]],
+      password: ['', [Validators.required]],
+      confirmPassword: ['', [Validators.required]],
+    });
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.registerForm.invalid) return;
+
+    const { password, confirmPassword } = this.registerForm.value;
+    if (password !== confirmPassword) {
+      this.error = 'Passwords do not match';
+      return;
+    }
+
+    try {
+      await this.authService.register(this.registerForm.value);
+      this.router.navigate(['/login']);
+      this.toastService.showToast({
+        title: 'Success',
+        message: 'Registration successful',
+        type: 'success',
+        duration: 5000
+      }, 'root');
+    } catch {
+      this.error = 'Registration failed';
+    }
   }
 }

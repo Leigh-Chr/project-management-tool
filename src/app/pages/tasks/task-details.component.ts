@@ -33,239 +33,195 @@ type PopupType = 'deleteTask' | 'changeAssignee';
       title="{{ task() ? task()!.name : ('task.loading' | translate) }}"
     >
       @if (task(); as task) {
-      <div
-        class="p-6 bg-neutral-50 dark:bg-neutral-950 rounded-lg border border-neutral-100 dark:border-neutral-900 shadow-sm grid gap-6"
-      >
-        <header class="flex justify-between items-center gap-6">
-          <div>
-            <h1
-              class="text-3xl font-bold text-neutral-900 dark:text-neutral-100"
-            >
-              {{ task.name }}
-            </h1>
-            <p class="text-neutral-700 dark:text-neutral-300">
-              {{ task.description || 'No description provided.' }}
-            </p>
-          </div>
-          @if (task.permissions.editTask) {
-          <ui-button
-            [label]="'task.deleteTask' | translate"
-            icon="fi fi-rr-trash"
-            variant="danger"
-            (click)="showPopup('deleteTask', task.id)"
-          />
-          }
-        </header>
-        <div class="grid gap-6">
-          <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div>
-              <p
-                class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-              >
-                {{ 'task.status' | translate }}
-              </p>
-              <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                {{ task.status?.name }}
+      <div class="task-details">
+        <div class="task-details__card">
+          <header class="task-details__header">
+            <div class="task-details__title-group">
+              <h1 class="task-details__title">
+                {{ task.name }}
+              </h1>
+              <p class="task-details__description">
+                {{ task.description || 'No description provided.' }}
               </p>
             </div>
-            <div>
-              <p
-                class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-              >
-                {{ 'task.dueDate' | translate }}
-              </p>
-              <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                {{ task.dueDate | date : 'longDate' }}
-              </p>
-            </div>
-            <div>
-              <p
-                class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-              >
-                {{ 'task.priority' | translate }}
-              </p>
-              <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                {{ task.priority }}
-              </p>
-            </div>
-          </section>
-          <div class="grid gap-6 lg:grid-cols-3">
-            <div class="lg:col-span-2 grid gap-6">
-              <section class="grid gap-6">
-                <header class="flex items-center gap-4">
-                  <h2
-                    class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
-                  >
-                    {{ 'task.assignee' | translate }}
-                  </h2>
-                  @if (task.permissions.editTask) {
-                  @if (task.assignee) {
-                    <ui-button
-                      [label]="'task.changeAssignee' | translate"
-                      icon="fi fi-rr-user-pen"
-                      (click)="showPopup('changeAssignee', task.id)"
-                    />
-                  }
-                }
-                </header>
-                <div
-                  class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
-                >
-                  @if (task.assignee) {
-                  <div>
-                    <p
-                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      {{ 'task.username' | translate }}
-                    </p>
-                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{ task.assignee.username }}
-                    </p>
-                  </div>
-                  <div>
-                    <p
-                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      {{ 'task.email' | translate }}
-                    </p>
-                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{ task.assignee.email }}
-                    </p>
-                  </div>
-                  } @else {
-                  <p class="text-neutral-600 dark:text-neutral-400">
-                    {{ 'task.noAssignee' | translate }}
-                  </p>
-                  }
-                </div>
-              </section>
-              <section class="grid gap-6">
-                <header class="flex items-center gap-4">
-                  <h2
-                    class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
-                  >
-                    {{ 'task.project' | translate }}
-                  </h2>
-                  <ui-button
-                    [label]="'task.goToProject' | translate"
-                    icon="fi fi-rr-door-open"
-                    (click)="goToProject(task.project.id)"
-                  />
-                </header>
-                <div
-                  class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
-                >
-                  <div>
-                    <p
-                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      {{ 'task.projectName' | translate }}
-                    </p>
-                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{ task.project.name }}
-                    </p>
-                  </div>
-                  <div>
-                    <p
-                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      {{ 'task.projectDescription' | translate }}
-                    </p>
-                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{
-                        task.project.description || 'No description provided.'
-                      }}
-                    </p>
-                  </div>
-                  <div>
-                    <p
-                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      {{ 'task.startDate' | translate }}
-                    </p>
-                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{ task.project.startDate | date : 'longDate' }}
-                    </p>
-                  </div>
-                  <div>
-                    <p
-                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      {{ 'task.endDate' | translate }}
-                    </p>
-                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{
-                        task.project.endDate
-                          ? (task.project.endDate | date : 'longDate')
-                          : ('task.ongoing' | translate)
-                      }}
-                    </p>
-                  </div>
-                  <div>
-                    <p
-                      class="text-sm font-medium text-neutral-600 dark:text-neutral-400 uppercase tracking-wider"
-                    >
-                      {{ 'task.projectStatus' | translate }}
-                    </p>
-                    <p class="text-lg text-neutral-900 dark:text-neutral-100">
-                      {{ task.project.status?.name }}
-                    </p>
-                  </div>
-                </div>
-              </section>
-            </div>
-            <div>
-              <section class="grid gap-6">
-                <header class="flex items-center gap-4">
-                  <h2
-                    class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100"
-                  >
-                    {{ 'task.taskHistory' | translate }}
-                  </h2>
-                </header>
-                @if (task.taskHistory.length > 0) {
-                <div class="grid gap-6">
-                  @for (history of task.taskHistory; track history.id) {
-                  <div
-                    class="p-4 bg-white dark:bg-neutral-900 rounded-lg shadow-sm grid gap-4"
-                  >
-                    <header class="truncate">
-                      <h4
-                        class="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
-                      >
-                        {{ history.name }}
-                      </h4>
-                      <p
-                        class="text-sm text-neutral-700 dark:text-neutral-300 truncate"
-                      >
-                        {{ history.description || 'No description provided.' }}
+            @if (task.permissions.editTask) {
+            <ui-button
+              [label]="'task.deleteTask' | translate"
+              icon="fi fi-rr-trash"
+              variant="danger"
+              (click)="showPopup('deleteTask', task.id)"
+              aria-label="Delete task"
+            />
+            }
+          </header>
+          <div class="task-details__content" role="main">
+            <section class="task-details__info-grid" aria-labelledby="task-info-title">
+              <h2 id="task-info-title" class="visually-hidden">Task Information</h2>
+              <div class="task-details__info-item">
+                <p class="task-details__info-label">
+                  {{ 'task.status' | translate }}
+                </p>
+                <p class="task-details__info-value">
+                  {{ task.status?.name }}
+                </p>
+              </div>
+              <div class="task-details__info-item">
+                <p class="task-details__info-label">
+                  {{ 'task.dueDate' | translate }}
+                </p>
+                <p class="task-details__info-value">
+                  {{ task.dueDate | date : 'longDate' }}
+                </p>
+              </div>
+              <div class="task-details__info-item">
+                <p class="task-details__info-label">
+                  {{ 'task.priority' | translate }}
+                </p>
+                <p class="task-details__info-value">
+                  {{ task.priority }}
+                </p>
+              </div>
+            </section>
+            <div class="task-details__main-content">
+              <div class="task-details__primary-section">
+                <section class="task-details__section">
+                  <header class="task-details__section-header">
+                    <h2 class="task-details__section-title">
+                      {{ 'task.assignee' | translate }}
+                    </h2>
+                    @if (task.permissions.editTask) {
+                    @if (task.assignee) {
+                      <ui-button
+                        [label]="'task.changeAssignee' | translate"
+                        icon="fi fi-rr-user-pen"
+                        (click)="showPopup('changeAssignee', task.id)"
+                      />
+                    }
+                    }
+                  </header>
+                  <div class="task-details__info-card">
+                    @if (task.assignee) {
+                    <div class="task-details__info-item">
+                      <p class="task-details__info-label">
+                        {{ 'task.username' | translate }}
                       </p>
-                    </header>
-                    <div>
-                      <p class="text-sm">
-                        <strong class="text-neutral-900 dark:text-neutral-100"
-                          >{{ 'task.date' | translate }}:</strong
-                        >
-                        <span class="text-neutral-700 dark:text-neutral-400">
-                          {{ history.date | date : 'longDate' }}
-                        </span>
+                      <p class="task-details__info-value">
+                        {{ task.assignee.username }}
+                      </p>
+                    </div>
+                    <div class="task-details__info-item">
+                      <p class="task-details__info-label">
+                        {{ 'task.email' | translate }}
+                      </p>
+                      <p class="task-details__info-value">
+                        {{ task.assignee.email }}
+                      </p>
+                    </div>
+                    } @else {
+                    <p class="task-details__empty-text">
+                      {{ 'task.noAssignee' | translate }}
+                    </p>
+                    }
+                  </div>
+                </section>
+                <section class="task-details__section">
+                  <header class="task-details__section-header">
+                    <h2 class="task-details__section-title">
+                      {{ 'task.project' | translate }}
+                    </h2>
+                    <ui-button
+                      [label]="'task.goToProject' | translate"
+                      icon="fi fi-rr-door-open"
+                      (click)="goToProject(task.project.id)"
+                    />
+                  </header>
+                  <div class="task-details__info-card">
+                    <div class="task-details__info-item">
+                      <p class="task-details__info-label">
+                        {{ 'task.projectName' | translate }}
+                      </p>
+                      <p class="task-details__info-value">
+                        {{ task.project.name }}
+                      </p>
+                    </div>
+                    <div class="task-details__info-item">
+                      <p class="task-details__info-label">
+                        {{ 'task.projectDescription' | translate }}
+                      </p>
+                      <p class="task-details__info-value">
+                        {{ task.project.description || 'No description provided.' }}
+                      </p>
+                    </div>
+                    <div class="task-details__info-item">
+                      <p class="task-details__info-label">
+                        {{ 'task.startDate' | translate }}
+                      </p>
+                      <p class="task-details__info-value">
+                        {{ task.project.startDate | date : 'longDate' }}
+                      </p>
+                    </div>
+                    <div class="task-details__info-item">
+                      <p class="task-details__info-label">
+                        {{ 'task.endDate' | translate }}
+                      </p>
+                      <p class="task-details__info-value">
+                        {{ task.project.endDate ? (task.project.endDate | date : 'longDate') : ('task.ongoing' | translate) }}
+                      </p>
+                    </div>
+                    <div class="task-details__info-item">
+                      <p class="task-details__info-label">
+                        {{ 'task.projectStatus' | translate }}
+                      </p>
+                      <p class="task-details__info-value">
+                        {{ task.project.status?.name }}
                       </p>
                     </div>
                   </div>
+                </section>
+              </div>
+              <div class="task-details__secondary-section">
+                <section class="task-details__section">
+                  <header class="task-details__section-header">
+                    <h2 class="task-details__section-title">
+                      {{ 'task.taskHistory' | translate }}
+                    </h2>
+                  </header>
+                  @if (task.taskHistory.length > 0) {
+                  <div class="task-details__history-list">
+                    @for (history of task.taskHistory; track history.id) {
+                    <div class="task-details__history-item">
+                      <header class="task-details__history-header">
+                        <h4 class="task-details__history-title">
+                          {{ history.name }}
+                        </h4>
+                        <p class="task-details__history-description">
+                          {{ history.description || 'No description provided.' }}
+                        </p>
+                      </header>
+                      <div class="task-details__history-content">
+                        <p class="task-details__history-text">
+                          <strong class="task-details__history-label">{{ 'task.date' | translate }}:</strong>
+                          <span class="task-details__history-value">
+                            {{ history.date | date : 'longDate' }}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                    }
+                  </div>
+                  } @else {
+                  <p class="task-details__empty-text">
+                    {{ 'task.noHistory' | translate }}
+                  </p>
                   }
-                </div>
-                } @else {
-                <p class="text-neutral-600 dark:text-neutral-400">
-                  {{ 'task.noHistory' | translate }}
-                </p>
-                }
-              </section>
+                </section>
+              </div>
             </div>
           </div>
         </div>
       </div>
       } @else {
-      <p class="text-neutral-600 dark:text-neutral-400">
+      <p class="task-details__empty-text">
         {{ 'task.taskNotFound' | translate }}
       </p>
       }
@@ -280,6 +236,187 @@ type PopupType = 'deleteTask' | 'changeAssignee';
     <pmt-change-assignee-popup [taskId]="activeId()!" (onClose)="hidePopup()" (onChangeAssignee)="changeAssignee($event)" />
     }}
   `,
+  styles: [`
+    .task-details {
+      padding: var(--space-4);
+      background-color: var(--surface-1);
+    }
+
+    .task-details__card {
+      padding: var(--space-6);
+      background-color: var(--surface-2);
+      border-radius: var(--border-radius-lg);
+      border: var(--border-width) solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .task-details__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+
+    .task-details__title-group {
+      flex: 1;
+    }
+
+    .task-details__title {
+      margin-bottom: var(--space-2);
+      font-size: var(--font-size-2xl);
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .task-details__description {
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-sm);
+    }
+
+    .task-details__content {
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .task-details__info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background-color: var(--surface-3);
+      border-radius: var(--border-radius-md);
+    }
+
+    .task-details__info-item {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .task-details__info-label {
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-base);
+      font-weight: 500;
+    }
+    
+    .task-details__info-value {
+      color: var(--text-color);
+      font-size: var(--font-size-sm);
+    }
+
+    .task-details__main-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--space-6);
+    }
+
+    .task-details__primary-section {
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .task-details__secondary-section {
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .task-details__section {
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .task-details__section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .task-details__section-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .task-details__info-card {
+      padding: var(--space-4);
+      background-color: var(--surface-3);
+      border-radius: var(--border-radius-md);
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .task-details__empty-text {
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-sm);
+      text-align: center;
+      padding: var(--space-4);
+    }
+
+    .task-details__history-list {
+      display: grid;
+      gap: var(--space-4);
+    }
+
+    .task-details__history-item {
+      padding: var(--space-4);
+      background-color: var(--surface-3);
+      border-radius: var(--border-radius-md);
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .task-details__history-header {
+      display: grid;
+      gap: var(--space-1);
+    }
+
+    .task-details__history-title {
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .task-details__history-description {
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-sm);
+    }
+
+    .task-details__history-content {
+      display: grid;
+      gap: var(--space-2);
+    }
+
+    .task-details__history-text {
+      display: flex;
+      gap: var(--space-2);
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-sm);
+    }
+
+    .task-details__history-label {
+      color: var(--text-color);
+      font-weight: 500;
+    }
+
+    .task-details__history-value {
+      color: var(--text-color);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  `],
 })
 export class TaskDetailsComponent {
   private readonly taskService = inject(TaskService);
@@ -291,7 +428,6 @@ export class TaskDetailsComponent {
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
-
 
   async ngOnInit(): Promise<void> {
     this.task.set(await this.taskService.getTaskDetails(this.id));
@@ -326,9 +462,9 @@ export class TaskDetailsComponent {
   changeAssignee(assignee: User | null): void {
     if (!this.task() || !assignee) return;
     this.task.update((task) => {
-      task!.assignee = assignee;
+      if (!task) return task;
+      task.assignee = assignee;
       return task;
     });
-    console.log(this.task());
   }
 }

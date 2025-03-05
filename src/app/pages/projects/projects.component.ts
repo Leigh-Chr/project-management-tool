@@ -8,9 +8,20 @@ import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
   imports: [DefaultLayoutComponent, ProjectsPanelComponent, TranslatorPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <pmt-default-layout title="{{ 'projects' | translate }}">
-      <pmt-projects-panel />
-    </pmt-default-layout>
+    <div class="projects">
+      <pmt-default-layout title="{{ 'projects' | translate }}">
+        <main role="main">
+          <pmt-projects-panel />
+        </main>
+      </pmt-default-layout>
+    </div>
   `,
+  styles: [`
+    .projects {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 1fr;
+    }
+  `],
 })
 export class ProjectsComponent {}

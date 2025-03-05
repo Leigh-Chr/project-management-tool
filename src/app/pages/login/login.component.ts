@@ -1,111 +1,200 @@
-import { Component, inject } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { InputFieldComponent } from '../../shared/components/ui/input-field.component';
-import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
-import { LoginRequest } from '../../shared/models/Auth/LoginRequest';
 import { AuthService } from '../../shared/services/auth.service';
-import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
+  selector: 'pmt-login',
+  standalone: true,
   imports: [
-    ButtonComponent,
-    ReactiveFormsModule,
-    InputFieldComponent,
+    CommonModule,
     RouterModule,
-    TranslatorPipe,
-    DefaultLayoutComponent,
+    ReactiveFormsModule,
+    ButtonComponent,
+    InputFieldComponent
   ],
-  host: {
-    class: 'grid h-screen place-items-center',
-  },
   template: `
-    <pmt-default-layout title="{{ 'login.title' | translate }}">
-      <div
-        class="shadow-md p-8 rounded-lg w-full max-w-md bg-neutral-50 dark:bg-neutral-900"
-      >
-        <h1 class="mb-6 font-semibold text-4xl text-center">
-          {{ 'login.title' | translate }}
-        </h1>
-        <form (ngSubmit)="onSubmit()" [formGroup]="loginForm" novalidate>
+    <div class="login">
+      <div class="login__card">
+        <h1 class="login__title" id="login-title">Login</h1>
+        <form 
+          [formGroup]="loginForm" 
+          (ngSubmit)="onSubmit()" 
+          class="login__form"
+          novalidate
+          aria-labelledby="login-title"
+        >
           <ui-input-field
-            [control]="email"
-            id="email"
-            [label]="'login.email' | translate"
+            [control]="emailControl"
+            label="Email"
             type="email"
-            errorMessage="A valid email is required."
-          />
-          <ui-input-field
-            [control]="password"
-            id="password"
-            [label]="'login.password' | translate"
-            type="password"
-            errorMessage="Password is required."
+            [errorMessage]="emailControl.errors?.['required'] ? 'Email is required' : emailControl.errors?.['email'] ? 'Please enter a valid email address' : ''"
+            [required]="true"
+            autocomplete="email"
+            aria-required="true"
+            [attr.aria-invalid]="emailControl.invalid"
+            [attr.aria-describedby]="emailControl.invalid ? 'email-error' : null"
           />
 
-          @if (errorMessage) {
-          <small class="text-xs">{{
-            'login.invalidCredentials' | translate
-          }}</small>
-          }
-          <div class="mt-6">
-            <ui-button
-              class="w-full"
-              type="submit"
-              [disabled]="loginForm.invalid"
-              [label]="'login.submit' | translate"
-            ></ui-button>
-          </div>
-        </form>
-        <div class="mt-4 text-center">
-          <a
-            routerLink="/register"
-            class="text-sm text-indigo-500 hover:underline cursor-pointer"
+          <ui-input-field
+            [control]="passwordControl"
+            label="Password"
+            type="password"
+            [errorMessage]="passwordControl.errors?.['required'] ? 'Password is required' : passwordControl.errors?.['minlength'] ? 'Password must be at least 6 characters long' : ''"
+            [required]="true"
+            autocomplete="current-password"
+            aria-required="true"
+            [attr.aria-invalid]="passwordControl.invalid"
+            [attr.aria-describedby]="passwordControl.invalid ? 'password-error' : null"
+          />
+
+          <small 
+            class="login__error" 
+            *ngIf="error"
+            role="alert"
+            id="login-error"
           >
-            {{ 'login.registerLink' | translate }}
-          </a>
+            {{ error }}
+          </small>
+
+          <ui-button
+            [label]="'Login'"
+            [disabled]="loginForm.invalid"
+            class="login__button"
+            type="submit"
+            aria-label="Sign in to your account"
+          />
+        </form>
+
+        <div class="login__footer">
+          <p class="login__text">
+            Don't have an account?
+            <a 
+              routerLink="/register" 
+              class="login__link"
+              aria-label="Go to registration page"
+            >
+              Register
+            </a>
+          </p>
         </div>
       </div>
-    </pmt-default-layout>
+    </div>
   `,
+  styles: [`
+    .login {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: var(--space-4);
+      background-color: var(--surface-1);
+    }
+
+    .login__card {
+      width: 100%;
+      max-width: 400px;
+      padding: var(--space-6);
+      background-color: var(--surface-2);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .login__title {
+      margin-bottom: var(--space-6);
+      font-size: var(--font-size-xl);
+      font-weight: 600;
+      color: var(--text-color);
+      text-align: center;
+    }
+
+    .login__form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .login__error {
+      color: var(--danger-color);
+      font-size: var(--font-size-sm);
+    }
+
+    .login__button {
+      margin-top: var(--space-4);
+    }
+
+    .login__footer {
+      margin-top: var(--space-6);
+      text-align: center;
+    }
+
+    .login__text {
+      color: var(--text-color-secondary);
+      font-size: var(--font-size-sm);
+    }
+
+    .login__link {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: var(--outline-size) var(--outline-style) var(--outline-color);
+        outline-offset: var(--focus-ring-offset);
+      }
+    }
+  `],
 })
 export class LoginComponent {
-  private readonly authService = inject(AuthService);
-  private readonly formBuilder = inject(FormBuilder);
-  private readonly router = inject(Router);
-  private readonly translatorPipe = inject(TranslatorPipe);
+  loginForm: FormGroup;
+  error: string | null = null;
 
-  loginForm: FormGroup = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]],
-  });
-  email = this.loginForm.get('email') as FormControl<string>;
-  password = this.loginForm.get('password') as FormControl<string>;
-  errorMessage: string | null = null;
-
-  constructor() {
-    if (this.authService.authUser()) {
-      this.router.navigate(['/projects']);
-    }
+  get emailControl(): FormControl {
+    return this.loginForm.get('email') as FormControl;
   }
 
-  onSubmit(): void {
-    if (!this.loginForm.valid) return;
-    const loginRequest = this.loginForm.value as LoginRequest;
-    const isLoggedIn = !!this.authService.login(loginRequest);
-    if (!isLoggedIn) {
-      this.errorMessage = this.translatorPipe.transform(
-        'login.invalidCredentials'
+  get passwordControl(): FormControl {
+    return this.loginForm.get('password') as FormControl;
+  }
+
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private toastService: ToastService
+  ) {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+    });
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.loginForm.invalid) return;
+
+    try {
+      await this.authService.login(this.loginForm.value);
+      this.router.navigate(['/']);
+      this.toastService.showToast(
+        {
+          type: 'success',
+          title: 'Success',
+          message: 'Login successful',
+          duration: 3000,
+        },
+        'root'
       );
-      return;
+    } catch (err) {
+      this.error = 'Invalid email or password';
+      console.error('Login error:', err);
     }
-    this.router.navigate(['/projects']);
   }
 }
