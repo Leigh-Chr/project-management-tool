@@ -10,26 +10,24 @@ export type SelectOption<T> = {
   imports: [ReactiveFormsModule],
   selector: 'ui-select-field',
   template: `
-    <div class="mt-6">
+    <div class="select-field">
       <label
-        class="
-        block text-sm font-medium text-neutral-700 dark:text-neutral-300
-        mb-2
-        "
+        class="select-field__label"
         [for]="id"
       >
         {{ label }}
+        @if (required) {
+          <span class="select-field__required" aria-hidden="true">*</span>
+        }
       </label>
       <select
         [formControl]="control"
         [id]="id"
-        class="
-        px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 bg-neutral-50 dark:bg-neutral-900 
-        border border-neutral-300 dark:border-neutral-700 rounded-lg shadow-sm
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-        dark:focus:ring-blue-600
-        w-full
-        "
+        class="select-field__select"
+        [attr.aria-invalid]="control.invalid && control.touched"
+        [attr.aria-describedby]="control.invalid && control.touched ? id + '-error' : null"
+        [attr.aria-required]="required"
+        [attr.aria-label]="label"
       >
         @for (option of options; track option.value) {
         <option [value]="option.value">
@@ -38,12 +36,66 @@ export type SelectOption<T> = {
         }
       </select>
       @if (control.invalid && control.touched) {
-      <small class="text-xs text-red-500">
+      <small 
+        class="select-field__error"
+        [id]="id + '-error'"
+        role="alert"
+      >
         {{ errorMessage }}
       </small>
       }
     </div>
   `,
+  styles: [`
+    .select-field {
+      margin-top: var(--space-6);
+    }
+
+    .select-field__label {
+      display: block;
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-color);
+      margin-bottom: var(--space-2);
+    }
+
+    .select-field__required {
+      color: var(--danger-color);
+      margin-left: var(--space-1);
+    }
+
+    .select-field__select {
+      width: 100%;
+      padding: var(--space-2) var(--space-4);
+      font-size: var(--font-size-sm);
+      color: var(--text-color);
+      background-color: var(--surface-2);
+      border: var(--input-border);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--input-shadow);
+      transition: all var(--transition-normal);
+
+      &:focus {
+        outline: none;
+        box-shadow: var(--input-focus-shadow);
+      }
+
+      &:focus-visible {
+        outline: var(--outline-size) var(--outline-style) var(--outline-color);
+        outline-offset: var(--focus-ring-offset);
+      }
+
+      &[aria-invalid="true"] {
+        border-color: var(--danger-color);
+      }
+    }
+
+    .select-field__error {
+      font-size: var(--font-size-xs);
+      color: var(--danger-color);
+      margin-top: var(--space-1);
+    }
+  `],
 })
 export class SelectFieldComponent<T> {
   @Input() control!: FormControl;
@@ -51,4 +103,5 @@ export class SelectFieldComponent<T> {
   @Input() label: string = '';
   @Input() options: SelectOption<T>[] = [];
   @Input() errorMessage: string = 'This field is required.';
+  @Input() required: boolean = false;
 }

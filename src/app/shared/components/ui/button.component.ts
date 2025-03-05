@@ -11,14 +11,18 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
   template: `
     @if (isLink) {
     <a
-      attr.aria-label="{{ label }}"
       [href]="href"
       [attr.aria-disabled]="disabled"
+      [attr.aria-label]="label"
+      [attr.aria-expanded]="expanded"
+      [attr.aria-controls]="controls"
+      [attr.aria-pressed]="pressed"
       [ngClass]="buttonClasses"
       role="button"
+      [tabindex]="disabled ? -1 : 0"
     >
       @if (icon) {
-      <ui-icon [class]="icon"></ui-icon>
+      <ui-icon [class]="icon" aria-hidden="true"></ui-icon>
       } @if (!iconOnly) {
       <span>{{ label }}</span>
       }
@@ -26,19 +30,75 @@ export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'success';
     } @else {
     <button
       [tooltip]="iconOnly ? label : ''"
-      attr.aria-label="{{ label }}"
+      [attr.aria-label]="label"
+      [attr.aria-expanded]="expanded"
+      [attr.aria-controls]="controls"
+      [attr.aria-pressed]="pressed"
       [disabled]="disabled"
       [ngClass]="buttonClasses"
       [attr.aria-disabled]="disabled"
+      [tabindex]="disabled ? -1 : 0"
     >
       @if (icon) {
-      <ui-icon [class]="icon"></ui-icon>
+      <ui-icon [class]="icon" aria-hidden="true"></ui-icon>
       } @if (!iconOnly) {
       <span>{{ label }}</span>
       }
     </button>
     }
   `,
+  styles: [`
+    .button {
+      padding: var(--space-3) var(--space-2);
+      font-weight: 600;
+      border: none;
+      border-radius: var(--border-radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      box-shadow: var(--shadow-md);
+      transition: all var(--transition-normal);
+    }
+
+    .button--primary {
+      background: linear-gradient(to bottom right, var(--primary-color), var(--primary-active));
+      color: var(--light-color);
+    }
+
+    .button--secondary {
+      background: linear-gradient(to bottom right, var(--surface-2), var(--surface-3));
+      color: var(--text-color);
+    }
+
+    .button--danger {
+      background: linear-gradient(to bottom right, var(--danger-color), var(--danger-active));
+      color: var(--light-color);
+    }
+
+    .button--success {
+      background: linear-gradient(to bottom right, var(--success-color), var(--success-active));
+      color: var(--light-color);
+    }
+
+    .button:disabled {
+      opacity: var(--disabled-opacity);
+      pointer-events: none;
+    }
+
+    .button:not(:disabled):hover {
+      filter: brightness(var(--hover-brightness));
+    }
+
+    .button:not(:disabled):active {
+      filter: brightness(var(--active-brightness));
+    }
+
+    .button:focus-visible {
+      outline: var(--outline-size) var(--outline-style) var(--outline-color);
+      outline-offset: var(--focus-ring-offset);
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ButtonComponent {
@@ -54,23 +114,13 @@ export class ButtonComponent {
   @Input() href?: string;
   @Input() variant?: ButtonVariant;
   @Input() class?: string;
+  @Input() expanded?: boolean;
+  @Input() controls?: string;
+  @Input() pressed?: boolean;
 
   get buttonClasses(): string {
-    const baseClasses = `px-[.75em] py-[.5em] font-semibold rounded-md flex items-center justify-center gap-2 shadow-md transition-all duration-200 ease-in-out`;
-    const stateClasses =
-      'disabled:opacity-50 disabled:pointer-events-none enabled:hover:brightness-125';
-
-    const variantClasses = {
-      primary:
-        'bg-gradient-to-br from-indigo-500 to-indigo-700 text-white dark:from-indigo-700 dark:to-indigo-900 dark:text-neutral-200',
-      secondary:
-        'bg-gradient-to-br from-neutral-50 to-neutral-200 text-neutral-900 dark:from-neutral-700 dark:to-neutral-900 dark:text-neutral-200',
-      danger:
-        'bg-gradient-to-br from-red-500 to-red-700 text-white dark:from-red-700 dark:to-red-900 dark:text-neutral-200',
-      success:
-        'bg-gradient-to-br from-green-500 to-green-700 text-white dark:from-green-700 dark:to-green-900 dark:text-neutral-200',
-    }[this.variant ?? 'primary'];
-
-    return `${baseClasses} ${stateClasses} ${variantClasses} ${this.class}`;
+    const baseClass = 'button';
+    const variantClass = `button--${this.variant ?? 'primary'}`;
+    return `${baseClass} ${variantClass} ${this.class}`;
   }
 }
