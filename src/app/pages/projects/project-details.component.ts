@@ -373,7 +373,7 @@ export class ProjectDetailsComponent {
 
   async ngOnInit(): Promise<void> {
     this.project.set(await this.projectService.getProjectDetails(this.id));
-    if (!this.project) {
+    if (!this.project()) {
       this.toastService.showToast(
         {
           title: 'Project not found',
@@ -453,7 +453,6 @@ export class ProjectDetailsComponent {
       });
       return project;
     });
-    console.log(this.project());
   }
 
   async deleteTask(taskId: number): Promise<void> {

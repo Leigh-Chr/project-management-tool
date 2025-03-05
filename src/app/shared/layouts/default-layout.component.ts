@@ -9,10 +9,10 @@ import { Title } from '@angular/platform-browser';
 import { ButtonComponent } from '../components/ui/button.component';
 import { TranslatorPipe } from '../i18n/translator.pipe';
 import { AuthService } from '../services/auth.service';
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'pmt-default-layout',
-  imports: [ButtonComponent, TranslatorPipe],
+  imports: [ButtonComponent, TranslatorPipe, RouterLink],
   template: `
     <div
       class="
@@ -24,8 +24,7 @@ import { AuthService } from '../services/auth.service';
       >
         <div class="flex items-center gap-4 lg:gap-20 flex-wrap">
           <h1 class="flex items-center gap-4 font-bold text-2xl">
-            <i class="fi fi-br-tools"></i>
-            Project Management Tool
+            <a [routerLink]="['/']">Project Management Tool</a>
           </h1>
         </div>
 

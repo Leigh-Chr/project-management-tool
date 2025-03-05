@@ -26,7 +26,6 @@ export class ProjectController {
     const userId = this.authService.authUser()?.id;
     if (!userId) return null;
     const projectEntity = this.database.projects.find((p) => p.id === projectId);
-
     if (!projectEntity) {
       return null;
     }
@@ -71,11 +70,6 @@ export class ProjectController {
       assignTask: isAdmin,
       assignMember: isAdmin,
     };
-
-    const assignee = usersEntities.find(
-      (user) => user.id === tasksEntities[0].assigneeId
-    );
-    if (!assignee) return null;
 
     return {
       id: projectEntity.id,

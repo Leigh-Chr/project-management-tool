@@ -205,27 +205,21 @@ export class TaskController {
   }
 
   async addTask(task: AddTaskRequest): Promise<GetTaskResponse | null> {
-    console.log('task', task);
-    console.log('projectMembers', this.database.projectMembers);
     const userId = this.authService.authUser()!.id;
-    console.log('userId', userId);
     const canAdd = this.database.projectMembers.some(
       (pm) =>
         pm.projectId === task.projectId &&
         pm.userId === userId
     );
-    console.log('canAdd', canAdd);
     if (!canAdd) return null;
 
     const doesProjectExist = this.database.projects.some(
       (p) => p.id === task.projectId
     );
-    console.log('doesProjectExist', doesProjectExist);
     if (!doesProjectExist) return null;
     const doesAssigneeExist = this.database.users.some(
       (u) => u.id === task.assigneeId
     );
-    console.log('doesAssigneeExist', doesAssigneeExist);
     if (!doesAssigneeExist) return null;
 
     const taskEntity: TaskEntity = {
