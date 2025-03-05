@@ -13,19 +13,32 @@ import { Toast, ToastService } from './toast.service';
  * Component to provide and display toast notifications.
  */
 @Component({
-  selector: 'toast-provider',
+  selector: 'pmt-toast-provider',
+  standalone: true,
   imports: [ToastComponent, AsyncPipe],
   template: `
-    <div
-      class="absolute top-4 right-4 flex flex-col gap-2 z-50"
-      role="region"
+    <div 
+      class="toast-provider" 
+      role="region" 
       aria-live="polite"
+      aria-label="Notifications"
     >
       @if(toasts$ | async; as toasts) { @for(toast of toasts; track toast.id) {
       <ui-toast [toast]="toast" (close)="clearToast(toast.id)"></ui-toast>
       } }
     </div>
   `,
+  styles: [`
+    .toast-provider {
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      z-index: 50;
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastProviderComponent implements OnInit {

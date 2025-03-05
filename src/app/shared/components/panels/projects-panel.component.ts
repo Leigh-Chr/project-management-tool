@@ -7,20 +7,27 @@ import {
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
-import { GetProjectSummaryResponse } from '../../models/Projects/GetProjectSummaryResponse';
-import { ProjectService } from '../../services/data/project.service';
+import { ButtonComponent } from '../ui/button.component';
 import { AddProjectPopupComponent } from '../popups/add-project-popup.component';
 import { DeleteProjectPopupComponent } from '../popups/delete-project-popup.component';
-import { ButtonComponent } from '../ui/button.component';
-import { TableColumn, TableComponent } from '../ui/table.component';
+import { TableComponent } from '../ui/table.component';
+import { TranslatorPipe } from '../../i18n/translator.pipe';
+import { ProjectService } from '../../services/data/project.service';
+import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
+import { TableColumn } from '../ui/table.component';
+import { ToastService } from '../../components/toast/toast.service';
 
 type PopupType = 'addProject' | 'deleteProject';
 
-type DisplayedProject = Omit<GetProjectSummaryResponse, 'status'> & {
-  status?: string;
-};
+interface ProjectSummary extends GetProjectResponse {
+  permissions: {
+    deleteProject: boolean;
+  };
+}
+
+interface DisplayedProject extends ProjectSummary, Record<string, unknown> {
+  status: string;
+}
 
 @Component({
   selector: 'pmt-projects-panel',
@@ -34,31 +41,30 @@ type DisplayedProject = Omit<GetProjectSummaryResponse, 'status'> & {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class:
-      'border-neutral-100 dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-900 shadow-sm border rounded-lg overflow-hidden grid grid-rows-[auto,1fr]',
+    class: 'projects-panel',
   },
   template: `
-    <div
-      class="flex justify-between items-center bg-neutral-50 dark:bg-neutral-950 shadow-sm p-4"
-    >
-      <h2 class="font-semibold text-lg">{{ 'projects' | translate }}</h2>
+    <div class="projects-panel__header">
+      <h2 class="projects-panel__title">{{ 'projects' | translate }}</h2>
       <ui-button
         [disabled]="false"
         icon="fi fi-rr-square-plus"
         [label]="'project.addProject' | translate"
         (click)="showPopup('addProject')"
+        [attr.aria-label]="'project.addProject' | translate"
       />
     </div>
-    <div>
+    <div class="projects-panel__content">
       <ui-table [columns]="columns" [data]="displayProjects()">
         <ng-template #actionTemplate let-projectSummary>
           @if (toProjectSummary(projectSummary); as projectSummary) {
-          <div class="flex gap-2">
+          <div class="projects-panel__actions">
             <ui-button
               [label]="'project.goToProject' | translate"
               [iconOnly]="true"
               icon="fi fi-rr-door-open"
               (click)="goToProject(projectSummary.id)"
+              [attr.aria-label]="getProjectActionLabel('project.goToProject', projectSummary.name)"
             />
             @if (projectSummary.permissions.deleteProject) {
             <ui-button
@@ -67,6 +73,7 @@ type DisplayedProject = Omit<GetProjectSummaryResponse, 'status'> & {
               variant="danger"
               icon="fi fi-rr-trash"
               (click)="showPopup('deleteProject', projectSummary.id)"
+              [attr.aria-label]="getProjectActionLabel('project.deleteProject', projectSummary.name)"
             />
             }
           </div>
@@ -79,20 +86,58 @@ type DisplayedProject = Omit<GetProjectSummaryResponse, 'status'> & {
     <pmt-add-project-popup
       (onClose)="hidePopup()"
       (onSubmit)="addProject($event)"
+      id="add-project-popup"
     />
     } @case ('deleteProject') {
     <pmt-delete-project-popup
       [projectId]="activeProjectId()!"
       (onClose)="hidePopup()"
       (onDeleteProject)="deleteProject($event)"
+      id="delete-project-popup"
     />
     } }
   `,
+  styles: [`
+    .projects-panel {
+      border: var(--border-width) solid var(--border-color);
+      background-color: var(--surface-2);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .projects-panel__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--surface-2);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-4);
+    }
+
+    .projects-panel__title {
+      font-weight: 600;
+      font-size: var(--font-size-lg);
+      color: var(--text-color);
+    }
+
+    .projects-panel__content {
+      padding: var(--space-4);
+    }
+
+    .projects-panel__actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+  `],
 })
 export class ProjectsPanelComponent {
   private readonly router = inject(Router);
   private readonly projectService = inject(ProjectService);
   private readonly translator = inject(TranslatorPipe);
+  private readonly toastService = inject(ToastService);
 
   readonly assignedOnly = input<boolean>(false);
 
@@ -129,22 +174,23 @@ export class ProjectsPanelComponent {
     },
   ];
 
-  readonly projects = signal<GetProjectSummaryResponse[]>([]);
+  readonly projects = signal<ProjectSummary[]>([]);
   readonly displayProjects = computed(() =>
-    this.projects().map(this.toDisplayProject)
+    this.projects().map(this.toProjectSummary)
   );
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
 
   async ngOnInit(): Promise<void> {
-    this.projects.set(
-      await this.projectService.getProjectSummaries(this.assignedOnly())
-    );
+    const projectSummaries = await this.projectService.getProjectSummaries(this.assignedOnly());
+    this.projects.set(projectSummaries as ProjectSummary[]);
   }
 
-  showPopup(popupType: PopupType, projectId?: number): void {
-    this.activePopup.set(popupType);
-    if (projectId) this.activeProjectId.set(projectId);
+  showPopup(type: PopupType, projectId?: number): void {
+    this.activePopup.set(type);
+    if (projectId) {
+      this.activeProjectId.set(projectId);
+    }
   }
 
   hidePopup(): void {
@@ -152,33 +198,53 @@ export class ProjectsPanelComponent {
     this.activeProjectId.set(null);
   }
 
-  goToProject(projectId: number): void {
-    this.router.navigate(['/projects', projectId]);
-  }
-
-  toProjectSummary(projectSummary: unknown): GetProjectSummaryResponse {
-    return projectSummary as GetProjectSummaryResponse;
-  }
-
-  deleteProject(projectId: number): void {
-    this.projects.set(
-      this.projects().filter((project) => project.id !== projectId)
-    );
+  goToProject(id: number): void {
+    this.router.navigate(['/projects', id]);
   }
 
   async addProject(project: GetProjectResponse | null): Promise<void> {
-    if (!project) return;
-    const projectSummary = (await this.projectService.getProjectSummary(
-      project.id
-    ));
-    if (!projectSummary) return;
-    this.projects.set([...this.projects(), projectSummary]);
+    if (project) {
+      const projectSummary = await this.projectService.getProjectSummary(project.id);
+      if (projectSummary) {
+        this.projects.update((projects) => [...projects, projectSummary as ProjectSummary]);
+        this.toastService.showToast(
+          {
+            type: 'success',
+            title: this.translator.transform('project.projectAdded'),
+            message: this.translator.transform('project.projectAddedMessage'),
+            duration: 3000,
+          },
+          'root'
+        );
+      }
+    }
+    this.hidePopup();
   }
 
-  private toDisplayProject(projectSummary: GetProjectSummaryResponse): DisplayedProject {
+  async deleteProject(projectId: number): Promise<void> {
+    this.projects.update((projects) =>
+      projects.filter((project) => project.id !== projectId)
+    );
+    this.toastService.showToast(
+      {
+        type: 'success',
+        title: this.translator.transform('project.projectDeleted'),
+        message: this.translator.transform('project.projectDeletedMessage'),
+        duration: 3000,
+      },
+      'root'
+    );
+    this.hidePopup();
+  }
+
+  toProjectSummary(projectSummary: ProjectSummary): DisplayedProject {
     return {
       ...projectSummary,
-      status: projectSummary.status?.name
+      status: projectSummary.statusId?.toString() ?? ''
     };
+  }
+
+  getProjectActionLabel(key: string, projectName: string): string {
+    return `${this.translator.transform(key)} - ${projectName}`;
   }
 }

@@ -84,13 +84,8 @@ export class TooltipDirective implements OnDestroy {
 
   private addTooltipClasses(): void {
     const classes = [
-      'bg-neutral-800',
-      'text-white',
-      'py-1',
-      'px-2',
-      'rounded',
-      'text-sm',
-      'shadow-lg',
+      'tooltip',
+      'tooltip--visible'
     ];
     classes.forEach((className) =>
       this.renderer.addClass(this.tooltip!, className)
