@@ -1,62 +1,155 @@
-import { inject, Injectable } from '@angular/core';
-import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
-import { GetProjectDetailsResponse } from '../../models/Projects/GetProjectDetailsResponse';
+import {
+  Injectable,
+  Injector,
+  effect,
+  inject,
+  runInInjectionContext,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import type {
+  DeleteProjectMemberResponse,
+  DeleteProjectResponse,
+  GetProjectDetailsResponse,
+  GetProjectMemberResponse,
+  GetProjectResponse,
+  GetProjectsResponse,
+  PostProjectMemberResponse,
+  PostProjectRequest,
+  PostProjectResponse,
+  Project,
+  ProjectMember,
+} from '@app/shared/models/project.models';
+import type { Observable } from 'rxjs';
+import type { ProjectMemberEntity } from '../../models/entities';
+import { AuthService } from '../auth.service';
+import { ProjectMemberController } from '../mock/backend/project-member.controller';
 import { ProjectController } from '../mock/backend/project.controller';
-import { GetProjectSummaryResponse } from '../../models/Projects/GetProjectSummaryResponse';
-import { GetProjectMemberResponse } from '../../models/Projects/GetProjectMemberResponse';
-import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectService {
   private readonly projectController = inject(ProjectController);
+  private readonly projectMemberController = inject(ProjectMemberController);
+  private readonly authService = inject(AuthService);
+  private readonly injector = inject(Injector);
 
-  async getProjectDetails(
-    projectId: number
-  ): Promise<GetProjectDetailsResponse | null> {
-    return this.projectController.getProjectDetails(projectId);
-  }
+  readonly deletedProject = signal<number | null>(null);
+  readonly postedProject = signal<Project | null>(null);
 
-  async getProjectSummaries(
-    assignedOnly: boolean = false
-  ): Promise<GetProjectSummaryResponse[]> {
-    return this.projectController.getProjectSummaries(assignedOnly);
-  }
+  readonly deletedProjectMember = signal<ProjectMember | null>(null);
+  readonly postedProjectMember = signal<ProjectMember | null>(null);
 
-  async getProjectSummary(
-    projectId: number
-  ): Promise<GetProjectSummaryResponse | null> {
-    return this.projectController.getProjectSummary(projectId);
-  }
-
-  async getProject(projectId: number): Promise<GetProjectResponse | null> {
+  getProject(projectId: number): Observable<GetProjectResponse | undefined> {
     return this.projectController.getProject(projectId);
   }
 
-  async deleteProject(projectId: number): Promise<GetProjectResponse | null> {
-    return this.projectController.deleteProject(projectId);
+  getProjects(): Observable<GetProjectsResponse | undefined> {
+    return this.projectController.getProjects();
   }
 
-  async addProject(
-    project: AddProjectRequest
-  ): Promise<GetProjectResponse | null> {
-    return this.projectController.addProject(project);
+  deleteProject(
+    projectId: number
+  ): Observable<DeleteProjectResponse | undefined> {
+    const deletedProjectObservable =
+      this.projectController.deleteProject(projectId);
+
+    const deletedProjectSignal = toSignal(deletedProjectObservable, {
+      injector: this.injector,
+    });
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const deletedProject = deletedProjectSignal();
+        if (!deletedProject) return;
+        this.deletedProject.set(projectId);
+      });
+    });
+
+    return deletedProjectObservable;
   }
 
-  async addProjectMember(
+  postProject(
+    project: PostProjectRequest
+  ): Observable<PostProjectResponse | undefined> {
+    const postedProjectObservable = this.projectController.postProject(project);
+
+    const postedProjectSignal = toSignal(postedProjectObservable, {
+      injector: this.injector,
+    });
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const postedProject = postedProjectSignal();
+        if (!postedProject) return;
+        this.postedProject.set(postedProject);
+      });
+    });
+
+    return postedProjectObservable;
+  }
+
+  getProjectDetails(
+    projectId: number
+  ): Observable<GetProjectDetailsResponse | undefined> {
+    return this.projectController.getProjectDetails(projectId);
+  }
+
+  getProjectMember(
+    projectMemberId: number
+  ): Observable<GetProjectMemberResponse | undefined> {
+    return this.projectMemberController.getProjectMember(projectMemberId);
+  }
+
+  getProjectMembers(): Observable<ProjectMemberEntity[]> {
+    return this.projectMemberController.getProjectMembers();
+  }
+
+  postProjectMember(
     projectId: number,
     userId: number,
     roleId: number
-  ): Promise<GetProjectMemberResponse | null> {
-    return this.projectController.addProjectMember(projectId, userId, roleId);
+  ): Observable<PostProjectMemberResponse | undefined> {
+    const postedProjectMemberObservable =
+      this.projectMemberController.postProjectMember(projectId, userId, roleId);
+
+    const postedProjectMemberSignal = toSignal(postedProjectMemberObservable, {
+      injector: this.injector,
+    });
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const postedProjectMember = postedProjectMemberSignal();
+        if (!postedProjectMember) return;
+        this.postedProjectMember.set(postedProjectMember);
+      });
+    });
+
+    return postedProjectMemberObservable;
   }
 
-  async isMember(projectId: number, userId: number): Promise<boolean> {
-    return this.projectController.isMember(projectId, userId);
-  }
+  deleteProjectMember(
+    projectMemberId: number
+  ): Observable<DeleteProjectMemberResponse | undefined> {
+    const deletedProjectMemberObservable =
+      this.projectMemberController.deleteProjectMember(projectMemberId);
 
-  async isAdmin(projectId: number, userId: number): Promise<boolean> {
-    return this.projectController.isAdmin(projectId, userId);
+    const deletedProjectMemberSignal = toSignal(
+      deletedProjectMemberObservable,
+      {
+        injector: this.injector,
+      }
+    );
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const deletedProjectMember = deletedProjectMemberSignal();
+        if (!deletedProjectMember) return;
+        this.deletedProjectMember.set(deletedProjectMember);
+      });
+    });
+
+    return deletedProjectMemberObservable;
   }
 }

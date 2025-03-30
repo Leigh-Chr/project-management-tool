@@ -1,18 +1,23 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { AuthController } from './mock/backend/auth.controller';
-import { RegisterRequest } from '../models/Auth/RegisterRequest';
-import { RegisterResponse } from '../models/Auth/RegisterResponse';
-import { LoginRequest } from '../models/Auth/LoginRequest';
-import { LoginResponse } from '../models/Auth/LoginResponse';
-import { CookieService } from 'ngx-cookie-service';
+import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
+import {
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+} from '../models/auth.models';
+import { UserEntity } from '../models/entities';
+import { AuthController } from './mock/backend/auth.controller';
+
+type AuthUser = Omit<UserEntity, 'password'> & { exp: number };
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   readonly authController = inject(AuthController);
-  readonly authUser = signal<LoginResponse | null>(null);
+  readonly authUser = signal<AuthUser | null>(null);
   private readonly cookieService = inject(CookieService);
   private readonly router = inject(Router);
 
@@ -21,7 +26,9 @@ export class AuthService {
     this.checkTokenExpiration();
   }
 
-  async register(registerRequest: RegisterRequest): Promise<RegisterResponse> {
+  async register(
+    registerRequest: RegisterRequest
+  ): Promise<RegisterResponse | null> {
     return this.authController.register(registerRequest);
   }
 
@@ -42,7 +49,7 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  private setUserInCookies(loginResponse: LoginResponse): void {
+  private setUserInCookies(loginResponse: AuthUser): void {
     this.cookieService.set('user', JSON.stringify(loginResponse));
     this.setTokenExpirationTimeout(loginResponse.exp);
   }
@@ -67,6 +74,6 @@ export class AuthService {
 
   private checkTokenExpiration(): void {
     const user = this.authUser();
-    if (user && user.exp) this.setTokenExpirationTimeout(user.exp);
+    if (user?.exp) this.setTokenExpirationTimeout(user.exp);
   }
 }

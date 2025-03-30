@@ -2,18 +2,19 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { DeleteTaskPopupComponent } from "../../shared/components/popups/delete-task-popup.component";
-import { ButtonComponent } from '../../shared/components/ui/button.component';
-import { TranslatorPipe } from '../../shared/i18n/translator.pipe';
+import { TaskDetails } from '@app/shared/models/task.models';
+import { map } from 'rxjs';
+import { DeleteTaskPopupComponent } from '../../shared/components/popups/delete-task-popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
-import { GetTaskDetailsResponse, User } from '../../shared/models/Tasks/GetTaskDetailsResponse';
 import { TaskService } from '../../shared/services/data/task.service';
-import { ChangeAssigneePopupComponent } from '../../shared/components/popups/change-assignee-popup.component';
-
+import { AuthService } from '@app/shared/services/auth.service';
 type PopupType = 'deleteTask' | 'changeAssignee';
 
 @Component({
@@ -21,417 +22,163 @@ type PopupType = 'deleteTask' | 'changeAssignee';
     DefaultLayoutComponent,
     DatePipe,
     RouterModule,
-    ButtonComponent,
-    TranslatorPipe,
     DeleteTaskPopupComponent,
-    ChangeAssigneePopupComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   template: `
-    <pmt-default-layout
-      title="{{ task() ? task()!.name : ('task.loading' | translate) }}"
-    >
+    <pmt-default-layout pageTitle="{{ task() ? task()!.name : 'Loading...' }}">
       @if (task(); as task) {
-      <div class="task-details">
-        <div class="task-details__card">
-          <header class="task-details__header">
-            <div class="task-details__title-group">
-              <h1 class="task-details__title">
-                {{ task.name }}
-              </h1>
-              <p class="task-details__description">
-                {{ task.description || 'No description provided.' }}
-              </p>
+      <div class="flex flex-col gap-4">
+        <header class="flex gap-4 items-center">
+          <div>
+            <h1>
+              {{ task.name }}
+            </h1>
+            <p>
+              {{ task.description || 'No description provided.' }}
+            </p>
+          </div>
+          @if (isAdmin()) {
+          <button
+            class="btn btn--danger"
+            (click)="showPopup('deleteTask', task.id)"
+          >
+            <i class="fi fi-rr-trash"></i>
+          </button>
+          }
+        </header>
+        <div class="flex flex-col gap-4">
+          <section class="flex flex-col gap-4">
+            <h2>Task Information</h2>
+            <div class="flex flex-wrap gap-4">
+              <div class="card">
+                <h4>Status</h4>
+                <p>
+                  {{ task.status }}
+                </p>
+              </div>
+              <div class="card">
+                <h4>Due Date</h4>
+                <p>
+                  {{ (task.dueDate | date : 'longDate') || 'No due date' }}
+                </p>
+              </div>
+              <div class="card">
+                <h4>Priority</h4>
+                <p>
+                  {{ task.priority || 'No priority' }}
+                </p>
+              </div>
             </div>
-            @if (task.permissions.editTask) {
-            <ui-button
-              [label]="'task.deleteTask' | translate"
-              icon="fi fi-rr-trash"
-              variant="danger"
-              (click)="showPopup('deleteTask', task.id)"
-              aria-label="Delete task"
-            />
-            }
-          </header>
-          <div class="task-details__content" role="main">
-            <section class="task-details__info-grid" aria-labelledby="task-info-title">
-              <h2 id="task-info-title" class="visually-hidden">Task Information</h2>
-              <div class="task-details__info-item">
-                <p class="task-details__info-label">
-                  {{ 'task.status' | translate }}
-                </p>
-                <p class="task-details__info-value">
-                  {{ task.status?.name }}
-                </p>
-              </div>
-              <div class="task-details__info-item">
-                <p class="task-details__info-label">
-                  {{ 'task.dueDate' | translate }}
-                </p>
-                <p class="task-details__info-value">
-                  {{ task.dueDate | date : 'longDate' }}
-                </p>
-              </div>
-              <div class="task-details__info-item">
-                <p class="task-details__info-label">
-                  {{ 'task.priority' | translate }}
-                </p>
-                <p class="task-details__info-value">
-                  {{ task.priority }}
-                </p>
+          </section>
+          <div class="flex flex-col gap-4">
+            <section class="flex flex-col gap-4">
+              <header class="flex gap-4">
+                <h2>Assignee</h2>
+                <button
+                  class="btn btn--primary"
+                  (click)="showPopup('changeAssignee', task.id)"
+                >
+                  <i class="fi fi-rr-user-pen"></i>
+                </button>
+              </header>
+              <div class="flex flex-wrap gap-4">
+                @if (task.assignee; as assignee) {
+                <div class="card">
+                  <h4>Username</h4>
+                  <p>
+                    {{ assignee }}
+                  </p>
+                </div>
+                } @else {
+                <p>No Assignee</p>
+                }
               </div>
             </section>
-            <div class="task-details__main-content">
-              <div class="task-details__primary-section">
-                <section class="task-details__section">
-                  <header class="task-details__section-header">
-                    <h2 class="task-details__section-title">
-                      {{ 'task.assignee' | translate }}
-                    </h2>
-                    @if (task.permissions.editTask) {
-                    @if (task.assignee) {
-                      <ui-button
-                        [label]="'task.changeAssignee' | translate"
-                        icon="fi fi-rr-user-pen"
-                        (click)="showPopup('changeAssignee', task.id)"
-                      />
-                    }
-                    }
-                  </header>
-                  <div class="task-details__info-card">
-                    @if (task.assignee) {
-                    <div class="task-details__info-item">
-                      <p class="task-details__info-label">
-                        {{ 'task.username' | translate }}
-                      </p>
-                      <p class="task-details__info-value">
-                        {{ task.assignee.username }}
-                      </p>
-                    </div>
-                    <div class="task-details__info-item">
-                      <p class="task-details__info-label">
-                        {{ 'task.email' | translate }}
-                      </p>
-                      <p class="task-details__info-value">
-                        {{ task.assignee.email }}
-                      </p>
-                    </div>
-                    } @else {
-                    <p class="task-details__empty-text">
-                      {{ 'task.noAssignee' | translate }}
-                    </p>
-                    }
-                  </div>
-                </section>
-                <section class="task-details__section">
-                  <header class="task-details__section-header">
-                    <h2 class="task-details__section-title">
-                      {{ 'task.project' | translate }}
-                    </h2>
-                    <ui-button
-                      [label]="'task.goToProject' | translate"
-                      icon="fi fi-rr-door-open"
-                      (click)="goToProject(task.project.id)"
-                    />
-                  </header>
-                  <div class="task-details__info-card">
-                    <div class="task-details__info-item">
-                      <p class="task-details__info-label">
-                        {{ 'task.projectName' | translate }}
-                      </p>
-                      <p class="task-details__info-value">
-                        {{ task.project.name }}
-                      </p>
-                    </div>
-                    <div class="task-details__info-item">
-                      <p class="task-details__info-label">
-                        {{ 'task.projectDescription' | translate }}
-                      </p>
-                      <p class="task-details__info-value">
-                        {{ task.project.description || 'No description provided.' }}
-                      </p>
-                    </div>
-                    <div class="task-details__info-item">
-                      <p class="task-details__info-label">
-                        {{ 'task.startDate' | translate }}
-                      </p>
-                      <p class="task-details__info-value">
-                        {{ task.project.startDate | date : 'longDate' }}
-                      </p>
-                    </div>
-                    <div class="task-details__info-item">
-                      <p class="task-details__info-label">
-                        {{ 'task.endDate' | translate }}
-                      </p>
-                      <p class="task-details__info-value">
-                        {{ task.project.endDate ? (task.project.endDate | date : 'longDate') : ('task.ongoing' | translate) }}
-                      </p>
-                    </div>
-                    <div class="task-details__info-item">
-                      <p class="task-details__info-label">
-                        {{ 'task.projectStatus' | translate }}
-                      </p>
-                      <p class="task-details__info-value">
-                        {{ task.project.status?.name }}
-                      </p>
-                    </div>
-                  </div>
-                </section>
-              </div>
-              <div class="task-details__secondary-section">
-                <section class="task-details__section">
-                  <header class="task-details__section-header">
-                    <h2 class="task-details__section-title">
-                      {{ 'task.taskHistory' | translate }}
-                    </h2>
-                  </header>
-                  @if (task.taskHistory.length > 0) {
-                  <div class="task-details__history-list">
-                    @for (history of task.taskHistory; track history.id) {
-                    <div class="task-details__history-item">
-                      <header class="task-details__history-header">
-                        <h4 class="task-details__history-title">
-                          {{ history.name }}
-                        </h4>
-                        <p class="task-details__history-description">
-                          {{ history.description || 'No description provided.' }}
-                        </p>
-                      </header>
-                      <div class="task-details__history-content">
-                        <p class="task-details__history-text">
-                          <strong class="task-details__history-label">{{ 'task.date' | translate }}:</strong>
-                          <span class="task-details__history-value">
-                            {{ history.date | date : 'longDate' }}
-                          </span>
-                        </p>
-                      </div>
-                    </div>
-                    }
-                  </div>
-                  } @else {
-                  <p class="task-details__empty-text">
-                    {{ 'task.noHistory' | translate }}
+            <section class="flex flex-col gap-4">
+              <header class="flex gap-4">
+                <h2>Project</h2>
+                <button
+                  class="btn btn--primary"
+                  (click)="goToProject(task.project.id)"
+                >
+                  <i class="fi fi-rr-door-open"></i>
+                </button>
+              </header>
+              <div class="flex flex-wrap gap-4">
+                <div class="card">
+                  <h4>Project Name</h4>
+                  <p>
+                    {{ task.project.name }}
                   </p>
-                  }
-                </section>
+                </div>
+                @if (task.project.description) {
+                <div class="card">
+                  <h4>Project Description</h4>
+                  <p>
+                    {{ task.project.description }}
+                  </p>
+                </div>
+                } @if (task.project.startDate) {
+                <div class="card">
+                  <h4>Start Date</h4>
+                  <p>
+                    {{ task.project.startDate }}
+                  </p>
+                </div>
+                } @if (task.project.endDate) {
+                <div class="card">
+                  <h4>End Date</h4>
+                  <p>
+                    {{ task.project.endDate }}
+                  </p>
+                </div>
+                }
+                <div class="card">
+                  <h4>Project Status</h4>
+                  <p>
+                    {{ task.project.status }}
+                  </p>
+                </div>
               </div>
-            </div>
+            </section>
           </div>
         </div>
       </div>
       } @else {
-      <p class="task-details__empty-text">
-        {{ 'task.taskNotFound' | translate }}
-      </p>
+      <p>Task Not Found</p>
       }
     </pmt-default-layout>
 
     @switch (activePopup()) { @case ('deleteTask') {
-    <pmt-delete-task-popup [taskId]="activeId()!" (close)="hidePopup()" 
-    (onClose)="hidePopup()"
-    (onDeleteTask)="redirectToTasks()"
-    />
-    } @case ('changeAssignee') {
-    <pmt-change-assignee-popup [taskId]="activeId()!" (onClose)="hidePopup()" (onChangeAssignee)="changeAssignee($event)" />
-    }}
+    <pmt-delete-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" />
+    } }
   `,
-  styles: [`
-    .task-details {
-      padding: var(--space-4);
-      background-color: var(--surface-1);
-    }
-
-    .task-details__card {
-      padding: var(--space-6);
-      background-color: var(--surface-2);
-      border-radius: var(--border-radius-lg);
-      border: var(--border-width) solid var(--border-color);
-      box-shadow: var(--shadow-sm);
-      display: grid;
-      gap: var(--space-6);
-    }
-
-    .task-details__header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: var(--space-4);
-    }
-
-    .task-details__title-group {
-      flex: 1;
-    }
-
-    .task-details__title {
-      margin-bottom: var(--space-2);
-      font-size: var(--font-size-2xl);
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .task-details__description {
-      color: var(--text-color-secondary);
-      font-size: var(--font-size-sm);
-    }
-
-    .task-details__content {
-      display: grid;
-      gap: var(--space-6);
-    }
-
-    .task-details__info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: var(--space-4);
-      padding: var(--space-4);
-      background-color: var(--surface-3);
-      border-radius: var(--border-radius-md);
-    }
-
-    .task-details__info-item {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-    }
-
-    .task-details__info-label {
-      color: var(--text-color-secondary);
-      font-size: var(--font-size-base);
-      font-weight: 500;
-    }
-    
-    .task-details__info-value {
-      color: var(--text-color);
-      font-size: var(--font-size-sm);
-    }
-
-    .task-details__main-content {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: var(--space-6);
-    }
-
-    .task-details__primary-section {
-      display: grid;
-      gap: var(--space-6);
-    }
-
-    .task-details__secondary-section {
-      display: grid;
-      gap: var(--space-6);
-    }
-
-    .task-details__section {
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .task-details__section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-4);
-    }
-
-    .task-details__section-title {
-      font-size: var(--font-size-lg);
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .task-details__info-card {
-      padding: var(--space-4);
-      background-color: var(--surface-3);
-      border-radius: var(--border-radius-md);
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .task-details__empty-text {
-      color: var(--text-color-secondary);
-      font-size: var(--font-size-sm);
-      text-align: center;
-      padding: var(--space-4);
-    }
-
-    .task-details__history-list {
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .task-details__history-item {
-      padding: var(--space-4);
-      background-color: var(--surface-3);
-      border-radius: var(--border-radius-md);
-      display: grid;
-      gap: var(--space-2);
-    }
-
-    .task-details__history-header {
-      display: grid;
-      gap: var(--space-1);
-    }
-
-    .task-details__history-title {
-      font-size: var(--font-size-base);
-      font-weight: 600;
-      color: var(--text-color);
-    }
-
-    .task-details__history-description {
-      color: var(--text-color-secondary);
-      font-size: var(--font-size-sm);
-    }
-
-    .task-details__history-content {
-      display: grid;
-      gap: var(--space-2);
-    }
-
-    .task-details__history-text {
-      display: flex;
-      gap: var(--space-2);
-      color: var(--text-color-secondary);
-      font-size: var(--font-size-sm);
-    }
-
-    .task-details__history-label {
-      color: var(--text-color);
-      font-weight: 500;
-    }
-
-    .task-details__history-value {
-      color: var(--text-color);
-    }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-  `],
 })
 export class TaskDetailsComponent {
   private readonly taskService = inject(TaskService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
 
-  readonly id: number = +this.route.snapshot.params['id'];
-  readonly task = signal<GetTaskDetailsResponse | null>(null);
+  readonly id: number = Number.parseInt(this.route.snapshot.params['id']);
+  readonly task = signal<TaskDetails | null>(null);
+  readonly isAdmin = computed(() => this.task()?.myRole === 'Admin');
+  readonly isMember = computed(() => this.task()?.myRole);
+  readonly currentUser = computed(() => this.authService.authUser()?.username);
 
-  readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
+  readonly activePopup = signal<PopupType | null>(null);
 
-  async ngOnInit(): Promise<void> {
-    this.task.set(await this.taskService.getTaskDetails(this.id));
-    if (!this.task) this.router.navigate(['/tasks']);
+  constructor() {
+    const task = toSignal(
+      this.taskService.getTaskDetails(this.id).pipe(map((task) => task ?? null))
+    );
+    console.log(task());
+    effect(() => {
+      this.task.set(task() ?? null);
+    });
   }
 
   showPopup(popupType: PopupType, id?: number): void {
@@ -445,8 +192,9 @@ export class TaskDetailsComponent {
   }
 
   deleteTask(): void {
-    if (!this.task()) return;
-    this.taskService.deleteTask(this.task()!.id).then(() => {
+    const task = this.task();
+    if (!task) return;
+    this.taskService.deleteTask(task.id).subscribe(() => {
       this.router.navigate(['/tasks']);
     });
   }
@@ -457,14 +205,5 @@ export class TaskDetailsComponent {
 
   redirectToTasks(): void {
     this.router.navigate(['/tasks']);
-  }
-
-  changeAssignee(assignee: User | null): void {
-    if (!this.task() || !assignee) return;
-    this.task.update((task) => {
-      if (!task) return task;
-      task.assignee = assignee;
-      return task;
-    });
   }
 }

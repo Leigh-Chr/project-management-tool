@@ -1,17 +1,25 @@
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  output,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import type { PostProjectRequest } from '@app/shared/models/project.models';
+import { StatusService } from '@app/shared/services/data/status.service';
+import { map } from 'rxjs';
+import { ProjectService } from '../../services/data/project.service';
+import { InputFieldComponent } from '../ui/input-field.component';
+import { PopupComponent } from '../ui/popup.component';
+import { SelectFieldComponent } from '../ui/select-field.component';
 import {
   FormBuilder,
   FormControl,
-  FormGroup,
+  type FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { InputFieldComponent } from '../ui/input-field.component';
-import { PopupComponent } from '../ui/popup.component';
-import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
-import { ProjectService } from '../../services/data/project.service';
-import { AddProjectRequest } from '../../models/Projects/AddProjectRequest';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'pmt-add-project-popup',
@@ -19,83 +27,131 @@ import { TranslatorPipe } from '../../i18n/translator.pipe';
     ReactiveFormsModule,
     InputFieldComponent,
     PopupComponent,
-    TranslatorPipe,
+    SelectFieldComponent,
   ],
-  providers: [TranslatorPipe],
   template: `
     <ui-popup
-      [title]="'project.addNewProject' | translate"
+      id="add-project-popup"
+      popupTitle="Add New Project"
       [isSubmitDisabled]="projectForm.invalid"
-      [submitLabel]="'project.addProject' | translate"
-      [cancelLabel]="'project.cancel' | translate"
+      submitLabel="Add Project"
+      cancelLabel="Cancel"
       (onSubmit)="submit()"
-      (onClose)="close()"
+      (onClose)="this.onClose.emit()"
     >
-      <form [formGroup]="projectForm" class="add-project-popup__form" novalidate>
+      <form
+        [formGroup]="projectForm"
+        class="add-project-popup__form"
+        novalidate
+      >
         <ui-input-field
           [control]="name"
           id="name"
-          [label]="'project.name' | translate"
+          label="Name"
           type="text"
-          [errorMessage]="'project.nameRequired' | translate"
+          [errorMessage]="'Name is required'"
         />
         <ui-input-field
           [control]="description"
           id="description"
-          [label]="'project.description' | translate"
+          label="Description"
           type="text"
         />
         <ui-input-field
           [control]="startDate"
           id="startDate"
-          [label]="'project.startDate' | translate"
+          label="Start Date"
           type="date"
-          [errorMessage]="'project.startDateRequired' | translate"
+          [errorMessage]="'Start Date is required'"
+        />
+        <ui-input-field
+          [control]="endDate"
+          id="endDate"
+          label="End Date"
+          type="date"
+        />
+        <ui-select-field
+          [control]="status"
+          id="status"
+          label="Status"
+          [options]="statusOptions()"
+          [errorMessage]="'Status is required'"
         />
       </form>
     </ui-popup>
   `,
-  styles: [`
-    .add-project-popup__form {
-      display: grid;
-      gap: var(--space-4);
-      padding: var(--space-4);
-    }
-  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddProjectPopupComponent {
   private readonly projectService = inject(ProjectService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly statusService = inject(StatusService);
 
-  projectForm: FormGroup = this.formBuilder.group({
-    name: ['', [Validators.required]],
-    description: [''],
-    startDate: [new Date().toISOString().split('T')[0], [Validators.required]],
+  onClose = output<void>();
+
+  statusOptions = toSignal(
+    this.statusService.getStatuses().pipe(
+      map((statuses) =>
+        statuses.map((status) => ({
+          value: status.id,
+          label: status.name,
+        }))
+      )
+    ),
+    {
+      initialValue: [],
+    }
+  );
+
+  readonly projectForm: FormGroup = this.formBuilder.group({
+    name: new FormControl<string>('', [Validators.required]),
+    description: new FormControl<string>(''),
+    startDate: new FormControl<string | undefined>(undefined),
+    endDate: new FormControl<string | undefined>(undefined),
+    status: new FormControl<string | undefined>(undefined, [
+      Validators.required,
+    ]),
   });
 
-  name = this.projectForm.get('name') as FormControl<string>;
-  description = this.projectForm.get('description') as FormControl<string>;
-  startDate = this.projectForm.get('startDate') as FormControl<string>;
+  readonly name = this.projectForm.get('name') as FormControl<string>;
+  readonly description = this.projectForm.get(
+    'description'
+  ) as FormControl<string>;
+  readonly startDate = this.projectForm.get('startDate') as FormControl<
+    string | undefined
+  >;
+  readonly endDate = this.projectForm.get('endDate') as FormControl<
+    string | undefined
+  >;
+  readonly status = this.projectForm.get('status') as FormControl<
+    string | undefined
+  >;
 
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onSubmit = new EventEmitter<GetProjectResponse | null>();
+  constructor() {
+    this.projectForm.reset();
+    effect(() => {
+      const postedProject = this.projectService.postedProject();
+      if (!postedProject) return;
+      this.onClose.emit();
+    });
+  }
 
   async submit(): Promise<void> {
     if (!this.projectForm.valid) return;
 
-    const newProject: AddProjectRequest = {
+    const statusId = Number.parseInt(this.status.value || '');
+    if (Number.isNaN(statusId)) return;
+
+    const newProject: PostProjectRequest = {
       name: this.name.value,
       description: this.description.value || undefined,
-      startDate: new Date(this.startDate.value),
-      endDate: undefined,
+      startDate: this.startDate.value
+        ? new Date(this.startDate.value)
+        : undefined,
+      endDate: this.endDate.value ? new Date(this.endDate.value) : undefined,
+      statusId,
     };
 
-    const project = await this.projectService.addProject(newProject);
-    this.onSubmit.emit(project);
-    this.close();
-  }
-
-  close(): void {
-    this.onClose.emit();
+    this.projectService.postProject(newProject);
   }
 }

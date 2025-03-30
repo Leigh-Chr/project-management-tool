@@ -1,115 +1,114 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { GetUserResponse } from '../../models/GetUserResponse';
-import { ProjectMemberService } from '../../services/data/project-member.service';
-import { UserService } from '../../services/data/user.service';
+import {
+  Component,
+  Injector,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import type { ProjectMember } from '@app/shared/models/project.models';
+import { ProjectService } from '@app/shared/services/data/project.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
-import { GetProjectMemberResponse } from '../../models/Projects/GetProjectMemberResponse';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
 
 @Component({
   selector: 'pmt-delete-project-member-popup',
-  imports: [PopupComponent, TranslatorPipe],
-  providers: [TranslatorPipe],
+  imports: [PopupComponent],
   template: `
-    @if (user) {
+    @if (projectMember(); as projectMember) {
     <ui-popup
-      title="{{ 'project.deleteMemberTitle' | translate }} - {{
-        user.username
-      }}"
-      submitLabel="{{ 'project.deleteMember' | translate }}"
-      cancelLabel="{{ 'project.cancel' | translate }}"
-      submitVariant="danger"
-      (onSubmit)="deleteMember()"
-      (onClose)="close()"
-      id="delete-project-member-popup"
+      popupTitle="Delete Member - {{ projectMember.user }}"
+      (onSubmit)="deleteProjectMember()"
+      (onClose)="onClose.emit()"
     >
-      <p 
-        class="delete-project-member-popup__message"
-        role="alert"
-        aria-live="polite"
-      >
-        {{ 'project.confirmDeleteMember' | translate }}
+      <p>
+        Are you sure you want to delete this member? This action cannot be
+        undone.
       </p>
+
+      <ul class="list">
+        <li><b>Name:</b> {{ projectMember.user }}</li>
+        <li><b>Role:</b> {{ projectMember.role }}</li>
+        <li><b>Project:</b> {{ projectMember.project }}</li>
+      </ul>
     </ui-popup>
     } @else {
     <ui-popup
-      title="{{ 'project.deleteMemberTitle' | translate }}"
+      popupTitle="Delete Member"
       [isSubmitDisabled]="true"
-      id="delete-project-member-popup-loading"
+      submitLabel="Submit"
+      cancelLabel="Cancel"
     >
-      <p 
+      <p
         class="delete-project-member-popup__message"
         role="status"
         aria-live="polite"
       >
-        {{ 'project.loading' | translate }}
+        Loading...
       </p>
     </ui-popup>
     }
   `,
-  styles: [`
-    .delete-project-member-popup__message {
-      margin-bottom: var(--space-4);
-      color: var(--text-color);
-      font-size: var(--font-size-base);
-    }
-  `],
 })
 export class DeleteProjectMemberPopupComponent {
   private readonly toastService = inject(ToastService);
-  private readonly projectMemberService = inject(ProjectMemberService);
-  private readonly userService = inject(UserService);
-  private readonly translator = inject(TranslatorPipe);
+  private readonly projectService = inject(ProjectService);
+  private readonly injector = inject(Injector);
 
-  @Input({ required: true }) projectMemberIds!: {
-    projectId: number;
-    userId: number;
-  };
-  projectMember: GetProjectMemberResponse | null = null;
-  user: GetUserResponse | null = null;
+  readonly projectMemberId = input.required<number>();
+  projectMember = signal<ProjectMember | undefined>(undefined).asReadonly();
 
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onDeleteMember = new EventEmitter<GetProjectMemberResponse | null>();
+  onClose = output<void>();
+
+  constructor() {
+    effect(() => {
+      const projectMember = this.projectMember();
+      if (!projectMember) {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Project member not found',
+          type: 'error',
+        });
+        this.onClose.emit();
+        return;
+      }
+    });
+
+    effect(() => {
+      const deleteProjectMember = this.projectService.deletedProjectMember();
+      if (!deleteProjectMember) return;
+
+      untracked(() => {
+        this.toastService.showToast({
+          title: 'Success',
+          message: 'Project member deleted',
+          type: 'success',
+        });
+        this.onClose.emit();
+      });
+    });
+  }
 
   async ngOnInit(): Promise<void> {
-    this.projectMember = await this.getProjectMember();
-    this.user = await this.getUser();
-    if (!this.projectMember || !this.user) {
-      this.toastService.showToast(
-        {
-          title: this.translator.transform('project.errorTitle'),
-          message: this.translator.transform('project.memberNotFoundMessage'),
-          duration: 5000,
-          type: 'error',
-        },
-        'root'
-      );
-      this.close();
+    this.projectMember = toSignal(
+      this.projectService.getProjectMember(this.projectMemberId()),
+      { injector: this.injector }
+    );
+
+    if (!this.projectMemberId()) {
+      this.toastService.showToast({
+        title: 'Error',
+        message: 'Project member not found',
+        type: 'error',
+      });
+      this.onClose.emit();
     }
   }
 
-  async getProjectMember(): Promise<GetProjectMemberResponse | null> {
-    return this.projectMemberService.getProjectMember(
-      this.projectMemberIds.projectId,
-      this.projectMemberIds.userId
-    );
-  }
-
-  async getUser(): Promise<GetUserResponse | null> {
-    return this.userService.getUser(this.projectMemberIds.userId);
-  }
-
-  deleteMember(): void {
-    this.projectMemberService.deleteProjectMember(
-      this.projectMemberIds.projectId,
-      this.projectMemberIds.userId
-    );
-    this.onDeleteMember.emit(this.projectMember);
-    this.close();
-  }
-
-  close(): void {
-    this.onClose.emit();
+  deleteProjectMember(): void {
+    this.projectService.deleteProjectMember(this.projectMemberId());
   }
 }

@@ -19,12 +19,13 @@ export interface ProjectEntity {
   id: number;
   name: string;
   description?: string;
-  startDate: Date;
+  startDate?: Date;
   endDate?: Date;
   statusId: StatusEntity['id'];
 }
 
 export interface ProjectMemberEntity {
+  id: number;
   projectId: ProjectEntity['id'];
   userId: UserEntity['id'];
   roleId: RoleEntity['id'];
@@ -35,16 +36,15 @@ export interface TaskEntity {
   projectId: ProjectEntity['id'];
   name: string;
   description?: string;
-  dueDate: Date;
-  priority: number;
-  assigneeId: ProjectMemberEntity['userId'];
+  dueDate?: Date;
+  priority?: number;
+  assigneeId?: ProjectMemberEntity['userId'];
   statusId: StatusEntity['id'];
 }
 
-export interface TaskHistoryEntity {
+export interface TaskEventEntity {
   id: number;
   taskId: TaskEntity['id'];
-  name: string;
   description?: string;
   date: Date;
 }

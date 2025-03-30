@@ -1,310 +1,239 @@
-import { inject, Injectable } from '@angular/core';
-import { AddProjectRequest } from '../../../models/Projects/AddProjectRequest';
-import {
+import { Injectable, inject } from '@angular/core';
+import type {
+  DeleteProjectResponse,
   GetProjectDetailsResponse,
-  ProjectDetailsPermissions,
-} from '../../../models/Projects/GetProjectDetailsResponse';
-import { GetProjectMemberResponse } from '../../../models/Projects/GetProjectMemberResponse';
-import { GetProjectResponse } from '../../../models/Projects/GetProjectResponse';
-import { GetProjectSummaryResponse } from '../../../models/Projects/GetProjectSummaryResponse';
-import { AuthService } from '../../auth.service';
+  GetProjectResponse,
+  GetProjectsResponse,
+  PostProjectRequest,
+  PostProjectResponse,
+} from '@app/shared/models/project.models';
+import type { Observable } from 'rxjs';
+import { of } from 'rxjs';
+import type { ProjectEntity } from '../../../models/entities';
 import { DatabaseMockService } from '../database/database.service';
-import {
-  ProjectEntity,
-  ProjectMemberEntity,
-  TaskEntity
-} from '../database/entities';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectController {
   private readonly database = inject(DatabaseMockService);
   private readonly authService = inject(AuthService);
 
-  async getProjectDetails(
-    projectId: number
-  ): Promise<GetProjectDetailsResponse | null> {
-    const userId = this.authService.authUser()?.id;
-    if (!userId) return null;
-    const projectEntity = this.database.projects.find((p) => p.id === projectId);
-    if (!projectEntity) {
-      return null;
-    }
+  getProject(projectId: number): Observable<GetProjectResponse | undefined> {
+    const myRole = this.authService.getRole(projectId);
 
-    const projectMembersEntities = this.database.projectMembers.filter(
-      (pm) => pm.projectId === projectId
-    );
-
-    const userIds = projectMembersEntities.map((pm) => pm.userId);
-    const roleIds = projectMembersEntities.map((pm) => pm.roleId);
-
-    const usersEntities = this.database.users.filter((user) =>
-      userIds.includes(user.id)
-    );
-
-    const rolesEntities = this.database.roles.filter((role) =>
-      roleIds.includes(role.id)
-    );
-
-    const tasksEntities = this.database.tasks.filter(
-      (task) => task.projectId === projectId
-    );
-
-    const defaultStatusEntity = this.database.statuses[0];
-    const taskStatusEntity = this.database.statuses.find(
-      (status) => status.id === tasksEntities[0].statusId
-    ) ?? defaultStatusEntity;
-
-    const projectStatusEntity =
-      this.database.statuses.find(
-        (status) => status.id === projectEntity.statusId
-      ) ?? defaultStatusEntity;
-
-    const isAdmin = await this.isAdmin(projectEntity.id, userId);
-
-    const permissions: ProjectDetailsPermissions = {
-      deleteProject: isAdmin,
-      addMember: isAdmin,
-      deleteMember: isAdmin,
-      addTask: isAdmin,
-      deleteTask: isAdmin,
-      assignTask: isAdmin,
-      assignMember: isAdmin,
-    };
-
-    return {
-      id: projectEntity.id,
-      name: projectEntity.name,
-      description: projectEntity.description,
-      startDate: projectEntity.startDate,
-      endDate: projectEntity.endDate,
-      status: {
-        id: projectStatusEntity.id,
-        name: projectStatusEntity.name,
-      },
-      projectMembers: projectMembersEntities.map((pm) => ({
-        projectId: pm.projectId,
-        user: usersEntities.find((user) => user.id === pm.userId)!,
-        role: rolesEntities.find((role) => role.id === pm.roleId)!,
-      })),
-      tasks: tasksEntities.map((task) => ({
-        id: task.id,
-        name: task.name,
-        description: task.description,
-        dueDate: task.dueDate,
-        priority: task.priority,
-        assigneeId: task.assigneeId,
-        status: {
-          id: taskStatusEntity.id,
-          name: taskStatusEntity.name,
-        },
-      })),
-      permissions,
-    };
-  }
-
-  async getProjectSummaries(
-    assignedOnly: boolean = false
-  ): Promise<GetProjectSummaryResponse[]> {
-    const userId = this.authService.authUser()?.id;
-    if (!userId) return [];
-    let projectEntities = this.database.projects;
-
-    if (assignedOnly) {
-      const userProjectIds = this.database.projectMembers
-        .filter((pm) => pm.userId === userId)
-        .map((pm) => pm.projectId);
-      projectEntities = projectEntities.filter((project) =>
-        userProjectIds.includes(project.id)
-      );
-    }
-
-    const statusEntities = this.database.statuses;
-
-    const projectSummaries = await Promise.all(
-      projectEntities.map(async (project) => {
-        const statusEntity =
-          statusEntities.find((status) => status.id === project.statusId)
-        const memberCount = this.database.projectMembers.filter(
-          (pm) => pm.projectId === project.id
-        ).length;
-
-        const permissions = {
-          deleteProject: await this.isAdmin(project.id, userId),
-        };
-
-        return {
-          id: project.id,
-          name: project.name,
-          description: project.description,
-          startDate: project.startDate,
-          endDate: project.endDate,
-          status: statusEntity,
-          memberCount,
-          permissions,
-        };
-      })
-    );
-
-    return projectSummaries;
-  }
-
-  async getProjectSummary(
-    projectId: number
-  ): Promise<GetProjectSummaryResponse | null> {
-    const userId = this.authService.authUser()?.id;
-    if (!userId) return null;
-
-    const projectEntity = this.database.projects.find((p) => p.id === projectId);
-    if (!projectEntity) {
-      return null;
-    }
-
-    const statusEntity = this.database.statuses.find(
-      (status) => status.id === projectEntity.statusId
-    );
-
-    const permissions = {
-      deleteProject: await this.isAdmin(projectEntity.id, userId),
-    };
-
-    return {
-      id: projectEntity.id,
-      name: projectEntity.name,
-      description: projectEntity.description,
-      startDate: projectEntity.startDate,
-      endDate: projectEntity.endDate,
-      status: statusEntity,
-      permissions,
-    };
-  }
-
-  async getProject(projectId: number): Promise<GetProjectResponse | null> {
-    const projectEntity = this.database.projects.find((p) => p.id === projectId);
-    if (!projectEntity) return null;
-
-    return {
-      id: projectEntity.id,
-      name: projectEntity.name,
-      description: projectEntity.description,
-      startDate: projectEntity.startDate,
-      endDate: projectEntity.endDate,
-      statusId: projectEntity.statusId,
-    };
-  }
-
-  async deleteProject(projectId: number): Promise<GetProjectResponse | null> {
-    const projectEntity: ProjectEntity | undefined = this.database.projects.find(
+    const projectEntity = this.database.projects.find(
       (p) => p.id === projectId
     );
-    if (!projectEntity) return null;
+    if (!projectEntity) return of(undefined);
+    const statusEntity = this.database.statuses.find(
+      (s) => s.id === projectEntity.statusId
+    );
+    if (!statusEntity) return of(undefined);
 
-    const canDelete = await this.isAdmin(projectId, this.authService.authUser()!.id);
-    if (!canDelete) return null;
+    const project: GetProjectResponse = {
+      ...projectEntity,
+      status: statusEntity.name,
+      myRole: myRole,
+    };
 
-    this.database.projects.splice(this.database.projects.indexOf(projectEntity), 1);
+    return of(project);
+  }
+
+  getProjects(): Observable<GetProjectsResponse> {
+    return of(
+      this.database.projects
+        .map((p) => {
+          const myRole = this.authService.getRole(p.id);
+
+          const statusEntity = this.database.statuses.find(
+            (s) => s.id === p.statusId
+          );
+
+          if (!statusEntity) return null;
+
+          return {
+            ...p,
+            status: statusEntity.name,
+            myRole: myRole,
+          };
+        })
+        .filter(
+          (project): project is NonNullable<typeof project> => project !== null
+        )
+    );
+  }
+
+  deleteProject(
+    projectId: number
+  ): Observable<DeleteProjectResponse | undefined> {
+    const myRole = this.authService.getRole(projectId);
+    if (myRole !== 'Admin') return of(undefined);
+
+    const projectEntity = this.database.projects.find(
+      (p) => p.id === projectId
+    );
+    if (!projectEntity) return of(undefined);
+
+    this.database.projects.splice(
+      this.database.projects.indexOf(projectEntity),
+      1
+    );
+
     const projectMembers = this.database.projectMembers.filter(
       (pm) => pm.projectId === projectId
     );
-    projectMembers.forEach((pm) => {
+    for (const pm of projectMembers) {
       this.database.projectMembers.splice(
         this.database.projectMembers.indexOf(pm),
         1
       );
-    });
+    }
+
     const taskIds = this.database.tasks
       .filter((t) => t.projectId === projectId)
       .map((t) => t.id);
-    taskIds.forEach((taskId) => {
-      this.database.tasks.splice(
-        this.database.tasks.indexOf(this.database.tasks.find((t): t is TaskEntity => t.id === taskId)!),
-        1
+
+    for (const taskId of taskIds) {
+      const task = this.database.tasks.find((t) => t.id === taskId);
+      if (task) {
+        this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
+      }
+      const historyIndex = this.database.taskHistory.findIndex(
+        (th) => th.taskId === taskId
       );
-      this.database.taskHistory.splice(
-        this.database.taskHistory.findIndex((th) => th.taskId === taskId),
-        1
-      );
+      if (historyIndex !== -1) {
+        this.database.taskHistory.splice(historyIndex, 1);
+      }
     }
+
+    const status = this.database.statuses.find(
+      (s) => s.id === projectEntity.statusId
     );
 
-    return {
+    if (!status) return of(undefined);
+
+    return of({
       id: projectEntity.id,
       name: projectEntity.name,
       description: projectEntity.description,
-      startDate: projectEntity.startDate,
-      endDate: projectEntity.endDate,
-      statusId: projectEntity.statusId,
-    }
+      status: status.name,
+    });
   }
 
-  async addProject(
-    project: AddProjectRequest
-  ): Promise<GetProjectResponse | null> {
-    const userId = this.authService.authUser()?.id;
-    if (!userId) return null;
+  postProject(
+    project: PostProjectRequest
+  ): Observable<PostProjectResponse | undefined> {
+    const userId = this.authService.getUserId();
+    if (!userId) return of(undefined);
 
     const projectEntity: ProjectEntity = {
       id: this.database.projects.length + 1,
       name: project.name,
       description: project.description,
       startDate: project.startDate,
-      statusId: 1,
+      statusId: project.statusId,
     };
 
     this.database.projects.push(projectEntity);
 
-    const projectMemberEntity: ProjectMemberEntity = {
+    const status = this.database.statuses.find(
+      (s) => s.id === projectEntity.statusId
+    );
+    if (!status) return of(undefined);
+
+    const role = this.database.roles.find((r) => r.name === 'Admin');
+    if (!role) return of(undefined);
+
+    this.database.projectMembers.push({
+      id: this.database.projectMembers.length + 1,
       projectId: projectEntity.id,
-      userId,
-      roleId: 1,
-    };
+      userId: userId,
+      roleId: role.id,
+    });
 
-    this.database.projectMembers.push(projectMemberEntity);
+    return of({
+      id: projectEntity.id,
+      name: projectEntity.name,
+      description: projectEntity.description,
+      status: status.name,
+      myRole: role.name,
+    });
+  }
 
-    return {
+  getProjectDetails(
+    projectId: number
+  ): Observable<GetProjectDetailsResponse | undefined> {
+    const projectEntity = this.database.projects.find(
+      (p) => p.id === projectId
+    );
+    if (!projectEntity) return of(undefined);
+
+    const statusEntity = this.database.statuses.find(
+      (s) => s.id === projectEntity.statusId
+    );
+    if (!statusEntity) return of(undefined);
+
+    const projectMembers = this.database.projectMembers
+      .filter((pm) => pm.projectId === projectId)
+      .map((pm) => {
+        const user = this.database.users.find((u) => u.id === pm.userId);
+        const role = this.database.roles.find((r) => r.id === pm.roleId);
+        if (!user || !role) return null;
+        return {
+          id: pm.id,
+          user: user.username,
+          role: role.name,
+        };
+      })
+      .filter(
+        (member): member is NonNullable<typeof member> => member !== null
+      );
+
+    const tasks = this.database.tasks.filter((t) => t.projectId === projectId);
+
+    const myRole = this.authService.getRole(projectId);
+
+    const projectDetails: GetProjectDetailsResponse = {
       id: projectEntity.id,
       name: projectEntity.name,
       description: projectEntity.description,
       startDate: projectEntity.startDate,
       endDate: projectEntity.endDate,
-      statusId: projectEntity.statusId,
+      status: statusEntity.name,
+      projectMembers: projectMembers.map((pm) => ({
+        id: pm.id,
+        project: projectEntity.name,
+        user: pm.user,
+        role: pm.role,
+      })),
+      tasks: tasks
+        .map((t) => {
+          const assignee = this.database.users.find(
+            (u) => u.id === t.assigneeId
+          );
+          const status = this.database.statuses.find(
+            (s) => s.id === t.statusId
+          );
+          if (!status) return null;
+          return {
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            status: status.name,
+            project: {
+              id: projectEntity.id,
+              name: projectEntity.name,
+              description: projectEntity.description,
+              status: status.name,
+            },
+            assignee: assignee?.username,
+            priority: t.priority,
+          };
+        })
+        .filter((task): task is NonNullable<typeof task> => task !== null),
+      myRole: myRole,
     };
-  }
 
-  async isMember(projectId: number, userId: number): Promise<boolean> {
-    const res = this.database.projectMembers.some(
-      (pm) => pm.projectId === projectId && pm.userId === userId
-    );
-    return res;
-  }
-
-  async isAdmin(projectId: number, userId: number): Promise<boolean> {
-    return this.database.projectMembers.some((pm) => {
-      return (
-        pm.projectId === projectId && pm.userId === userId && pm.roleId === 1
-      );
-    });
-  }
-
-  async addProjectMember(
-    projectId: number,
-    userId: number,
-    roleId: number
-  ): Promise<GetProjectMemberResponse | null> {
-    const canAdd = await this.isAdmin(projectId, this.authService.authUser()!.id);
-    if (!canAdd) return null;
-
-    const projectMemberEntity: ProjectMemberEntity = {
-      projectId,
-      userId,
-      roleId,
-    };
-
-    this.database.projectMembers.push(projectMemberEntity);
-
-    return {
-      projectId: projectMemberEntity.projectId,
-      userId: projectMemberEntity.userId,
-      roleId: projectMemberEntity.roleId,
-    };
+    return of(projectDetails);
   }
 }

@@ -1,199 +1,134 @@
-import { inject, Injectable } from '@angular/core';
-import { GetUserResponse } from '../../../models/GetUserResponse';
-import { AddTaskRequest } from '../../../models/Tasks/AddTaskRequest';
-import { GetTaskDetailsResponse } from '../../../models/Tasks/GetTaskDetailsResponse';
-import { GetTaskEventResponse } from '../../../models/Tasks/GetTaskEventResponse';
-import { GetTaskResponse } from '../../../models/Tasks/GetTaskResponse';
-import { GetTaskSummaryResponse } from '../../../models/Tasks/GetTaskSummaryResponse';
-import { AuthService } from '../../auth.service';
+import { Injectable, inject } from '@angular/core';
+import { type Observable, of } from 'rxjs';
+import type { TaskEntity, TaskEventEntity } from '../../../models/entities';
+import type {
+  DeleteTaskResponse,
+  GetTaskDetailsResponse,
+  GetTaskResponse,
+  GetTasksResponse,
+  PostTaskRequest,
+  PostTaskResponse,
+} from '../../../models/task.models';
 import { DatabaseMockService } from '../database/database.service';
-import {
-  TaskEntity
-} from '../database/entities';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class TaskController {
   private readonly database = inject(DatabaseMockService);
   private readonly authService = inject(AuthService);
 
-  async getTaskDetails(taskId: number): Promise<GetTaskDetailsResponse | null> {
+  getTask(taskId: number): Observable<GetTaskResponse | undefined> {
     const taskEntity = this.database.tasks.find((t) => t.id === taskId);
-    if (!taskEntity) return null;
+    if (!taskEntity) return of(undefined);
 
-    const assigneeEntity = this.database.users.find(
-      (u) => u.id === taskEntity.assigneeId
-    )!;
-
-    const defaultStatusEntity = this.database.statuses[0];
-    const taskStatusEntity = this.database.statuses.find(
-      (s) => s.id === taskEntity.statusId
-    ) ?? defaultStatusEntity;
-
-    const projectEntity = this.database.projects.find(
-      (p) => p.id === taskEntity.projectId
-    );
-
-    if (!projectEntity) return null;
-
-    const projectStatusEntity = this.database.statuses.find(
-      (s) => s.id === projectEntity.statusId
-    );
-
-    const taskHistoryEntities = this.database.taskHistory.filter(
-      (th) => th.taskId === taskId
-    );
-
-    const isAdmin = this.isAdmin(taskId, this.authService.authUser()!.id);
-    const permissions = {
-      editTask: isAdmin,
-    };
-
-    return {
-      id: taskEntity.id,
-      name: taskEntity.name,
-      description: taskEntity.description,
-      dueDate: taskEntity.dueDate,
-      priority: taskEntity.priority,
-      assignee: {
-        id: assigneeEntity.id,
-        username: assigneeEntity.username,
-        email: assigneeEntity.email,
-      },
-      status: {
-        id: taskStatusEntity.id,
-        name: taskStatusEntity.name,
-      },
-      project: {
-        id: projectEntity.id,
-        name: projectEntity.name,
-        description: projectEntity.description,
-        startDate: projectEntity.startDate,
-        endDate: projectEntity.endDate,
-        status: projectStatusEntity,
-      },
-      taskHistory: taskHistoryEntities.map((th) => ({
-        id: th.id,
-        name: th.name,
-        description: th.description,
-        date: th.date,
-      })),
-      permissions,
-    };
-  }
-
-  async getTaskSummaries(
-    assignedOnly: boolean = false
-  ): Promise<GetTaskSummaryResponse[]> {
-    const userId = this.authService.authUser()?.id;
-    if (!userId) return [];
-    let taskEntities = this.database.tasks;
-
-    if (assignedOnly) {
-      const userTaskIds = this.database.tasks
-        .filter((task) => task.assigneeId === userId)
-        .map((task) => task.id);
-
-      taskEntities = this.database.tasks.filter((task) =>
-        userTaskIds.includes(task.id)
-      );
-    }
-
-    const statusEntities = this.database.statuses;
-
-    const taskSummaries =
-      taskEntities.filter((task) => this.database.projects.some(
-        (p) => p.id === task.projectId
-
-      )).
-        map((task) => {
-          const project = this.database.projects.find(
-            (p) => p.id === task.projectId
-          )!;
-
-          const status =
-            statusEntities.find((status) => status.id === task.statusId);
-
-          const permissions = {
-            deleteTask: this.isAdmin(task.id, userId),
-          };
-
-          return {
-            id: task.id,
-            name: task.name,
-            description: task.description,
-            dueDate: task.dueDate,
-            priority: task.priority,
-            status,
-            project,
-            permissions,
-          };
-        })
-
-    return taskSummaries;
-  }
-
-  async getTaskSummary(taskId: number): Promise<GetTaskSummaryResponse | null> {
-    const userId = this.authService.authUser()?.id;
-    if (!userId) return null;
-
-    const taskEntity = this.database.tasks.find((t) => t.id === taskId);
-    if (!taskEntity) return null;
-
-    const statusEntities = this.database.statuses.find(
+    const status = this.database.statuses.find(
       (s) => s.id === taskEntity.statusId
     );
-
-    const permissions = {
-      deleteTask: this.isAdmin(taskEntity.id, userId),
-    };
+    if (!status) return of(undefined);
 
     const project = this.database.projects.find(
       (p) => p.id === taskEntity.projectId
     );
-    if (!project) return null;
+    if (!project) return of(undefined);
 
-    return {
+    return of({
       id: taskEntity.id,
       name: taskEntity.name,
       description: taskEntity.description,
       dueDate: taskEntity.dueDate,
       priority: taskEntity.priority,
-      status: statusEntities,
-      project,
-      permissions,
-    };
+      status: status.name,
+      project: {
+        id: project.id,
+        name: project.name,
+        description: project.description,
+        status: status.name,
+      },
+    });
   }
 
-  async getTask(taskId: number): Promise<GetTaskResponse | null> {
-    const taskEntity = this.database.tasks.find((t) => t.id === taskId);
-    if (!taskEntity) return null;
+  getTasks(): Observable<GetTasksResponse> {
+    return of(
+      this.database.tasks
+        .map((t) => {
+          const status = this.database.statuses.find(
+            (s) => s.id === t.statusId
+          );
+          if (!status) return null;
 
-    const canView = this.database.projectMembers.some(
-      (pm) =>
-        pm.projectId === taskEntity.projectId &&
-        pm.userId === this.authService.authUser()!.id
+          const project = this.database.projects.find(
+            (p) => p.id === t.projectId
+          );
+          if (!project) return null;
+
+          const assignee = this.database.users.find(
+            (u) => u.id === t.assigneeId
+          );
+          if (!assignee) return null;
+
+          return {
+            id: t.id,
+            name: t.name,
+            description: t.description,
+            dueDate: t.dueDate,
+            priority: t.priority,
+            status: status.name,
+            project: {
+              id: project.id,
+              name: project.name,
+              description: project.description,
+              status: status.name,
+            },
+            assignee: assignee.username,
+          };
+        })
+        .filter((t): t is NonNullable<typeof t> => t !== null)
     );
-    if (!canView) return null;
-
-    return {
-      id: taskEntity.id,
-      name: taskEntity.name,
-      description: taskEntity.description,
-      dueDate: taskEntity.dueDate,
-      priority: taskEntity.priority,
-      statusId: taskEntity.statusId,
-      assigneeId: taskEntity.assigneeId,
-      projectId: taskEntity.projectId,
-    };
   }
 
-  async deleteTask(taskId: number): Promise<GetTaskResponse | null> {
-    const task: GetTaskResponse | null =
-      this.database.tasks.find((t) => t.id === taskId) ?? null;
-    if (!task) return null;
+  getTaskDetails(
+    taskId: number
+  ): Observable<GetTaskDetailsResponse | undefined> {
+    const myRole = this.authService.getRole(taskId);
 
-    const canDelete = this.isAdmin(taskId, this.authService.authUser()!.id);
-    if (!canDelete) return null;
+    const task = this.database.tasks.find((t) => t.id === taskId);
+    if (!task) return of(undefined);
+
+    const status = this.database.statuses.find((s) => s.id === task.statusId);
+    if (!status) return of(undefined);
+
+    const projectEntity = this.database.projects.find(
+      (p) => p.id === task.projectId
+    );
+    if (!projectEntity) return of(undefined);
+
+    const assignee = this.database.users.find((u) => u.id === task.assigneeId);
+    if (!assignee) return of(undefined);
+
+    return of({
+      id: task.id,
+      name: task.name,
+      description: task.description,
+      status: status.name,
+      project: {
+        id: projectEntity.id,
+        name: projectEntity.name,
+        description: projectEntity.description,
+        status: status.name,
+      },
+      assignee: assignee.username,
+      priority: task.priority,
+      myRole: myRole,
+    });
+  }
+
+  deleteTask(taskId: number): Observable<DeleteTaskResponse | undefined> {
+    const task: TaskEntity | null =
+      this.database.tasks.find((t) => t.id === taskId) ?? null;
+    if (!task) return of(undefined);
+
+    const myRole = this.authService.getRole(task.projectId);
+    if (myRole !== 'Admin') return of(undefined);
 
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
     this.database.taskHistory.splice(
@@ -201,51 +136,70 @@ export class TaskController {
       1
     );
 
-    return task;
-  }
+    const status = this.database.statuses.find((s) => s.id === task.statusId);
+    if (!status) return of(undefined);
 
-  async addTask(task: AddTaskRequest): Promise<GetTaskResponse | null> {
-    const userId = this.authService.authUser()!.id;
-    const canAdd = this.database.projectMembers.some(
-      (pm) =>
-        pm.projectId === task.projectId &&
-        pm.userId === userId
-    );
-    if (!canAdd) return null;
-
-    const doesProjectExist = this.database.projects.some(
+    const projectEntity = this.database.projects.find(
       (p) => p.id === task.projectId
     );
-    if (!doesProjectExist) return null;
-    const doesAssigneeExist = this.database.users.some(
-      (u) => u.id === task.assigneeId
-    );
-    if (!doesAssigneeExist) return null;
+    if (!projectEntity) return of(undefined);
+
+    return of({
+      id: task.id,
+      name: task.name,
+      description: task.description,
+      status: status.name,
+      project: {
+        id: projectEntity.id,
+        name: projectEntity.name,
+        description: projectEntity.description,
+        status: status.name,
+      },
+      myRole: myRole,
+    });
+  }
+
+  addTask(task: PostTaskRequest): Observable<PostTaskResponse | undefined> {
+    const myRole = this.authService.getRole(task.projectId);
+    if (myRole !== 'Admin') return of(undefined);
+
+    const defaultStatus = this.database.statuses[0];
 
     const taskEntity: TaskEntity = {
       id: this.database.tasks.length + 1,
       ...task,
-      statusId: 1,
+      statusId: defaultStatus.id,
     };
-
     this.database.tasks.push(taskEntity);
-    return taskEntity;
-  }
 
-  isAdmin(taskId: number, userId: number): boolean {
-    const projectId = this.database.tasks.find(
-      (t) => t.id === taskId
-    )?.projectId;
-
-    return this.database.projectMembers.some(
-      (pm) =>
-        pm.projectId === projectId && pm.userId === userId && pm.roleId === 1
+    const status = this.database.statuses.find(
+      (s) => s.id === taskEntity.statusId
     );
+    if (!status) return of(undefined);
+
+    const projectEntity = this.database.projects.find(
+      (p) => p.id === taskEntity.projectId
+    );
+    if (!projectEntity) return of(undefined);
+
+    return of({
+      id: taskEntity.id,
+      name: taskEntity.name,
+      description: taskEntity.description,
+      status: status.name,
+      project: {
+        id: projectEntity.id,
+        name: projectEntity.name,
+        description: projectEntity.description,
+        status: status.name,
+      },
+    });
   }
 
-  async getTaskHistory(): Promise<GetTaskEventResponse[]> {
-    const userId = this.authService.authUser()?.id;
-    if (!userId) return [];
+  getTaskHistory(): Observable<TaskEventEntity[]> {
+    // const userId = this.authService.authUser()?.id;
+    const userId = 0; //TODO: remove this
+    if (!userId) return of([]);
 
     const taskIds = this.database.tasks
       .filter((task) => task.assigneeId === userId)
@@ -255,24 +209,13 @@ export class TaskController {
       taskIds.includes(th.taskId)
     );
 
-    return taskHistoryEntities.map((th) => ({
-      id: th.id,
-      taskId: th.taskId,
-      name: th.name,
-      description: th.description,
-      date: th.date,
-    }));
-  }
-
-  async changeAssignee(taskId: number, newAssigneeId: number): Promise<GetUserResponse | null> {
-    const taskEntity = this.database.tasks.find((t) => t.id === taskId);
-    if (!taskEntity) return null;
-
-    const newAssignee = this.database.users.find((u) => u.id === newAssigneeId);
-    if (!newAssignee) return null;
-
-    taskEntity.assigneeId = newAssigneeId;
-
-    return newAssignee;
+    return of(
+      taskHistoryEntities.map((th) => ({
+        id: th.id,
+        taskId: th.taskId,
+        description: th.description,
+        date: th.date,
+      }))
+    );
   }
 }

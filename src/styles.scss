@@ -1,6 +1,4 @@
-@use './app/styles/reset.css';
-@use './app/styles/variables.scss' as *;
-@use './app/styles/styles.scss' as *;
+@use './app/styles/theme.scss';
 
 @import url('https://cdn-uicons.flaticon.com/2.5.1/uicons-regular-rounded/css/uicons-regular-rounded.css');
 @import url('https://cdn-uicons.flaticon.com/2.5.1/uicons-bold-rounded/css/uicons-bold-rounded.css');

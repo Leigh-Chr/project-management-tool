@@ -1,53 +1,86 @@
-import { Injectable, inject } from '@angular/core';
-import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
-import { GetTaskDetailsResponse } from '../../models/Tasks/GetTaskDetailsResponse';
+import {
+  Injectable,
+  Injector,
+  effect,
+  inject,
+  runInInjectionContext,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import type { Observable } from 'rxjs';
+import type { TaskEventEntity } from '../../models/entities';
+import type {
+  DeleteTaskResponse,
+  GetTaskDetailsResponse,
+  GetTaskResponse,
+  GetTasksResponse,
+  PostTaskRequest,
+  PostTaskResponse,
+  Task,
+} from '../../models/task.models';
 import { TaskController } from '../mock/backend/task.controller';
-import { GetTaskSummaryResponse } from '../../models/Tasks/GetTaskSummaryResponse';
-import { AddTaskRequest } from '../../models/Tasks/AddTaskRequest';
-import { GetTaskEventResponse } from '../../models/Tasks/GetTaskEventResponse';
-import { GetUserResponse } from '../../models/GetUserResponse';
 
 @Injectable({
   providedIn: 'root',
 })
 export class TaskService {
+  private readonly injector = inject(Injector);
   private readonly taskController = inject(TaskController);
 
-  async getTaskDetails(taskId: number): Promise<GetTaskDetailsResponse | null> {
-    return this.taskController.getTaskDetails(taskId);
+  readonly deletedTask = signal<number | null>(null);
+  readonly postedTask = signal<Task | null>(null);
+
+  deleteTask(taskId: number): Observable<DeleteTaskResponse | undefined> {
+    const deletedTaskObservable = this.taskController.deleteTask(taskId);
+
+    const deletedTaskSignal = toSignal(deletedTaskObservable, {
+      injector: this.injector,
+    });
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const deletedTask = deletedTaskSignal();
+        if (!deletedTask) return;
+        this.deletedTask.set(deletedTask.id);
+      });
+    });
+
+    return deletedTaskObservable;
   }
 
-  async getTaskSummaries(
-    assignedOnly: boolean = false
-  ): Promise<GetTaskSummaryResponse[]> {
-    return this.taskController.getTaskSummaries(assignedOnly);
+  addTask(task: PostTaskRequest): Observable<PostTaskResponse | undefined> {
+    const addedTaskObservable = this.taskController.addTask(task);
+
+    const addedTaskSignal = toSignal(addedTaskObservable, {
+      injector: this.injector,
+    });
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const addedTask = addedTaskSignal();
+        if (!addedTask) return;
+        this.postedTask.set(addedTask);
+      });
+    });
+
+    return addedTaskObservable;
   }
 
-  async getTaskSummary(taskId: number): Promise<GetTaskSummaryResponse | null> {
-    return this.taskController.getTaskSummary(taskId);
-  }
-
-  async deleteTask(taskId: number): Promise<GetTaskResponse | null> {
-    return this.taskController.deleteTask(taskId);
-  }
-
-  async addTask(task: AddTaskRequest): Promise<GetTaskResponse | null> {
-    return this.taskController.addTask(task);
-  }
-
-  async getTask(taskId: number): Promise<GetTaskResponse | null> {
+  getTask(taskId: number): Observable<GetTaskResponse | undefined> {
     return this.taskController.getTask(taskId);
   }
 
-  async getTaskHistory(
-  ): Promise<GetTaskEventResponse[]> {
-    return this.taskController.getTaskHistory();
+  getTasks(): Observable<GetTasksResponse> {
+    return this.taskController.getTasks();
   }
 
-  async changeAssignee(
-    taskId: number,
-    newAssigneeId: number
-  ): Promise<GetUserResponse | null> {
-    return this.taskController.changeAssignee(taskId, newAssigneeId);
+  getTaskDetails(
+    taskId: number
+  ): Observable<GetTaskDetailsResponse | undefined> {
+    return this.taskController.getTaskDetails(taskId);
+  }
+
+  getTaskHistory(): Observable<TaskEventEntity[]> {
+    return this.taskController.getTaskHistory();
   }
 }

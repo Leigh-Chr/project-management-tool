@@ -1,97 +1,115 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  Injector,
+  input,
+  output,
+  signal,
+  untracked,
+} from '@angular/core';
+import type { Project } from '@app/shared/models/project.models';
 import { ProjectService } from '../../services/data/project.service';
-import { PopupComponent } from '../ui/popup.component';
 import { ToastService } from '../toast/toast.service';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
+import { PopupComponent } from '../ui/popup.component';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'pmt-delete-project-popup',
-  imports: [PopupComponent, TranslatorPipe],
-  providers: [TranslatorPipe],
+  imports: [PopupComponent],
   template: `
-    @if (project) {
+    @if (project(); as project) {
     <ui-popup
-      title="{{ 'project.deleteProjectTitle' | translate }} - {{
-        project.name
-      }}"
-      submitLabel="{{ 'project.deleteProject' | translate }}"
-      cancelLabel="{{ 'project.cancel' | translate }}"
-      submitVariant="danger"
+      popupTitle="Delete Project - {{ project.name }}"
+      submitLabel="Submit"
+      cancelLabel="Cancel"
       (onSubmit)="deleteProject()"
-      (onClose)="close()"
-      id="delete-project-popup"
+      (onClose)="onClose.emit()"
     >
-      <p 
-        class="delete-project-popup__message"
-        role="alert"
-        aria-live="polite"
-      >
-        {{ 'project.confirmDeleteProject' | translate }}
+      <p>
+        Are you sure you want to delete this project? It will delete all the
+        tasks and project members associated with it. This action cannot be
+        undone.
       </p>
+
+      <ul class="list">
+        <li><b>Name:</b> {{ project.name }}</li>
+        <li>
+          <b>Description:</b> {{ project.description || 'No description' }}
+        </li>
+        <li>
+          <b>Start Date:</b>
+          {{ project.startDate?.toLocaleDateString() || 'No start date' }}
+        </li>
+        <li><b>Status:</b> {{ project.status }}</li>
+        <li><b>My Role:</b> {{ project.myRole || 'No role' }}</li>
+      </ul>
     </ui-popup>
     } @else {
     <ui-popup
-      title="{{ 'project.deleteProjectTitle' | translate }}"
+      popupTitle="Delete Project"
       [isSubmitDisabled]="true"
-      id="delete-project-popup-loading"
+      submitLabel="Submit"
+      cancelLabel="Cancel"
     >
-      <p 
-        class="delete-project-popup__message"
-        role="status"
-        aria-live="polite"
-      >
-        {{ 'project.loading' | translate }}
-      </p>
+      <p>Loading...</p>
     </ui-popup>
     }
   `,
-  styles: [`
-    .delete-project-popup__message {
-      margin-bottom: var(--space-4);
-      color: var(--text-color);
-      font-size: var(--font-size-base);
-    }
-  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteProjectPopupComponent {
+  private readonly injector = inject(Injector);
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
-  private readonly translator = inject(TranslatorPipe);
 
-  @Input({ required: true }) projectId!: number;
-  project: GetProjectResponse | null = null;
+  projectId = input.required<number>();
+  project = signal<Project | undefined>(undefined).asReadonly();
 
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onDeleteProject = new EventEmitter<number>();
+  onClose = output<void>();
 
-  async ngOnInit(): Promise<void> {
-    this.project = await this.getProject();
-    if (!this.project) {
-      this.toastService.showToast(
-        {
-          title: this.translator.transform('project.errorTitle'),
-          message: this.translator.transform('project.projectNotFoundMessage'),
-          duration: 5000,
-          type: 'error',
-        },
-        'root'
-      );
-      this.close();
-    }
+  constructor() {
+    effect(() => {
+      const deletedProject = this.projectService.deletedProject();
+      if (!deletedProject) return;
+      untracked(() => {
+        this.toastService.showToast({
+          title: 'Success',
+          message: 'Project deleted',
+          type: 'success',
+        });
+        this.onClose.emit();
+      });
+    });
   }
 
-  async getProject(): Promise<GetProjectResponse | null> {
-    return this.projectService.getProject(this.projectId);
+  async ngOnInit(): Promise<void> {
+    this.project = toSignal(this.projectService.getProject(this.projectId()), {
+      injector: this.injector,
+    });
+
+    const project = this.project();
+    if (!project) {
+      this.toastService.showToast({
+        title: 'Error',
+        message: 'Project not found',
+        type: 'error',
+      });
+      this.onClose.emit();
+    }
+
+    if (project?.myRole !== 'Admin') {
+      this.toastService.showToast({
+        title: 'Error',
+        message: 'You are not authorized to delete this project',
+        type: 'error',
+      });
+      this.onClose.emit();
+    }
   }
 
   deleteProject(): void {
-    this.projectService.deleteProject(this.projectId);
-    this.onDeleteProject.emit(this.projectId);
-    this.close();
-  }
-
-  close(): void {
-    this.onClose.emit();
+    this.projectService.deleteProject(this.projectId());
   }
 }

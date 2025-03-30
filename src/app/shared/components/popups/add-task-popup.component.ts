@@ -1,26 +1,26 @@
 import {
+  ChangeDetectionStrategy,
   Component,
-  EventEmitter,
+  effect,
   inject,
-  Input,
-  Output,
+  input,
+  output,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { map } from 'rxjs';
+import { TaskService } from '../../services/data/task.service';
+import { UserService } from '../../services/data/user.service';
+import { ToastService } from '../toast/toast.service';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
 import { SelectFieldComponent } from '../ui/select-field.component';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { GetTaskResponse } from '../../models/Tasks/GetTaskResponse';
-import { SelectOption } from '../ui/select-field.component';
-import { TaskService } from '../../services/data/task.service';
-import { UserService } from '../../services/data/user.service';
-import { User } from '../../models/Tasks/GetTaskDetailsResponse';
+import { StatusService } from '@app/shared/services/data/status.service';
 
 @Component({
   selector: 'pmt-add-task-popup',
@@ -29,134 +29,132 @@ import { User } from '../../models/Tasks/GetTaskDetailsResponse';
     InputFieldComponent,
     PopupComponent,
     SelectFieldComponent,
-    TranslatorPipe,
   ],
-  providers: [TranslatorPipe],
   template: `
     <ui-popup
-      [title]="'task.addTask' | translate"
+      popupTitle="Add Task"
       [isSubmitDisabled]="taskForm.invalid"
-      [submitLabel]="'task.addTask' | translate"
-      [cancelLabel]="'task.cancel' | translate"
+      submitLabel="Submit"
+      cancelLabel="Cancel"
       (onSubmit)="submit()"
-      (onClose)="close()"
+      (onClose)="this.onClose.emit()"
       id="add-task-popup"
     >
-      <form 
-        [formGroup]="taskForm" 
-        class="add-task-popup__form" 
+      <form
+        [formGroup]="taskForm"
         novalidate
         (keydown.enter)="$event.preventDefault(); submit()"
       >
         <ui-input-field
           [control]="name"
-          id="name"
-          [label]="'task.name' | translate"
+          label="Name"
           type="text"
-          [errorMessage]="'task.nameRequired' | translate"
+          [errorMessage]="'Name is required'"
           [required]="true"
-          autocomplete="off"
         />
         <ui-input-field
           [control]="description"
-          id="description"
-          [label]="'task.description' | translate"
+          label="Description"
           type="text"
-          autocomplete="off"
         />
-        <ui-input-field
-          [control]="dueDate"
-          id="dueDate"
-          [label]="'task.dueDate' | translate"
-          type="date"
-          [errorMessage]="'task.dueDateRequired' | translate"
-          [required]="true"
-          autocomplete="off"
-        />
-        <ui-input-field
-          [control]="priority"
-          id="priority"
-          [label]="'task.priority' | translate"
-          type="number"
-          [errorMessage]="'task.priorityRequired' | translate"
-          [required]="true"
-          min="1"
-          max="5"
-          autocomplete="off"
-        />
+        <ui-input-field [control]="dueDate" label="Due Date" type="date" />
+        <ui-input-field [control]="priority" label="Priority" type="number" />
         <ui-select-field
           [control]="assigneeId"
-          id="assigneeId"
-          [label]="'task.assignee' | translate"
-          [options]="userOptions"
-          [errorMessage]="'task.assigneeRequired' | translate"
-          [required]="true"
+          label="Assignee"
+          [options]="userOptions()"
+        />
+        <ui-select-field
+          [control]="statusId"
+          label="Status"
+          [options]="statusOptions()"
+          [errorMessage]="'Status is required'"
         />
       </form>
     </ui-popup>
   `,
-  styles: [`
-    .add-task-popup__form {
-      display: grid;
-      gap: var(--space-4);
-      padding: var(--space-4);
-    }
-  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddTaskPopupComponent {
   private readonly taskService = inject(TaskService);
   private readonly userService = inject(UserService);
-  private readonly formBuilder = inject(FormBuilder);
+  private readonly toastService = inject(ToastService);
+  private readonly statusService = inject(StatusService);
 
-  taskForm: FormGroup = this.formBuilder.group({
-    name: ['', [Validators.required]],
-    description: [''],
-    dueDate: [new Date().toISOString().split('T')[0], [Validators.required]],
-    priority: [1, [Validators.required, Validators.min(1), Validators.max(5)]],
-    assigneeId: ['', [Validators.required]],
+  readonly taskForm = new FormGroup({
+    name: new FormControl<string>('', [Validators.required]),
+    description: new FormControl<string>(''),
+    dueDate: new FormControl<Date>(new Date()),
+    priority: new FormControl<number | undefined>(undefined),
+    assigneeId: new FormControl<number | undefined>(undefined),
+    statusId: new FormControl<number>(1),
   });
 
-  name = this.taskForm.get('name') as FormControl<string>;
-  description = this.taskForm.get('description') as FormControl<string>;
-  dueDate = this.taskForm.get('dueDate') as FormControl<string>;
-  priority = this.taskForm.get('priority') as FormControl<number>;
-  assigneeId = this.taskForm.get('assigneeId') as FormControl<number>;
+  readonly name = this.taskForm.get('name') as FormControl<string>;
+  readonly description = this.taskForm.get(
+    'description'
+  ) as FormControl<string>;
+  readonly dueDate = this.taskForm.get('dueDate') as FormControl<Date>;
+  readonly priority = this.taskForm.get('priority') as FormControl<number>;
+  readonly assigneeId = this.taskForm.get('assigneeId') as FormControl<number>;
+  readonly statusId = this.taskForm.get('statusId') as FormControl<number>;
 
-  @Input({ required: true }) projectId!: number;
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onAddTask = new EventEmitter<GetTaskResponse | null>();
+  projectId = input.required<number>();
+  onClose = output<void>();
 
-  userOptions: SelectOption<number>[] = [];
+  userOptions = toSignal(
+    this.userService
+      .getUsers()
+      .pipe(
+        map((users) =>
+          users.map((user) => ({ value: user.id, label: user.username }))
+        )
+      ),
+    {
+      initialValue: [],
+    }
+  );
+  statusOptions = toSignal(
+    this.statusService
+      .getStatuses()
+      .pipe(
+        map((statuses) =>
+          statuses.map((status) => ({ value: status.id, label: status.name }))
+        )
+      ),
+    {
+      initialValue: [],
+    }
+  );
 
-  async ngOnInit(): Promise<void> {
-    const users = await this.userService.getUsers();
-    this.userOptions = users.map((user: User) => ({
-      value: user.id,
-      label: user.username,
-    }));
+  constructor() {
+    effect(() => {
+      const postedTask = this.taskService.postedTask();
+      if (!postedTask) return;
+      this.onClose.emit();
+    });
   }
 
   async submit(): Promise<void> {
     if (this.taskForm.invalid) return;
 
-    try {
-      const newTask = {
-        name: this.name.value,
-        description: this.description.value,
-        dueDate: new Date(this.dueDate.value),
-        priority: this.priority.value,
-        assigneeId: +this.assigneeId.value,
-        projectId: this.projectId,
-      };
-      const task = await this.taskService.addTask(newTask);
-      this.onAddTask.emit(task);
-      this.close();
-    } catch (error) {
-      console.error('Error creating task:', error);
-    }
-  }
+    const newTask = {
+      name: this.name.value,
+      description: this.description.value,
+      dueDate: new Date(this.dueDate.value),
+      priority: this.priority.value,
+      assigneeId: +this.assigneeId.value,
+      projectId: this.projectId(),
+      statusId: +this.statusId.value,
+    };
 
-  close(): void {
-    this.onClose.emit();
+    const res = this.taskService.addTask(newTask);
+    if (!res) {
+      this.toastService.showToast({
+        title: 'Error',
+        message: 'Failed to add task',
+        type: 'error',
+      });
+    }
   }
 }

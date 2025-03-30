@@ -1,207 +1,190 @@
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  Injector,
+  input,
+  output,
+  signal,
+} from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import {
   FormBuilder,
   FormControl,
-  FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { TranslatorPipe } from '../../i18n/translator.pipe';
-import { GetProjectMemberResponse } from '../../models/Projects/GetProjectMemberResponse';
-import { GetProjectResponse } from '../../models/Projects/GetProjectResponse';
-import { GetRoleResponse } from '../../models/GetRoleResponse';
-import { GetUserResponse } from '../../models/GetUserResponse';
-import { AuthService } from '../../services/auth.service';
+import type { GetProjectResponse } from '@app/shared/models/project.models';
+import { map } from 'rxjs';
 import { ProjectService } from '../../services/data/project.service';
 import { RoleService } from '../../services/data/role.service';
 import { UserService } from '../../services/data/user.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
-import {
-  SelectFieldComponent,
-  SelectOption,
-} from '../ui/select-field.component';
+import { SelectFieldComponent } from '../ui/select-field.component';
 
 @Component({
   selector: 'pmt-add-project-member-popup',
-  imports: [
-    ReactiveFormsModule,
-    SelectFieldComponent,
-    PopupComponent,
-    TranslatorPipe,
-  ],
-  providers: [TranslatorPipe],
+  imports: [ReactiveFormsModule, SelectFieldComponent, PopupComponent],
   template: `
-    @if (project) {
+    @if (project(); as project) {
     <ui-popup
-      title="{{ 'project.addMemberTitle' | translate }} - {{ project.name }}"
+      popupTitle="Add Member - {{ project.name }}"
       [isSubmitDisabled]="memberForm.invalid"
-      [submitLabel]="'project.addMember' | translate"
-      [cancelLabel]="'project.cancel' | translate"
       (onSubmit)="addMember()"
-      (onClose)="close()"
-      id="add-project-member-popup"
+      (onClose)="onClose.emit()"
     >
-      <form 
-        [formGroup]="memberForm" 
-        class="add-project-members-popup__form" 
-        novalidate
-        (keydown.enter)="$event.preventDefault(); addMember()"
-        aria-labelledby="add-member-title"
-      >
-        <h3 id="add-member-title" class="visually-hidden">
-          {{ 'project.addMemberTitle' | translate }} - {{ project.name }}
-        </h3>
+      <form [formGroup]="memberForm" class="form">
         <ui-select-field
-          [options]="userOptions"
+          [options]="userOptions()"
           [control]="userControl"
           id="user"
-          [label]="'project.user' | translate"
-          [errorMessage]="'project.selectUserError' | translate"
+          label="User"
+          [errorMessage]="'Select User is required'"
           [required]="true"
-          aria-required="true"
-          [attr.aria-invalid]="userControl.invalid && userControl.touched"
-          [attr.aria-describedby]="userControl.invalid && userControl.touched ? 'user-error' : null"
         />
         <ui-select-field
-          [options]="roleOptions"
+          [options]="roleOptions()"
           [control]="roleControl"
           id="role"
-          [label]="'project.role' | translate"
-          [errorMessage]="'project.selectRoleError' | translate"
+          label="Role"
+          [errorMessage]="'Select Role is required'"
           [required]="true"
-          aria-required="true"
-          [attr.aria-invalid]="roleControl.invalid && roleControl.touched"
-          [attr.aria-describedby]="roleControl.invalid && roleControl.touched ? 'role-error' : null"
         />
       </form>
     </ui-popup>
-    } @else {
-    <ui-popup
-      [title]="'project.addMember' | translate"
-      [isSubmitDisabled]="true"
-      id="add-project-member-popup-loading"
-    >
-      <p 
-        class="add-project-members-popup__loading"
-        role="status"
-        aria-live="polite"
-      >
-        {{ 'project.loading' | translate }}
-      </p>
-    </ui-popup>
     }
   `,
-  styles: [`
-    .add-project-members-popup__form {
-      display: grid;
-      gap: var(--space-4);
-      padding: var(--space-4);
-    }
-
-    .add-project-members-popup__loading {
-      color: var(--text-color);
-      font-size: var(--font-size-base);
-      text-align: center;
-      padding: var(--space-4);
-    }
-
-    .visually-hidden {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddProjectMemberPopupComponent {
+  private readonly injector = inject(Injector);
+  private readonly fb = inject(FormBuilder);
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
-  private readonly authService = inject(AuthService);
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
-  private readonly translator = inject(TranslatorPipe);
 
-  @Input() projectId!: number;
-  @Output() onClose = new EventEmitter<void>();
-  @Output() onAddMember = new EventEmitter<GetProjectMemberResponse | null>();
+  projectId = input.required<number>();
+  onClose = output<void>();
 
-  userOptions: SelectOption<number>[] = [];
-  roleOptions: SelectOption<number>[] = [];
+  userOptions = toSignal(
+    this.userService.getUsers().pipe(
+      map((users) =>
+        users.map((user) => ({
+          value: user.id,
+          label: user.username,
+        }))
+      )
+    ),
+    {
+      initialValue: [],
+    }
+  );
+  roleOptions = toSignal(
+    this.roleService.getRoles().pipe(
+      map((roles) =>
+        roles.map((role) => ({
+          value: role.id,
+          label: role.name,
+        }))
+      )
+    ),
+    {
+      initialValue: [],
+    }
+  );
 
-  project: GetProjectResponse | null = null;
+  project = signal<GetProjectResponse | undefined>(undefined).asReadonly();
 
-  private readonly formBuilder = inject(FormBuilder);
-  memberForm: FormGroup = this.formBuilder.group({
-    user: ['', [Validators.required]],
-    role: ['', [Validators.required]],
+  readonly memberForm = this.fb.group({
+    user: new FormControl<string | null>(null, Validators.required),
+    role: new FormControl<string | null>(null, Validators.required),
   });
 
-  userControl = this.memberForm.get('user') as FormControl<GetUserResponse>;
-  roleControl = this.memberForm.get('role') as FormControl<GetRoleResponse>;
+  readonly userControl = this.memberForm.get('user') as FormControl<
+    string | null
+  >;
+  readonly roleControl = this.memberForm.get('role') as FormControl<
+    string | null
+  >;
+
+  constructor() {
+    effect(() => {
+      if (!this.projectId()) {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Project ID is required',
+          type: 'error',
+        });
+        this.onClose.emit();
+        return;
+      }
+
+      if (this.userOptions()?.length === 0) {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'No users found',
+          type: 'error',
+        });
+        this.onClose.emit();
+        return;
+      }
+
+      if (this.roleOptions()?.length === 0) {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'No roles found',
+          type: 'error',
+        });
+
+        this.onClose.emit();
+        return;
+      }
+    });
+
+    effect(() => {
+      if (!this.projectService.postedProjectMember()) return;
+      this.toastService.showToast({
+        title: 'Success',
+        message: 'Member added',
+        type: 'success',
+      });
+      this.projectService.postedProjectMember.set(null);
+      this.onClose.emit();
+    });
+  }
 
   async ngOnInit(): Promise<void> {
-    try {
-      this.project = await this.projectService.getProject(this.projectId);
-      const [users, roles] = await Promise.all([
-        this.userService.getUsers(),
-        this.roleService.getRoles(),
-      ]);
+    this.memberForm.reset();
+    const projectId = this.projectId();
 
-      this.userOptions = users.map((user) => ({
-        value: user.id,
-        label: user.username,
-      }));
-
-      this.roleOptions = roles.map((role) => ({
-        value: role.id,
-        label: role.name,
-      }));
-    } catch (error) {
-      console.error('Error loading data:', error);
-      this.toastService.showToast(
-        {
-          type: 'error',
-          title: this.translator.transform('project.error'),
-          message: this.translator.transform('project.loadError'),
-          duration: 3000,
-        },
-        'root'
-      );
+    if (projectId === undefined) {
+      this.toastService.showToast({
+        title: 'Error',
+        message: 'Project ID is required',
+        type: 'error',
+      });
+      this.onClose.emit();
+      return;
     }
+
+    this.project = toSignal(this.projectService.getProject(projectId), {
+      injector: this.injector,
+    });
   }
 
   async addMember(): Promise<void> {
     if (this.memberForm.invalid) return;
+    const projectId = this.projectId();
+    if (!projectId) return;
 
-    try {
-      const member = await this.projectService.addProjectMember(
-        this.projectId,
-        this.userControl.value.id,
-        this.roleControl.value.id
-      );
-      this.onAddMember.emit(member || null);
-      this.close();
-    } catch (error) {
-      console.error('Error adding member:', error);
-      this.toastService.showToast(
-        {
-          type: 'error',
-          title: this.translator.transform('project.error'),
-          message: this.translator.transform('project.addMemberError'),
-          duration: 3000,
-        },
-        'root'
-      );
-    }
-  }
+    const userId = Number.parseInt(this.userControl.value || '');
+    const roleId = Number.parseInt(this.roleControl.value || '');
 
-  close(): void {
-    this.onClose.emit();
+    if (Number.isNaN(userId) || Number.isNaN(roleId)) return;
+
+    this.projectService.postProjectMember(projectId, userId, roleId);
   }
 }

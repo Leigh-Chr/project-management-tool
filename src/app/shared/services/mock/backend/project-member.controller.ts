@@ -1,51 +1,126 @@
 import { inject, Injectable } from '@angular/core';
+import type {
+  DeleteProjectMemberResponse,
+  GetProjectMemberResponse,
+  PostProjectMemberResponse,
+} from '@app/shared/models/project.models';
+import type { Observable } from 'rxjs';
+import { of } from 'rxjs';
+import type { ProjectMemberEntity } from '../../../models/entities';
 import { DatabaseMockService } from '../database/database.service';
-import { GetProjectMemberResponse } from '../../../models/Projects/GetProjectMemberResponse';
+import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectMemberController {
+  private readonly authService = inject(AuthService);
   private readonly database = inject(DatabaseMockService);
 
-  async getProjectMember(
-    projectId: number,
-    userId: number
-  ): Promise<GetProjectMemberResponse | null> {
+  getProjectMember(
+    projectMemberId: number
+  ): Observable<GetProjectMemberResponse | undefined> {
     const projectMemberEntity = this.database.projectMembers.find(
-      (pm) => pm.projectId === projectId && pm.userId === userId
+      (pm) => pm.id === projectMemberId
     );
+    if (!projectMemberEntity) return of(undefined);
 
-    if (!projectMemberEntity) return null;
+    const project = this.database.projects.find(
+      (p) => p.id === projectMemberEntity.projectId
+    );
+    if (!project) return of(undefined);
 
-    const projectMember: GetProjectMemberResponse = {
-      projectId: projectMemberEntity.projectId,
-      userId: projectMemberEntity.userId,
-      roleId: projectMemberEntity.roleId,
-    };
+    const user = this.database.users.find(
+      (u) => u.id === projectMemberEntity.userId
+    );
+    if (!user) return of(undefined);
 
-    return projectMember;
+    const role = this.database.roles.find(
+      (r) => r.id === projectMemberEntity.roleId
+    );
+    if (!role) return of(undefined);
+
+    return of({
+      id: projectMemberEntity.id,
+      project: project.name,
+      user: user.username,
+      role: role.name,
+    });
   }
 
-  async deleteProjectMember(
-    projectId: number,
-    userId: number
-  ): Promise<GetProjectMemberResponse | null> {
+  getProjectMembers(): Observable<ProjectMemberEntity[]> {
+    return of(this.database.projectMembers);
+  }
+
+  deleteProjectMember(
+    projectMemberId: number
+  ): Observable<DeleteProjectMemberResponse | undefined> {
     const projectMemberEntity = this.database.projectMembers.find(
-      (pm) => pm.projectId === projectId && pm.userId === userId
+      (pm) => pm.id === projectMemberId
     );
+    if (!projectMemberEntity) return of(undefined);
 
-    if (!projectMemberEntity) return null;
-
-    const projectMember: GetProjectMemberResponse = {
-      projectId: projectMemberEntity.projectId,
-      userId: projectMemberEntity.userId,
-      roleId: projectMemberEntity.roleId,
-    };
+    const projectId = projectMemberEntity.projectId;
+    const myRole = this.authService.getRole(projectId);
+    if (myRole !== 'Admin') return of(undefined);
 
     this.database.projectMembers.splice(
       this.database.projectMembers.indexOf(projectMemberEntity),
       1
     );
 
-    return projectMember;
+    const project = this.database.projects.find(
+      (p) => p.id === projectMemberEntity.projectId
+    );
+    if (!project) return of(undefined);
+
+    const user = this.database.users.find(
+      (u) => u.id === projectMemberEntity.userId
+    );
+    if (!user) return of(undefined);
+
+    const role = this.database.roles.find(
+      (r) => r.id === projectMemberEntity.roleId
+    );
+    if (!role) return of(undefined);
+
+    return of({
+      id: projectMemberEntity.id,
+      project: project.name,
+      user: user.username,
+      role: role.name,
+    });
+  }
+
+  postProjectMember(
+    projectId: number,
+    userId: number,
+    roleId: number
+  ): Observable<PostProjectMemberResponse | undefined> {
+    const myRole = this.authService.getRole(projectId);
+    if (myRole !== 'Admin') return of(undefined);
+
+    const project = this.database.projects.find((p) => p.id === projectId);
+    if (!project) return of(undefined);
+
+    const user = this.database.users.find((u) => u.id === userId);
+    if (!user) return of(undefined);
+
+    const role = this.database.roles.find((r) => r.id === roleId);
+    if (!role) return of(undefined);
+
+    const newIndex = this.database.projectMembers.length + 1;
+
+    this.database.projectMembers.push({
+      id: newIndex,
+      projectId: project.id,
+      userId: user.id,
+      roleId: role.id,
+    });
+
+    return of({
+      id: newIndex,
+      project: project.name,
+      user: user.username,
+      role: role.name,
+    });
   }
 }

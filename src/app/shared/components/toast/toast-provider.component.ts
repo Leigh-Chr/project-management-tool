@@ -2,12 +2,13 @@ import { AsyncPipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
-  Input,
-  OnInit,
+  type OnInit,
+  inject,
 } from '@angular/core';
-import { Observable } from 'rxjs';
+import type { Observable } from 'rxjs';
 import { ToastComponent } from './toast.component';
-import { Toast, ToastService } from './toast.service';
+import { ToastService } from './toast.service';
+import type { Toast } from './toast.service';
 
 /**
  * Component to provide and display toast notifications.
@@ -17,9 +18,9 @@ import { Toast, ToastService } from './toast.service';
   standalone: true,
   imports: [ToastComponent, AsyncPipe],
   template: `
-    <div 
-      class="toast-provider" 
-      role="region" 
+    <div
+      class="toast-provider"
+      role="region"
       aria-live="polite"
       aria-label="Notifications"
     >
@@ -28,40 +29,31 @@ import { Toast, ToastService } from './toast.service';
       } }
     </div>
   `,
-  styles: [`
-    .toast-provider {
-      position: absolute;
-      top: var(--space-4);
-      right: var(--space-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      z-index: 50;
-    }
-  `],
+  styles: [
+    `
+      .toast-provider {
+        position: absolute;
+        top: var(--spacing-4);
+        right: var(--spacing-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-2);
+        z-index: 50;
+      }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ToastProviderComponent implements OnInit {
-  /**
-   * The maximum number of toasts to display.
-   */
-  @Input() maxToasts: number = 5;
-
-  /**
-   * The ID of the toast provider.
-   */
-  @Input() providerId: string = 'default';
+  private readonly toastService = inject(ToastService);
 
   /**
    * The observable stream of toasts.
    */
   toasts$!: Observable<Toast[]>;
 
-  constructor(private readonly toastService: ToastService) {}
-
   ngOnInit(): void {
-    this.toastService.setMaxToasts(this.maxToasts, this.providerId);
-    this.toasts$ = this.toastService.getToasts(this.providerId);
+    this.toasts$ = this.toastService.getToasts();
   }
 
   /**
@@ -69,6 +61,6 @@ export class ToastProviderComponent implements OnInit {
    * @param id - The ID of the toast to clear.
    */
   clearToast(id: number): void {
-    this.toastService.clearToast(id, this.providerId);
+    this.toastService.clearToast(id);
   }
 }

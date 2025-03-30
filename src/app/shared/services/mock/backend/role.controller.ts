@@ -1,26 +1,20 @@
 import { Injectable, inject } from '@angular/core';
 import { DatabaseMockService } from '../database/database.service';
-import { RoleEntity } from '../database/entities';
-import { GetRoleResponse } from '../../../models/GetRoleResponse';
+import type { RoleEntity } from '../../../models/entities';
+import type { Observable } from 'rxjs';
+import { of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class RoleController {
   private readonly database = inject(DatabaseMockService);
 
-  async getRoles(): Promise<GetRoleResponse[]> {
+  getRoles(): Observable<RoleEntity[]> {
     const roleEntities: RoleEntity[] = this.database.roles;
-    return roleEntities.map((role) => ({
-      id: role.id,
-      name: role.name,
-    }));
+    return of(roleEntities);
   }
 
-  async getRole(roleId: number): Promise<GetRoleResponse | null> {
+  getRole(roleId: number): Observable<RoleEntity | null> {
     const roleEntity = this.database.roles.find((role) => role.id === roleId);
-    if (!roleEntity) return null;
-    return {
-      id: roleEntity.id,
-      name: roleEntity.name,
-    };
+    return of(roleEntity ?? null);
   }
 }

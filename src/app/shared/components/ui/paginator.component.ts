@@ -15,15 +15,14 @@ import {
   selector: 'ui-paginator',
   imports: [NgClass],
   template: `
-    <nav class="paginator" aria-label="Pagination">
-      <div class="paginator__content">
-        <div class="paginator__controls">
+    <nav>
+      <div class="flex justify-center">
+        <div>
           <button
             class="paginator__button"
             (click)="previousPage()"
             [disabled]="pageIndex() === 1"
             [ngClass]="{ 'paginator__button--disabled': pageIndex() === 1 }"
-            aria-label="Previous Page"
           >
             <i class="fi fi-br-angle-left" aria-hidden="true"></i>
           </button>
@@ -36,20 +35,20 @@ import {
             class="paginator__button"
             (click)="nextPage()"
             [disabled]="pageIndex() >= totalPages()"
-            [ngClass]="{ 'paginator__button--disabled': pageIndex() >= totalPages() }"
-            aria-label="Next Page"
+            [ngClass]="{
+              'paginator__button--disabled': pageIndex() >= totalPages()
+            }"
           >
             <i class="fi fi-br-angle-right" aria-hidden="true"></i>
           </button>
         </div>
 
         @if (showPageSizeSelector) {
-        <div class="paginator__selector">
+        <div>
           <select
             [id]="uniqueId"
             [value]="pageSize()"
             (change)="onPageSizeChange($event)"
-            class="paginator__select"
           >
             @for (size of pageSizeOptions(); track size) {
             <option [value]="size">
@@ -66,86 +65,24 @@ import {
         @if (showTotalItems) {
         <span>{{ totalItems() }}</span>
         } @if (showTotalPages) {
-        <span class="paginator__summary-item">{{ totalPages() }}</span>
+        <span>{{ totalPages() }}</span>
         }
       </div>
       }
     </nav>
   `,
-  styles: [`
-    .paginator {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: var(--surface-2);
-      padding: var(--space-2) var(--space-4);
-      width: 100%;
-    }
-
-    .paginator__content {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: var(--space-4);
-      flex-wrap: wrap;
-      width: 100%;
-    }
-
-    .paginator__controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: var(--space-4);
-    }
-
-    .paginator__button {
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--text-color);
-      padding: var(--space-1);
-      transition: opacity var(--transition-normal);
-
-      &:hover:not(:disabled) {
-        opacity: var(--hover-opacity);
+  styles: [
+    `
+      .paginator__button {
+        appearance: none;
+        border: none;
+        background: none;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
       }
-
-      &:disabled {
-        opacity: var(--disabled-opacity);
-        cursor: not-allowed;
-      }
-    }
-
-    .paginator__info {
-      font-size: var(--font-size-sm);
-      color: var(--text-color);
-    }
-
-    .paginator__selector {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
-
-    .paginator__select {
-      padding: var(--space-1) var(--space-2);
-      font-size: var(--font-size-sm);
-      color: var(--text-color);
-      background-color: var(--surface-3);
-      border: var(--input-border);
-      border-radius: var(--border-radius-sm);
-    }
-
-    .paginator__summary {
-      font-size: var(--font-size-sm);
-      color: var(--text-muted);
-      margin-top: var(--space-2);
-    }
-
-    .paginator__summary-item {
-      margin-left: var(--space-4);
-    }
-  `],
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PaginatorComponent {

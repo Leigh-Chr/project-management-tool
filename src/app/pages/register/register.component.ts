@@ -1,15 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
 import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  AbstractControl,
   FormBuilder,
   FormControl,
   FormGroup,
   ReactiveFormsModule,
+  ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../shared/components/toast/toast.service';
-import { ButtonComponent } from '../../shared/components/ui/button.component';
 import { InputFieldComponent } from '../../shared/components/ui/input-field.component';
 import { AuthService } from '../../shared/services/auth.service';
 
@@ -18,202 +25,155 @@ import { AuthService } from '../../shared/services/auth.service';
   standalone: true,
   imports: [
     CommonModule,
-    ButtonComponent,
     ReactiveFormsModule,
     InputFieldComponent,
     RouterModule,
   ],
   template: `
-    <div class="register">
-      <div class="register__card">
-        <h1 class="register__title" id="register-title">Register</h1>
-        <form 
-          [formGroup]="registerForm" 
-          (ngSubmit)="onSubmit()" 
-          class="register__form"
-          aria-labelledby="register-title"
+    <div class="flex flex-col items-center justify-center h-screen">
+      <div class="card">
+        <h1 class="title">Register</h1>
+        <form
+          [formGroup]="registerForm()"
+          (ngSubmit)="onSubmit()"
+          class="form"
+          novalidate
         >
           <ui-input-field
-            [control]="emailControl"
+            [control]="usernameControl()"
+            label="Username"
+            type="text"
+            [errorMessage]="usernameControl().errors?.['required'] ? 'Username is required' : ''"
+            [required]="true"
+            autocomplete="username"
+          />
+
+          <ui-input-field
+            [control]="emailControl()"
             label="Email"
             type="email"
-            [errorMessage]="emailControl.errors?.['required'] ? 'Email is required' : ''"
+            [errorMessage]="emailControl().errors?.['required'] ? 'Email is required' : ''"
             [required]="true"
             autocomplete="email"
-            aria-required="true"
-            [attr.aria-invalid]="emailControl.invalid"
-            [attr.aria-describedby]="emailControl.invalid ? 'email-error' : null"
           />
 
           <ui-input-field
-            [control]="passwordControl"
+            [control]="passwordControl()"
             label="Password"
             type="password"
-            [errorMessage]="passwordControl.errors?.['required'] ? 'Password is required' : ''"
+            [errorMessage]="
+              passwordControl().errors?.['minlength']
+                ? 'Password must be at least 8 characters long
+'
+                : '' +
+                  passwordControl().errors?.['required']
+                    ? 'Password is required
+'
+                    : ''
+            "
             [required]="true"
             autocomplete="new-password"
-            aria-required="true"
-            [attr.aria-invalid]="passwordControl.invalid"
-            [attr.aria-describedby]="passwordControl.invalid ? 'password-error' : null"
           />
 
           <ui-input-field
-            [control]="confirmPasswordControl"
+            [control]="confirmPasswordControl()"
             label="Confirm Password"
             type="password"
-            [errorMessage]="confirmPasswordControl.errors?.['required'] ? 'Please confirm your password' : ''"
+            [errorMessage]="
+              confirmPasswordControl().errors?.['mismatch']
+                ? 'Passwords do not match
+'
+                : '' +
+                  confirmPasswordControl().errors?.['required']
+                    ? 'Please confirm your password
+'
+                    : ''
+            "
             [required]="true"
             autocomplete="new-password"
-            aria-required="true"
-            [attr.aria-invalid]="confirmPasswordControl.invalid"
-            [attr.aria-describedby]="confirmPasswordControl.invalid ? 'confirm-password-error' : null"
           />
 
-          <small 
-            class="register__error" 
-            *ngIf="error"
-            role="alert"
-            id="register-error"
-          >
-            {{ error }}
-          </small>
-
-          <ui-button
-            [label]="'Register'"
-            [disabled]="registerForm.invalid"
-            class="register__button"
-            type="submit"
-            aria-label="Create new account"
-          />
-        </form>
-
-        <div class="register__footer">
-          <p class="register__text">
-            Already have an account?
-            <a 
-              routerLink="/login" 
-              class="register__link"
-              aria-label="Go to login page"
+          <div class="flex flex-col gap-2">
+            <button
+              class="btn btn--primary"
+              type="submit"
+              [disabled]="registerForm().invalid"
+              [class.btn--disabled]="registerForm().invalid"
             >
-              Login
-            </a>
-          </p>
-        </div>
+              Register
+            </button>
+            <p class="text">
+              Already have an account?
+              <a routerLink="/login" class="link"> Login </a>
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   `,
-  styles: [`
-    .register {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: var(--space-4);
-      background-color: var(--surface-1);
-    }
-
-    .register__card {
-      width: 100%;
-      max-width: 28rem;
-      padding: var(--space-8);
-      background-color: var(--surface-2);
-      border-radius: var(--border-radius-lg);
-      box-shadow: var(--shadow-md);
-    }
-
-    .register__title {
-      margin-bottom: var(--space-6);
-      font-size: var(--font-size-4xl);
-      font-weight: 600;
-      text-align: center;
-      color: var(--text-color);
-    }
-
-    .register__form {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .register__error {
-      font-size: var(--font-size-xs);
-      color: var(--danger-color);
-    }
-
-    .register__button {
-      width: 100%;
-    }
-
-    .register__footer {
-      margin-top: var(--space-4);
-      text-align: center;
-    }
-
-    .register__text {
-      font-size: var(--font-size-sm);
-      color: var(--text-color);
-    }
-
-    .register__link {
-      color: var(--primary-color);
-      text-decoration: none;
-      cursor: pointer;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  `],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
-  registerForm: FormGroup;
-  error: string | null = null;
+  private readonly fb = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
 
-  get emailControl(): FormControl {
-    return this.registerForm.get('email') as FormControl;
-  }
+  readonly matchValidator = (
+    control: AbstractControl
+  ): ValidationErrors | null => {
+    const source = 'password';
+    const target = 'confirmPassword';
+    const sourceCtrl = control.get(source);
+    const targetCtrl = control.get(target);
+    return sourceCtrl?.value === targetCtrl?.value ? null : { mismatch: true };
+  };
 
-  get passwordControl(): FormControl {
-    return this.registerForm.get('password') as FormControl;
-  }
-
-  get confirmPasswordControl(): FormControl {
-    return this.registerForm.get('confirmPassword') as FormControl;
-  }
-
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router,
-    private toastService: ToastService
-  ) {
-    this.registerForm = this.fb.group({
+  readonly registerForm = signal<FormGroup>(
+    this.fb.group({
+      username: ['', [Validators.required]],
       email: ['', [Validators.required]],
-      password: ['', [Validators.required]],
-      confirmPassword: ['', [Validators.required]],
-    });
-  }
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required, this.matchValidator]],
+    })
+  );
+
+  readonly usernameControl = computed(
+    () => this.registerForm().get('username') as FormControl
+  );
+  readonly emailControl = computed(
+    () => this.registerForm().get('email') as FormControl
+  );
+  readonly passwordControl = computed(
+    () => this.registerForm().get('password') as FormControl
+  );
+  readonly confirmPasswordControl = computed(
+    () => this.registerForm().get('confirmPassword') as FormControl
+  );
 
   async onSubmit(): Promise<void> {
-    if (this.registerForm.invalid) return;
+    if (this.registerForm().invalid) return;
 
-    const { password, confirmPassword } = this.registerForm.value;
+    const { password, confirmPassword } = this.registerForm().value;
     if (password !== confirmPassword) {
-      this.error = 'Passwords do not match';
+      this.toastService.showToast({
+        title: 'Error',
+        message: 'Passwords do not match',
+        type: 'error',
+      });
       return;
     }
 
-    try {
-      await this.authService.register(this.registerForm.value);
-      this.router.navigate(['/login']);
+    const res = await this.authService.register(this.registerForm().value);
+    if (!res) {
       this.toastService.showToast({
         title: 'Success',
         message: 'Registration successful',
         type: 'success',
-        duration: 5000
-      }, 'root');
-    } catch {
-      this.error = 'Registration failed';
+      });
+      return;
     }
+
+    this.router.navigate(['/login']);
   }
 }
