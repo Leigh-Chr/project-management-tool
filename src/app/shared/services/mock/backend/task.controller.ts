@@ -6,8 +6,11 @@ import type {
   GetTaskDetailsResponse,
   GetTaskResponse,
   GetTasksResponse,
+  PatchTaskRequest,
+  PatchTaskResponse,
   PostTaskRequest,
   PostTaskResponse,
+  Task,
 } from '../../../models/task.models';
 import { DatabaseMockService } from '../database/database.service';
 import { AuthService } from './auth.service';
@@ -51,20 +54,37 @@ export class TaskController {
     return of(
       this.database.tasks
         .map((t) => {
-          const status = this.database.statuses.find(
+          const statusEntity = this.database.statuses.find(
             (s) => s.id === t.statusId
           );
-          if (!status) return null;
+          if (!statusEntity) return null;
 
-          const project = this.database.projects.find(
+          const projectEntity = this.database.projects.find(
             (p) => p.id === t.projectId
           );
-          if (!project) return null;
+          if (!projectEntity) return null;
 
-          const assignee = this.database.users.find(
-            (u) => u.id === t.assigneeId
+          const projectMemberEntity = this.database.projectMembers.find(
+            (pm) => pm.projectId === t.projectId && pm.userId === t.assigneeId
           );
-          if (!assignee) return null;
+
+          const userEntity = this.database.users.find(
+            (u) => u.id === projectMemberEntity?.userId
+          );
+
+          const roleEntity = this.database.roles.find(
+            (r) => r.id === projectMemberEntity?.roleId
+          );
+
+          let assignee: Task['assignee'] | undefined = undefined;
+          if (projectMemberEntity && userEntity && roleEntity) {
+            assignee = {
+              id: projectMemberEntity.id,
+              username: userEntity.username,
+              email: userEntity.email,
+              role: roleEntity.name,
+            };
+          }
 
           return {
             id: t.id,
@@ -72,14 +92,14 @@ export class TaskController {
             description: t.description,
             dueDate: t.dueDate,
             priority: t.priority,
-            status: status.name,
+            status: statusEntity.name,
             project: {
-              id: project.id,
-              name: project.name,
-              description: project.description,
-              status: status.name,
+              id: projectEntity.id,
+              name: projectEntity.name,
+              description: projectEntity.description,
+              status: statusEntity.name,
             },
-            assignee: assignee.username,
+            assignee,
           };
         })
         .filter((t): t is NonNullable<typeof t> => t !== null)
@@ -102,8 +122,27 @@ export class TaskController {
     );
     if (!projectEntity) return of(undefined);
 
-    const assignee = this.database.users.find((u) => u.id === task.assigneeId);
-    if (!assignee) return of(undefined);
+    const projectMemberEntity = this.database.projectMembers.find(
+      (pm) => pm.projectId === task.projectId && pm.userId === task.assigneeId
+    );
+
+    const roleEntity = this.database.roles.find(
+      (r) => r.id === projectMemberEntity?.roleId
+    );
+
+    const userEntity = this.database.users.find(
+      (u) => u.id === projectMemberEntity?.userId
+    );
+
+    let assignee: Task['assignee'] | undefined = undefined;
+    if (projectMemberEntity && userEntity && roleEntity) {
+      assignee = {
+        id: projectMemberEntity.id,
+        username: userEntity.username,
+        email: userEntity.email,
+        role: roleEntity.name,
+      };
+    }
 
     return of({
       id: task.id,
@@ -116,7 +155,7 @@ export class TaskController {
         description: projectEntity.description,
         status: status.name,
       },
-      assignee: assignee.username,
+      assignee,
       priority: task.priority,
       myRole: myRole,
     });
@@ -196,26 +235,41 @@ export class TaskController {
     });
   }
 
-  getTaskHistory(): Observable<TaskEventEntity[]> {
-    // const userId = this.authService.authUser()?.id;
-    const userId = 0; //TODO: remove this
-    if (!userId) return of([]);
+  patchTask(
+    taskId: number,
+    task: PatchTaskRequest
+  ): Observable<PatchTaskResponse | undefined> {
+    const taskEntity = this.database.tasks.find((t) => t.id === taskId);
+    if (!taskEntity) return of(undefined);
 
-    const taskIds = this.database.tasks
-      .filter((task) => task.assigneeId === userId)
-      .map((task) => task.id);
+    const myRole = this.authService.getRole(taskEntity.projectId);
+    if (myRole !== 'Admin') return of(undefined);
 
-    const taskHistoryEntities = this.database.taskHistory.filter((th) =>
-      taskIds.includes(th.taskId)
+    const updatedTaskEntity = { ...taskEntity, ...task };
+    this.database.tasks[this.database.tasks.indexOf(taskEntity)] =
+      updatedTaskEntity;
+
+    const status = this.database.statuses.find(
+      (s) => s.id === updatedTaskEntity.statusId
     );
+    if (!status) return of(undefined);
 
-    return of(
-      taskHistoryEntities.map((th) => ({
-        id: th.id,
-        taskId: th.taskId,
-        description: th.description,
-        date: th.date,
-      }))
+    const projectEntity = this.database.projects.find(
+      (p) => p.id === updatedTaskEntity.projectId
     );
+    if (!projectEntity) return of(undefined);
+
+    return of({
+      id: updatedTaskEntity.id,
+      name: updatedTaskEntity.name,
+      description: updatedTaskEntity.description,
+      status: status.name,
+      project: {
+        id: projectEntity.id,
+        name: projectEntity.name,
+        description: projectEntity.description,
+        status: status.name,
+      },
+    });
   }
 }

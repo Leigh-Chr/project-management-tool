@@ -14,11 +14,9 @@ import type { ProjectDetails } from '@app/shared/models/project.models';
 import { TaskService } from '@app/shared/services/data/task.service';
 import { AddProjectMemberPopupComponent } from '../../shared/components/popups/add-project-members-popup.component';
 import { AddTaskPopupComponent } from '../../shared/components/popups/add-task-popup.component';
-import { AssignTaskPopupComponent } from '../../shared/components/popups/assign-task-popup.component';
 import { DeleteProjectMemberPopupComponent } from '../../shared/components/popups/delete-project-member-popup.component';
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { DeleteTaskPopupComponent } from '../../shared/components/popups/delete-task-popup.component';
-import { PopupComponent } from '../../shared/components/ui/popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { AuthService } from '../../shared/services/auth.service';
 import { ProjectService } from '../../shared/services/data/project.service';
@@ -27,23 +25,19 @@ type PopupType =
   | 'deleteProject'
   | 'addMember'
   | 'deleteProjectMember'
-  | 'assignTask'
   | 'addTask'
-  | 'deleteTask'
-  | 'assignMember';
+  | 'deleteTask';
 
 @Component({
   imports: [
     DefaultLayoutComponent,
     DatePipe,
     RouterModule,
-    PopupComponent,
     DeleteProjectPopupComponent,
     DeleteProjectMemberPopupComponent,
     AddProjectMemberPopupComponent,
     AddTaskPopupComponent,
     DeleteTaskPopupComponent,
-    AssignTaskPopupComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
@@ -116,8 +110,8 @@ type PopupType =
               @for (member of project.projectMembers; track member.id) {
               <div class="card flex flex-col gap-2">
                 <h4>
-                  {{ member.user }}
-                  @if (member.user === currentUser()) { (You) }
+                  {{ member.username }}
+                  @if (member.username === currentUser()) { (You) }
                 </h4>
                 <div>
                   <p>
@@ -126,16 +120,15 @@ type PopupType =
                       {{ member.role }}
                     </span>
                   </p>
+                  <p>
+                    <strong class="label"> Email: </strong>
+                    <span>
+                      {{ member.email }}
+                    </span>
+                  </p>
                 </div>
                 <footer class="flex gap-2">
                   @if (isAdmin()) {
-                  <button
-                    class="btn btn--primary w-full"
-                    (click)="showPopup('assignTask', member.id)"
-                  >
-                    <i class="fi fi-rr-link-horizontal"></i>
-                  </button>
-                  } @if (isAdmin()) {
                   <button
                     class="btn btn--danger w-full"
                     (click)="showPopup('deleteProjectMember', member.id)"
@@ -182,7 +175,7 @@ type PopupType =
                     <strong class="label">Assigned To:</strong>
                     @if (task.assignee) {
                     <span>
-                      {{ task.assignee }}
+                      {{ task.assignee.username }}
                     </span>
                     } @else {
                     <span> Unassigned </span>
@@ -214,13 +207,6 @@ type PopupType =
                   </button>
                   @if (isMember()) {
                   <button
-                    class="btn btn--primary w-full"
-                    (click)="showPopup('assignMember', task.id)"
-                  >
-                    <i class="fi fi-rr-link-horizontal"></i>
-                  </button>
-                  } @if (isMember()) {
-                  <button
                     class="btn btn--danger w-full"
                     (click)="showPopup('deleteTask', task.id)"
                   >
@@ -248,26 +234,14 @@ type PopupType =
         [projectId]="projectId"
         (onClose)="hidePopup()"
       />
-      } } @case ('assignTask') {
-      <pmt-assign-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" />
-      } @case ('deleteProjectMember') { @if ( activeId(); as projectMemberId) {
+      } } @case ('deleteProjectMember') { @if ( activeId(); as projectMemberId)
+      {
       <pmt-delete-project-member-popup
         [projectMemberId]="projectMemberId"
         (onClose)="hidePopup()"
       />
       } } @case ('addTask') {
       <pmt-add-task-popup (onClose)="hidePopup()" [projectId]="activeId()!" />
-      } @case ('assignMember') {
-      <ui-popup
-        id="assign-member-popup"
-        popupTitle="Assign Member"
-        [isSubmitDisabled]="true"
-        submitLabel="Submit"
-        cancelLabel="Cancel"
-        (onClose)="hidePopup()"
-      >
-        Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-      </ui-popup>
       } @case ('deleteTask') {
       <pmt-delete-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" />
       } } } @else {
@@ -340,7 +314,7 @@ export class ProjectDetailsComponent {
             (pm) => pm.id !== deletedProjectMember.id
           ),
         });
-        if (deletedProjectMember.user === this.currentUser()) {
+        if (deletedProjectMember.username === this.currentUser()) {
           this.router.navigate(['/projects']);
         }
       });
@@ -352,6 +326,7 @@ export class ProjectDetailsComponent {
         const project = this.project();
         if (!project) return;
         if (!postedTask) return;
+
         this.project.set({
           ...project,
           tasks: [...project.tasks, postedTask],

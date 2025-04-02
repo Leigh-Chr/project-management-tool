@@ -6,7 +6,7 @@ import type {
 } from './entities';
 
 import type { ProjectEntity } from './entities';
-import { Task } from './task.models';
+import type { Task as TaskModel } from './task.models';
 
 export type Project = {
   id: ProjectEntity['id'];
@@ -38,9 +38,12 @@ export type GetProjectDetailsResponse = ProjectDetails;
 export type ProjectMember = {
   id: ProjectMemberEntity['id'];
   project: ProjectEntity['name'];
-  user: UserEntity['username'];
+  username: UserEntity['username'];
+  email: UserEntity['email'];
   role: RoleEntity['name'];
 };
+
+export type Task = TaskModel;
 
 export type PostProjectMemberRequest = Omit<ProjectMemberEntity, 'id'>;
 export type PostProjectMemberResponse = ProjectMember;

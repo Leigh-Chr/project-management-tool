@@ -14,6 +14,8 @@ import type {
   GetTaskDetailsResponse,
   GetTaskResponse,
   GetTasksResponse,
+  PatchTaskRequest,
+  PatchTaskResponse,
   PostTaskRequest,
   PostTaskResponse,
   Task,
@@ -80,7 +82,10 @@ export class TaskService {
     return this.taskController.getTaskDetails(taskId);
   }
 
-  getTaskHistory(): Observable<TaskEventEntity[]> {
-    return this.taskController.getTaskHistory();
+  patchTask(
+    taskId: number,
+    task: PatchTaskRequest
+  ): Observable<PatchTaskResponse | undefined> {
+    return this.taskController.patchTask(taskId, task);
   }
 }

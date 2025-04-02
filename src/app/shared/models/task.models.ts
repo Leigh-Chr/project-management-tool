@@ -1,11 +1,11 @@
 import type {
   ProjectEntity,
+  ProjectMemberEntity,
   RoleEntity,
   StatusEntity,
   TaskEntity,
   UserEntity,
 } from './entities';
-import { Project } from './project.models';
 
 export type Task = {
   id: TaskEntity['id'];
@@ -13,8 +13,21 @@ export type Task = {
   description?: TaskEntity['description'];
   dueDate?: TaskEntity['dueDate'];
   status: StatusEntity['name'];
-  project: Project;
-  assignee?: UserEntity['username'];
+  project: {
+    id: ProjectEntity['id'];
+    name: ProjectEntity['name'];
+    description?: ProjectEntity['description'];
+    startDate?: ProjectEntity['startDate'];
+    endDate?: ProjectEntity['endDate'];
+    status: StatusEntity['name'];
+    myRole?: RoleEntity['name'];
+  };
+  assignee?: {
+    id: ProjectMemberEntity['id'];
+    username: UserEntity['username'];
+    email: UserEntity['email'];
+    role: RoleEntity['name'];
+  };
   priority?: TaskEntity['priority'];
 };
 
@@ -31,3 +44,6 @@ export type TaskDetails = Task & {
 };
 
 export type GetTaskDetailsResponse = TaskDetails;
+
+export type PatchTaskRequest = Partial<Omit<TaskEntity, 'id'>>;
+export type PatchTaskResponse = Task;

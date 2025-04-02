@@ -15,7 +15,7 @@ import { DeleteTaskPopupComponent } from '../../shared/components/popups/delete-
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { TaskService } from '../../shared/services/data/task.service';
 import { AuthService } from '@app/shared/services/auth.service';
-type PopupType = 'deleteTask' | 'changeAssignee';
+type PopupType = 'deleteTask' | 'patchTask';
 
 @Component({
   imports: [
@@ -39,12 +39,18 @@ type PopupType = 'deleteTask' | 'changeAssignee';
               {{ task.description || 'No description provided.' }}
             </p>
           </div>
-          @if (isAdmin()) {
+          @if (isMember()) {
           <button
             class="btn btn--danger"
             (click)="showPopup('deleteTask', task.id)"
           >
             <i class="fi fi-rr-trash"></i>
+          </button>
+          <button
+            class="btn btn--primary"
+            (click)="showPopup('patchTask', task.id)"
+          >
+            <i class="fi fi-rr-pencil"></i>
           </button>
           }
         </header>
@@ -76,19 +82,25 @@ type PopupType = 'deleteTask' | 'changeAssignee';
             <section class="flex flex-col gap-4">
               <header class="flex gap-4">
                 <h2>Assignee</h2>
-                <button
-                  class="btn btn--primary"
-                  (click)="showPopup('changeAssignee', task.id)"
-                >
-                  <i class="fi fi-rr-user-pen"></i>
-                </button>
               </header>
               <div class="flex flex-wrap gap-4">
                 @if (task.assignee; as assignee) {
                 <div class="card">
                   <h4>Username</h4>
                   <p>
-                    {{ assignee }}
+                    {{ assignee.username }}
+                  </p>
+                </div>
+                <div class="card">
+                  <h4>Email</h4>
+                  <p>
+                    {{ assignee.email }}
+                  </p>
+                </div>
+                <div class="card">
+                  <h4>Role</h4>
+                  <p>
+                    {{ assignee.role }}
                   </p>
                 </div>
                 } @else {
@@ -153,6 +165,8 @@ type PopupType = 'deleteTask' | 'changeAssignee';
 
     @switch (activePopup()) { @case ('deleteTask') {
     <pmt-delete-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" />
+    } @case ('patchTask') {
+    <!-- <pmt-patch-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" /> -->
     } }
   `,
 })
@@ -164,8 +178,7 @@ export class TaskDetailsComponent {
 
   readonly id: number = Number.parseInt(this.route.snapshot.params['id']);
   readonly task = signal<TaskDetails | null>(null);
-  readonly isAdmin = computed(() => this.task()?.myRole === 'Admin');
-  readonly isMember = computed(() => this.task()?.myRole);
+  readonly isMember = computed(() => this.task()?.myRole !== 'Observer');
   readonly currentUser = computed(() => this.authService.authUser()?.username);
 
   readonly activeId = signal<number | null>(null);

@@ -188,7 +188,6 @@ export class ProjectController {
       .filter(
         (member): member is NonNullable<typeof member> => member !== null
       );
-
     const tasks = this.database.tasks.filter((t) => t.projectId === projectId);
 
     const myRole = this.authService.getRole(projectId);
@@ -200,12 +199,21 @@ export class ProjectController {
       startDate: projectEntity.startDate,
       endDate: projectEntity.endDate,
       status: statusEntity.name,
-      projectMembers: projectMembers.map((pm) => ({
-        id: pm.id,
-        project: projectEntity.name,
-        user: pm.user,
-        role: pm.role,
-      })),
+      projectMembers: projectMembers
+        .map((pm) => {
+          const user = this.database.users.find((u) => u.id === pm.id);
+          if (!user) return null;
+          return {
+            id: pm.id,
+            project: projectEntity.name,
+            username: user.username,
+            email: user.email,
+            role: pm.role,
+          };
+        })
+        .filter(
+          (member): member is NonNullable<typeof member> => member !== null
+        ),
       tasks: tasks
         .map((t) => {
           const assignee = this.database.users.find(
@@ -215,6 +223,16 @@ export class ProjectController {
             (s) => s.id === t.statusId
           );
           if (!status) return null;
+
+          const projectMember = this.database.projectMembers.find(
+            (pm) =>
+              pm.userId === t.assigneeId && pm.projectId === projectEntity.id
+          );
+          const roleEntity = this.database.roles.find(
+            (r) => r.id === projectMember?.roleId
+          );
+          if (!roleEntity) return null;
+
           return {
             id: t.id,
             name: t.name,
@@ -226,7 +244,14 @@ export class ProjectController {
               description: projectEntity.description,
               status: status.name,
             },
-            assignee: assignee?.username,
+            assignee: assignee
+              ? {
+                  id: assignee.id,
+                  username: assignee.username,
+                  email: assignee.email,
+                  role: roleEntity.name,
+                }
+              : undefined,
             priority: t.priority,
           };
         })

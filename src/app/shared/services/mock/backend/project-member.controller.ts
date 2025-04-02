@@ -41,7 +41,8 @@ export class ProjectMemberController {
     return of({
       id: projectMemberEntity.id,
       project: project.name,
-      user: user.username,
+      username: user.username,
+      email: user.email,
       role: role.name,
     });
   }
@@ -85,7 +86,8 @@ export class ProjectMemberController {
     return of({
       id: projectMemberEntity.id,
       project: project.name,
-      user: user.username,
+      username: user.username,
+      email: user.email,
       role: role.name,
     });
   }
@@ -119,7 +121,8 @@ export class ProjectMemberController {
     return of({
       id: newIndex,
       project: project.name,
-      user: user.username,
+      username: user.username,
+      email: user.email,
       role: role.name,
     });
   }
