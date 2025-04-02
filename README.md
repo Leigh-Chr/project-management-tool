@@ -1,27 +1,91 @@
-# ProjectManagementTool
+# Project Management Tool
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.1.
+Application web de gestion de projet développée avec Angular 19.
 
-## Development server
+## Fonctionnalités
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+- Authentification sécurisée (login/register)
+- Gestion complète des projets
+  - Création et suppression de projets
+  - Détails des projets (dates, statut, description)
+  - Gestion des membres et des rôles
+- Gestion des tâches
+  - Création et suivi des tâches
+  - Association aux projets
+- Interface utilisateur moderne et responsive
 
-## Code scaffolding
+## Prérequis
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+- Node.js 22 (version LTS)
+- npm
+- Docker
 
-## Build
+## Installation
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+1. Cloner le repository :
+```bash
+git clone https://github.com/Leigh-Chr/project-management-tool
+cd project-management-tool
+```
 
-## Running unit tests
+2. Installer les dépendances :
+```bash
+npm install
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+3. Configurer les variables d'environnement :
+```bash
+cp src/environments/environment.example.ts src/environments/environment.ts
+```
 
-## Running end-to-end tests
+4. Lancer l'application :
+```bash
+npm start
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+L'application sera accessible à l'adresse : `http://localhost:4200`
 
-## Further help
+## Build & Déploiement
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Build pour la production :
+```bash
+npm run build
+```
+
+Déploiement avec Docker :
+```bash
+docker build -t project-management-tool .
+docker-compose up -d
+```
+
+L'application sera accessible à l'adresse : `http://localhost:80`
+
+## Tests
+
+```bash
+npm run test
+```
+
+## Structure du Projet
+
+```
+project-management-tool/
+├── src/                    # Code source
+│   ├── app/               # Application
+│   │   ├── core/         # Services principaux
+│   │   ├── shared/       # Contenu réutilisable
+│   │   ├── pages/        # Pages
+│   │   ├── interceptors/ # Intercepteurs HTTP
+│   │   └── styles/       # Styles spécifiques
+│   ├── environments/      # Configuration
+│   └── assets/           # Ressources
+├── public/                # Fichiers statiques
+└── docs/                  # Documentation
+```
+
+## Sécurité
+
+- Authentification sécurisée avec tokens JWT
+- Protection des routes avec guards
+- Validation des entrées
+- Variables d'environnement
