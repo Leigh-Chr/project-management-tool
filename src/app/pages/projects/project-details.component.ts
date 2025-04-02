@@ -148,7 +148,7 @@ type PopupType =
           <section class="flex flex-col gap-4">
             <header class="flex gap-4">
               <h2>Tasks</h2>
-              @if (isMember()) {
+              @if (!isObserver()) {
               <button
                 class="btn btn--primary"
                 (click)="showPopup('addTask', project.id)"
@@ -205,7 +205,7 @@ type PopupType =
                   >
                     <i class="fi fi-rr-door-open"></i>
                   </button>
-                  @if (isMember()) {
+                  @if (!isObserver()) {
                   <button
                     class="btn btn--danger w-full"
                     (click)="showPopup('deleteTask', task.id)"
@@ -261,7 +261,7 @@ export class ProjectDetailsComponent {
   readonly project = signal<ProjectDetails | null>(null);
 
   readonly isAdmin = computed(() => this.project()?.myRole === 'Admin');
-  readonly isMember = computed(() => this.project()?.myRole);
+  readonly isObserver = computed(() => this.project()?.myRole === 'Observer');
   readonly currentUser = computed(() => this.authService.authUser()?.username);
 
   readonly activePopup = signal<PopupType | null>(null);

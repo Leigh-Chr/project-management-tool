@@ -20,6 +20,7 @@ export class ProjectController {
 
   getProject(projectId: number): Observable<GetProjectResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
+    if (!myRole) return of(undefined);
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === projectId
@@ -44,6 +45,7 @@ export class ProjectController {
       this.database.projects
         .map((p) => {
           const myRole = this.authService.getRole(p.id);
+          if (!myRole) return null;
 
           const statusEntity = this.database.statuses.find(
             (s) => s.id === p.statusId
@@ -163,6 +165,9 @@ export class ProjectController {
   getProjectDetails(
     projectId: number
   ): Observable<GetProjectDetailsResponse | undefined> {
+    const myRole = this.authService.getRole(projectId);
+    if (!myRole) return of(undefined);
+
     const projectEntity = this.database.projects.find(
       (p) => p.id === projectId
     );
@@ -189,8 +194,6 @@ export class ProjectController {
         (member): member is NonNullable<typeof member> => member !== null
       );
     const tasks = this.database.tasks.filter((t) => t.projectId === projectId);
-
-    const myRole = this.authService.getRole(projectId);
 
     const projectDetails: GetProjectDetailsResponse = {
       id: projectEntity.id,

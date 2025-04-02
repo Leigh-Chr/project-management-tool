@@ -80,16 +80,17 @@ export class DatabaseMockService {
   readonly roles: RoleEntity[] = [
     { id: 1, name: 'Admin' },
     { id: 2, name: 'Member' },
+    { id: 3, name: 'Observer' },
   ];
 
   readonly projectMembers: ProjectMemberEntity[] = [
     { id: 1, projectId: 1, userId: 1, roleId: 2 },
-    { id: 2, projectId: 1, userId: 2, roleId: 2 },
+    { id: 2, projectId: 1, userId: 2, roleId: 3 },
     { id: 3, projectId: 2, userId: 3, roleId: 2 },
-    { id: 4, projectId: 2, userId: 4, roleId: 2 },
+    { id: 4, projectId: 2, userId: 4, roleId: 3 },
     { id: 5, projectId: 3, userId: 5, roleId: 2 },
-    { id: 6, projectId: 3, userId: 6, roleId: 2 },
-    { id: 7, projectId: 4, userId: 3, roleId: 2 },
+    { id: 6, projectId: 3, userId: 6, roleId: 3 },
+    { id: 7, projectId: 4, userId: 3, roleId: 3 },
     { id: 8, projectId: 1, userId: 6, roleId: 1 },
     { id: 9, projectId: 2, userId: 1, roleId: 1 },
     { id: 10, projectId: 3, userId: 2, roleId: 1 },

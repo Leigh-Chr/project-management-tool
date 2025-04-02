@@ -22,7 +22,6 @@ import type {
 } from '@app/shared/models/project.models';
 import type { Observable } from 'rxjs';
 import type { ProjectMemberEntity } from '../../models/entities';
-import { AuthService } from '../auth.service';
 import { ProjectMemberController } from '../mock/backend/project-member.controller';
 import { ProjectController } from '../mock/backend/project.controller';
 
@@ -32,7 +31,6 @@ import { ProjectController } from '../mock/backend/project.controller';
 export class ProjectService {
   private readonly projectController = inject(ProjectController);
   private readonly projectMemberController = inject(ProjectMemberController);
-  private readonly authService = inject(AuthService);
   private readonly injector = inject(Injector);
 
   readonly deletedProject = signal<number | null>(null);

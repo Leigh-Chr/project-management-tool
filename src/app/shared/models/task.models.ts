@@ -29,6 +29,7 @@ export type Task = {
     role: RoleEntity['name'];
   };
   priority?: TaskEntity['priority'];
+  myRole?: RoleEntity['name'];
 };
 
 export type GetTaskResponse = Task;

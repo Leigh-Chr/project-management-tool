@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { type Observable, of } from 'rxjs';
-import type { TaskEntity, TaskEventEntity } from '../../../models/entities';
+import type { TaskEntity } from '../../../models/entities';
 import type {
   DeleteTaskResponse,
   GetTaskDetailsResponse,
@@ -24,6 +24,9 @@ export class TaskController {
     const taskEntity = this.database.tasks.find((t) => t.id === taskId);
     if (!taskEntity) return of(undefined);
 
+    const myRole = this.authService.getRole(taskEntity.projectId);
+    if (!myRole) return of(undefined);
+
     const status = this.database.statuses.find(
       (s) => s.id === taskEntity.statusId
     );
@@ -46,6 +49,7 @@ export class TaskController {
         name: project.name,
         description: project.description,
         status: status.name,
+        myRole,
       },
     });
   }
@@ -54,6 +58,9 @@ export class TaskController {
     return of(
       this.database.tasks
         .map((t) => {
+          const myRole = this.authService.getRole(t.projectId);
+          if (!myRole) return null;
+
           const statusEntity = this.database.statuses.find(
             (s) => s.id === t.statusId
           );
@@ -100,6 +107,7 @@ export class TaskController {
               status: statusEntity.name,
             },
             assignee,
+            myRole,
           };
         })
         .filter((t): t is NonNullable<typeof t> => t !== null)
@@ -109,10 +117,11 @@ export class TaskController {
   getTaskDetails(
     taskId: number
   ): Observable<GetTaskDetailsResponse | undefined> {
-    const myRole = this.authService.getRole(taskId);
-
     const task = this.database.tasks.find((t) => t.id === taskId);
     if (!task) return of(undefined);
+
+    const myRole = this.authService.getRole(task.projectId);
+    if (!myRole) return of(undefined);
 
     const status = this.database.statuses.find((s) => s.id === task.statusId);
     if (!status) return of(undefined);
@@ -157,7 +166,7 @@ export class TaskController {
       },
       assignee,
       priority: task.priority,
-      myRole: myRole,
+      myRole,
     });
   }
 
@@ -167,7 +176,7 @@ export class TaskController {
     if (!task) return of(undefined);
 
     const myRole = this.authService.getRole(task.projectId);
-    if (myRole !== 'Admin') return of(undefined);
+    if (!myRole || myRole !== 'Admin') return of(undefined);
 
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
     this.database.taskHistory.splice(
@@ -194,13 +203,13 @@ export class TaskController {
         description: projectEntity.description,
         status: status.name,
       },
-      myRole: myRole,
+      myRole,
     });
   }
 
   addTask(task: PostTaskRequest): Observable<PostTaskResponse | undefined> {
     const myRole = this.authService.getRole(task.projectId);
-    if (myRole !== 'Admin') return of(undefined);
+    if (!myRole || myRole !== 'Admin') return of(undefined);
 
     const defaultStatus = this.database.statuses[0];
 
@@ -232,6 +241,7 @@ export class TaskController {
         description: projectEntity.description,
         status: status.name,
       },
+      myRole,
     });
   }
 
@@ -243,7 +253,7 @@ export class TaskController {
     if (!taskEntity) return of(undefined);
 
     const myRole = this.authService.getRole(taskEntity.projectId);
-    if (myRole !== 'Admin') return of(undefined);
+    if (!myRole || myRole !== 'Admin') return of(undefined);
 
     const updatedTaskEntity = { ...taskEntity, ...task };
     this.database.tasks[this.database.tasks.indexOf(taskEntity)] =
@@ -297,6 +307,7 @@ export class TaskController {
       assignee,
       priority: updatedTaskEntity.priority,
       dueDate: updatedTaskEntity.dueDate,
+      myRole,
     });
   }
 }
