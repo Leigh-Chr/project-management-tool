@@ -1,63 +1,100 @@
 # Project Management Tool
 
-Application web de gestion de projet développée avec Angular 19.
+Web application for project management developed with Angular 19.
 
-## Fonctionnalités
+## Features
 
-- Authentification sécurisée (login/register)
-- Gestion complète des projets
-  - Création et suppression de projets
-  - Détails des projets (dates, statut, description)
-  - Gestion des membres et des rôles
-- Gestion des tâches
-  - Création et suivi des tâches
-  - Association aux projets
-- Interface utilisateur moderne et responsive
+- Secure authentication (login/register)
+- Complete project management
+  - Project creation and deletion
+  - Project details (dates, status, description)
+  - Member and role management
+- Task management
+  - Task creation and tracking
+  - Project association
+- Modern and responsive user interface
 
-## Prérequis
+## Prerequisites
 
-- Node.js 20 (version LTS)
+- Node.js 20 (LTS version)
 - npm
 - Docker
 
 ## Installation
 
-1. Cloner le repository :
+1. Clone the repository:
 ```bash
 git clone https://github.com/Leigh-Chr/project-management-tool
 cd project-management-tool
 ```
 
-2. Installer les dépendances :
+2. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Configurer les variables d'environnement :
+3. Configure environment variables:
 ```bash
 cp src/environments/environment.example.ts src/environments/environment.ts
 ```
 
-4. Lancer l'application :
+4. Start the application:
 ```bash
 npm start
 ```
 
-L'application sera accessible à l'adresse : `http://localhost:4200`
+The application will be available at: `http://localhost:4200`
 
-## Build & Déploiement
+## Demo Data
 
-Build pour la production :
+The application comes pre-configured with demo data for testing purposes.
+
+### Available Users
+
+| Username | Email                 | Password   | Notes                     |
+|----------|----------------------|------------|---------------------------|
+| alice    | alice@example.com    | alicePass  | Administrateur on Project Beta |
+| bob      | bob@example.com      | bobPass    | Administrateur on Project Gamma |
+| charlie  | charlie@example.com  | charliePass| Membre on Project Beta    |
+| diana    | diana@example.com    | dianaPass  | Observateur on Project Beta  |
+| eve      | eve@example.com      | evePass    | Administrateur on Project Delta |
+| frank    | frank@example.com    | frankPass  | Administrateur on Project Alpha |
+| grace    | grace@example.com    | gracePass  | Administrateur on Project Epsilon |
+| henry    | henry@example.com    | henryPass  | Membre on Project Alpha   |
+
+### Demo Projects
+
+- **Project Alpha**: Frontend redesign project for the customer portal
+- **Project Beta**: Backend API development with microservices
+- **Project Gamma**: Mobile application development for iOS/Android
+- **Project Delta**: Database migration and optimization project
+- **Project Epsilon**: Infrastructure modernization with AWS migration
+
+### Available Statuses
+
+- To Do
+- In Progress
+- Done
+
+### Available Roles
+
+- Administrator
+- Member
+- Observator
+
+## Build & Deployment
+
+Build for production:
 ```bash
 npm run build
 ```
 
-Déploiement avec Docker :
+Deploy with Docker:
 ```bash
 docker-compose up -d
 ```
 
-L'application sera accessible à l'adresse : `http://localhost:80`
+The application will be available at: `http://localhost:80`
 
 ## Tests
 
@@ -65,19 +102,19 @@ L'application sera accessible à l'adresse : `http://localhost:80`
 npm run test
 ```
 
-## Structure du Projet
+## Project Structure
 
 ```
 project-management-tool/
-├── src/                    # Code source
+├── src/                    # Source code
 │   ├── app/               # Application
-│   │   ├── core/         # Services principaux
-│   │   ├── shared/       # Contenu réutilisable
+│   │   ├── core/         # Core services
+│   │   ├── shared/       # Reusable content
 │   │   ├── pages/        # Pages
-│   │   ├── interceptors/ # Intercepteurs HTTP
-│   │   └── styles/       # Styles spécifiques
+│   │   ├── interceptors/ # HTTP interceptors
+│   │   └── styles/       # Specific styles
 │   ├── environments/      # Configuration
-│   └── assets/           # Ressources
-├── public/                # Fichiers statiques
+│   └── assets/           # Resources
+├── public/                # Static files
 └── docs/                  # Documentation
 ```

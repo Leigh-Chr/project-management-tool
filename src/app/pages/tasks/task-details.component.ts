@@ -193,7 +193,6 @@ export class TaskDetailsComponent {
     const task = toSignal(
       this.taskService.getTaskDetails(this.id).pipe(map((task) => task ?? null))
     );
-    console.log(task());
     effect(() => {
       this.task.set(task() ?? null);
     });
