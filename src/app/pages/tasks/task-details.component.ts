@@ -6,12 +6,14 @@ import {
   effect,
   inject,
   signal,
+  untracked,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TaskDetails } from '@app/shared/models/task.models';
 import { map } from 'rxjs';
 import { DeleteTaskPopupComponent } from '../../shared/components/popups/delete-task-popup.component';
+import { PatchTaskPopupComponent } from '../../shared/components/popups/patch-task-popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { TaskService } from '../../shared/services/data/task.service';
 import { AuthService } from '@app/shared/services/auth.service';
@@ -23,6 +25,7 @@ type PopupType = 'deleteTask' | 'patchTask';
     DatePipe,
     RouterModule,
     DeleteTaskPopupComponent,
+    PatchTaskPopupComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
@@ -166,7 +169,7 @@ type PopupType = 'deleteTask' | 'patchTask';
     @switch (activePopup()) { @case ('deleteTask') {
     <pmt-delete-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" />
     } @case ('patchTask') {
-    <!-- <pmt-patch-task-popup [taskId]="activeId()!" (onClose)="hidePopup()" /> -->
+    <pmt-patch-task-popup [task]="task()!" (onClose)="hidePopup()" />
     } }
   `,
 })
@@ -192,6 +195,23 @@ export class TaskDetailsComponent {
     effect(() => {
       this.task.set(task() ?? null);
     });
+
+    effect(() => {
+      const patchedTask = this.taskService.patchedTask();
+      if (!patchedTask) return;
+      this.task.set(patchedTask);
+    });
+
+    effect(() => {
+      const deletedTask = this.taskService.deletedTask();
+      if (!deletedTask) return;
+
+      untracked(() => {
+        if (deletedTask === this.id) {
+          this.router.navigate(['/projects', this.task()?.project.id]);
+        }
+      });
+    });
   }
 
   showPopup(popupType: PopupType, id?: number): void {
@@ -202,14 +222,8 @@ export class TaskDetailsComponent {
   hidePopup(): void {
     this.activePopup.set(null);
     this.activeId.set(null);
-  }
-
-  deleteTask(): void {
-    const task = this.task();
-    if (!task) return;
-    this.taskService.deleteTask(task.id).subscribe(() => {
-      this.router.navigate(['/tasks']);
-    });
+    this.taskService.patchedTask.set(null);
+    this.taskService.deletedTask.set(null);
   }
 
   goToProject(projectId: number): void {

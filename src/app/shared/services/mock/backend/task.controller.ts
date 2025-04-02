@@ -259,6 +259,30 @@ export class TaskController {
     );
     if (!projectEntity) return of(undefined);
 
+    const projectMemberEntity = this.database.projectMembers.find(
+      (pm) =>
+        pm.projectId === updatedTaskEntity.projectId &&
+        pm.userId === updatedTaskEntity.assigneeId
+    );
+
+    const roleEntity = this.database.roles.find(
+      (r) => r.id === projectMemberEntity?.roleId
+    );
+
+    const userEntity = this.database.users.find(
+      (u) => u.id === projectMemberEntity?.userId
+    );
+
+    let assignee: Task['assignee'] | undefined = undefined;
+    if (projectMemberEntity && userEntity && roleEntity) {
+      assignee = {
+        id: projectMemberEntity.id,
+        username: userEntity.username,
+        email: userEntity.email,
+        role: roleEntity.name,
+      };
+    }
+
     return of({
       id: updatedTaskEntity.id,
       name: updatedTaskEntity.name,
@@ -270,6 +294,9 @@ export class TaskController {
         description: projectEntity.description,
         status: status.name,
       },
+      assignee,
+      priority: updatedTaskEntity.priority,
+      dueDate: updatedTaskEntity.dueDate,
     });
   }
 }

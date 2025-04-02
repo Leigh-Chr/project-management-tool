@@ -333,6 +333,19 @@ export class ProjectDetailsComponent {
         });
       });
     });
+
+    effect(() => {
+      const deletedTask = this.taskService.deletedTask();
+      untracked(() => {
+        const project = this.project();
+        if (!project) return;
+        if (!deletedTask) return;
+        this.project.set({
+          ...project,
+          tasks: project.tasks.filter((task) => task.id !== deletedTask),
+        });
+      });
+    });
   }
 
   showPopup(popupType: PopupType, id?: number): void {

@@ -1,30 +1,39 @@
 import {
-  ChangeDetectionStrategy,
   Component,
+  Injector,
+  effect,
   inject,
   input,
   output,
+  signal,
+  untracked,
 } from '@angular/core';
-import { TaskService } from '../../services/data/task.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import type { Task } from '@app/shared/models/task.models';
+import { TaskService } from '@app/shared/services/data/task.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
-import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'pmt-delete-task-popup',
   standalone: true,
   imports: [PopupComponent],
   template: `
-    @if (task()) {
+    @if (task(); as task) {
     <ui-popup
-      popupTitle="Delete Task - {{ task()?.name }}"
-      submitLabel="Submit"
-      cancelLabel="Cancel"
-      [isSubmitDisabled]="true"
+      popupTitle="Delete Task - {{ task.name }}"
       (onSubmit)="deleteTask()"
-      (onClose)="close()"
+      (onClose)="onClose.emit()"
     >
-      <p>Are you sure you want to delete this task?</p>
+      <p>
+        Are you sure you want to delete this task? This action cannot be undone.
+      </p>
+
+      <ul class="list">
+        <li><b>Name:</b> {{ task.name }}</li>
+        <li><b>Status:</b> {{ task.status }}</li>
+        <li><b>Project:</b> {{ task.project.name }}</li>
+      </ul>
     </ui-popup>
     } @else {
     <ui-popup
@@ -33,38 +42,68 @@ import { toSignal } from '@angular/core/rxjs-interop';
       submitLabel="Submit"
       cancelLabel="Cancel"
     >
-      <p>Loading...</p>
+      <p class="delete-task-popup__message" role="status" aria-live="polite">
+        Loading...
+      </p>
     </ui-popup>
     }
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteTaskPopupComponent {
   private readonly toastService = inject(ToastService);
   private readonly taskService = inject(TaskService);
+  private readonly injector = inject(Injector);
 
-  taskId = input.required<number>();
-  task = toSignal(this.taskService.getTask(this.taskId()));
+  readonly taskId = input.required<number>();
+  task = signal<Task | undefined>(undefined).asReadonly();
 
   onClose = output<void>();
 
+  constructor() {
+    effect(() => {
+      const task = this.task();
+      if (!task) {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Task not found',
+          type: 'error',
+        });
+        this.onClose.emit();
+        return;
+      }
+    });
+
+    effect(() => {
+      const deletedTask = this.taskService.deletedTask();
+      if (!deletedTask) return;
+
+      untracked(() => {
+        this.toastService.showToast({
+          title: 'Success',
+          message: 'Task deleted',
+          type: 'success',
+        });
+        this.onClose.emit();
+      });
+    });
+  }
+
   async ngOnInit(): Promise<void> {
-    if (!this.task()) {
+    this.task = toSignal(this.taskService.getTask(this.taskId()), {
+      injector: this.injector,
+    });
+
+    if (!this.taskId()) {
       this.toastService.showToast({
         title: 'Error',
         message: 'Task not found',
         type: 'error',
       });
-      this.close();
+      this.onClose.emit();
     }
   }
 
   deleteTask(): void {
     this.taskService.deleteTask(this.taskId());
-    this.close();
-  }
-
-  close(): void {
-    this.onClose.emit();
   }
 }

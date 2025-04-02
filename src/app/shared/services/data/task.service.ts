@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
-import type { TaskEventEntity } from '../../models/entities';
 import type {
   DeleteTaskResponse,
   GetTaskDetailsResponse,
@@ -31,6 +30,7 @@ export class TaskService {
 
   readonly deletedTask = signal<number | null>(null);
   readonly postedTask = signal<Task | null>(null);
+  readonly patchedTask = signal<Task | null>(null);
 
   deleteTask(taskId: number): Observable<DeleteTaskResponse | undefined> {
     const deletedTaskObservable = this.taskController.deleteTask(taskId);
@@ -86,6 +86,20 @@ export class TaskService {
     taskId: number,
     task: PatchTaskRequest
   ): Observable<PatchTaskResponse | undefined> {
-    return this.taskController.patchTask(taskId, task);
+    const patchedTaskObservable = this.taskController.patchTask(taskId, task);
+
+    const patchedTaskSignal = toSignal(patchedTaskObservable, {
+      injector: this.injector,
+    });
+
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const patchedTask = patchedTaskSignal();
+        if (!patchedTask) return;
+        this.patchedTask.set(patchedTask);
+      });
+    });
+
+    return patchedTaskObservable;
   }
 }
