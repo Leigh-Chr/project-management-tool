@@ -20,7 +20,7 @@ import { PopupComponent } from '../ui/popup.component';
   template: `
     @if (projectMember(); as projectMember) {
     <ui-popup
-      popupTitle="Delete Member - {{ projectMember.user }}"
+      popupTitle="Delete Member - {{ projectMember.username }}"
       (onSubmit)="deleteProjectMember()"
       (onClose)="onClose.emit()"
     >
@@ -30,7 +30,7 @@ import { PopupComponent } from '../ui/popup.component';
       </p>
 
       <ul class="list">
-        <li><b>Name:</b> {{ projectMember.user }}</li>
+        <li><b>Name:</b> {{ projectMember.username }}</li>
         <li><b>Role:</b> {{ projectMember.role }}</li>
         <li><b>Project:</b> {{ projectMember.project }}</li>
       </ul>
