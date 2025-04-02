@@ -16,7 +16,7 @@ Application web de gestion de projet développée avec Angular 19.
 
 ## Prérequis
 
-- Node.js 22 (version LTS)
+- Node.js 20 (version LTS)
 - npm
 - Docker
 
@@ -54,7 +54,6 @@ npm run build
 
 Déploiement avec Docker :
 ```bash
-docker build -t project-management-tool .
 docker-compose up -d
 ```
 
@@ -82,10 +81,3 @@ project-management-tool/
 ├── public/                # Fichiers statiques
 └── docs/                  # Documentation
 ```
-
-## Sécurité
-
-- Authentification sécurisée avec tokens JWT
-- Protection des routes avec guards
-- Validation des entrées
-- Variables d'environnement

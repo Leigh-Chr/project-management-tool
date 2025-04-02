@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 services:
   angular-app:
     build:
@@ -6,5 +6,4 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
-    volumes:
-      - ./dist:/usr/share/nginx/html
+    restart: unless-stopped
