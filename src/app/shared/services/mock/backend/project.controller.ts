@@ -188,7 +188,6 @@ export class ProjectController {
     projectId: number
   ): Observable<GetProjectDetailsResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    console.log('myRole', myRole);
     if (!myRole) {
       return of(undefined);
     }

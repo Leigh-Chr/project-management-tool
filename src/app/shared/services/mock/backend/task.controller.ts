@@ -216,7 +216,7 @@ export class TaskController {
     }
 
     const myRole = this.authService.getRole(task.projectId);
-    if (!myRole || myRole !== 'Admin') {
+    if (myRole !== 'Admin' && myRole !== 'Member') {
       return of(undefined);
     }
 
