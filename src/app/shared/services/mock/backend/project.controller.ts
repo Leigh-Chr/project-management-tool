@@ -235,7 +235,7 @@ export class ProjectController {
       status: statusEntity.name,
       projectMembers: projectMembers
         .map((pm) => {
-          const user = this.database.users.find((u) => u.id === pm.id);
+          const user = this.database.users.find((u) => u.username === pm.user);
           if (!user) {
             return null;
           }
