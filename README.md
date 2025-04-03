@@ -53,14 +53,14 @@ The application comes pre-configured with demo data for testing purposes.
 
 | Username | Email                 | Password   | Notes                     |
 |----------|----------------------|------------|---------------------------|
-| alice    | alice@example.com    | alicePass  | Administrateur on Project Beta |
-| bob      | bob@example.com      | bobPass    | Administrateur on Project Gamma |
-| charlie  | charlie@example.com  | charliePass| Membre on Project Beta    |
-| diana    | diana@example.com    | dianaPass  | Observateur on Project Beta  |
-| eve      | eve@example.com      | evePass    | Administrateur on Project Delta |
-| frank    | frank@example.com    | frankPass  | Administrateur on Project Alpha |
-| grace    | grace@example.com    | gracePass  | Administrateur on Project Epsilon |
-| henry    | henry@example.com    | henryPass  | Membre on Project Alpha   |
+| alice    | alice@example.com    | alicePass  | Administrator on Project Beta |
+| bob      | bob@example.com      | bobPass    | Administrator on Project Gamma |
+| charlie  | charlie@example.com  | charliePass| Member on Project Beta    |
+| diana    | diana@example.com    | dianaPass  | Observer on Project Beta  |
+| eve      | eve@example.com      | evePass    | Administrator on Project Delta |
+| frank    | frank@example.com    | frankPass  | Administrator on Project Alpha |
+| grace    | grace@example.com    | gracePass  | Administrator on Project Epsilon |
+| henry    | henry@example.com    | henryPass  | Member on Project Alpha   |
 
 ### Demo Projects
 
@@ -78,9 +78,9 @@ The application comes pre-configured with demo data for testing purposes.
 
 ### Available Roles
 
-- Administrator
+- Admin
 - Member
-- Observator
+- Observer
 
 ## Build & Deployment
 

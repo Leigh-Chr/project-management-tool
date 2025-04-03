@@ -96,7 +96,6 @@ type PopupType =
           <section class="flex flex-col gap-4">
             <header class="flex gap-4">
               <h2>Members</h2>
-              {{ project.myRole }}
               @if (isAdmin()) {
               <button
                 class="btn btn--primary"
@@ -261,7 +260,7 @@ export class ProjectDetailsComponent {
   readonly id: number = Number.parseInt(this.route.snapshot.params['id']);
   readonly project = signal<ProjectDetails | null>(null);
 
-  readonly isAdmin = computed(() => this.project()?.myRole === 'Administrator');
+  readonly isAdmin = computed(() => this.project()?.myRole === 'Admin');
   readonly isObserver = computed(() => this.project()?.myRole === 'Observer');
   readonly currentUser = computed(() => this.authService.authUser()?.username);
 
@@ -324,6 +323,13 @@ export class ProjectDetailsComponent {
           projectMembers: project.projectMembers.filter(
             (pm) => pm.id !== deletedProjectMember.id
           ),
+          tasks: project.tasks.map((t) => ({
+            ...t,
+            assignee:
+              t.assignee?.id !== deletedProjectMember.id
+                ? t.assignee
+                : undefined,
+          })),
         });
         if (deletedProjectMember.username === this.currentUser()) {
           this.router.navigate(['/projects']);

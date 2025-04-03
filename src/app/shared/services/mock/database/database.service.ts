@@ -106,7 +106,7 @@ export class DatabaseMockService {
   ];
 
   readonly roles: RoleEntity[] = [
-    { id: 1, name: 'Administrator' },
+    { id: 1, name: 'Admin' },
     { id: 2, name: 'Member' },
     { id: 3, name: 'Observer' },
   ];

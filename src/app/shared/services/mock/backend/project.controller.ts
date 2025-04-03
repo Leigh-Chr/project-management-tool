@@ -79,7 +79,7 @@ export class ProjectController {
     projectId: number
   ): Observable<DeleteProjectResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Administrator') {
+    if (myRole !== 'Admin') {
       return of(undefined);
     }
 
@@ -163,7 +163,7 @@ export class ProjectController {
       return of(undefined);
     }
 
-    const role = this.database.roles.find((r) => r.name === 'Administrator');
+    const role = this.database.roles.find((r) => r.name === 'Admin');
     if (!role) {
       return of(undefined);
     }

@@ -78,7 +78,7 @@ type PopupType = 'addProject' | 'deleteProject';
                 </td>
                 <td class="table__cell table__cell--center">
                   <div class="flex gap-2 justify-center">
-                    @if (item.myRole === 'Administrator') {
+                    @if (item.myRole === 'Admin') {
                     <button
                       class="btn btn--danger w-full"
                       (click)="showPopup('deleteProject', item.id)"

@@ -216,7 +216,7 @@ export class TaskController {
     }
 
     const myRole = this.authService.getRole(task.projectId);
-    if (!myRole || myRole !== 'Administrator') {
+    if (!myRole || myRole !== 'Admin') {
       return of(undefined);
     }
 
@@ -260,7 +260,7 @@ export class TaskController {
 
   addTask(task: PostTaskRequest): Observable<PostTaskResponse | undefined> {
     const myRole = this.authService.getRole(task.projectId);
-    if (!myRole || myRole !== 'Administrator') {
+    if (!myRole || myRole !== 'Admin') {
       return of(undefined);
     }
 
@@ -324,7 +324,7 @@ export class TaskController {
     }
 
     const myRole = this.authService.getRole(taskEntity.projectId);
-    if (!myRole || myRole !== 'Administrator') {
+    if (!myRole || myRole !== 'Admin') {
       return of(undefined);
     }
 

@@ -71,7 +71,7 @@ export class ProjectMemberController {
 
     const { projectId } = projectMemberEntity;
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Administrator') {
+    if (myRole !== 'Admin') {
       return of(undefined);
     }
 
@@ -116,7 +116,7 @@ export class ProjectMemberController {
     roleId: number
   ): Observable<PostProjectMemberResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Administrator') {
+    if (myRole !== 'Admin') {
       return of(undefined);
     }
 

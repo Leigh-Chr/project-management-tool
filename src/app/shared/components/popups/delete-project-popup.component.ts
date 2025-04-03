@@ -102,7 +102,7 @@ export class DeleteProjectPopupComponent implements OnInit {
       this.onClose.emit();
     }
 
-    if (project?.myRole !== 'Administrator') {
+    if (project?.myRole !== 'Admin') {
       this.toastService.showToast({
         title: 'Error',
         message: 'You are not authorized to delete this project',
