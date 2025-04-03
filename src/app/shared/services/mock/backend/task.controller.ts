@@ -45,6 +45,10 @@ export class TaskController {
       return of(undefined);
     }
 
+    const taskHistory = this.database.taskEvents.filter(
+      (te) => te.taskId === taskEntity.id
+    );
+
     return of({
       id: taskEntity.id,
       name: taskEntity.name,
@@ -59,6 +63,7 @@ export class TaskController {
         status: status.name,
         myRole,
       },
+      taskHistory,
     });
   }
 
@@ -107,6 +112,10 @@ export class TaskController {
             };
           }
 
+          const taskHistory = this.database.taskEvents.filter(
+            (te) => te.taskId === t.id
+          );
+
           return {
             id: t.id,
             name: t.name,
@@ -122,6 +131,7 @@ export class TaskController {
             },
             assignee,
             myRole,
+            taskHistory,
           };
         })
         .filter((t): t is NonNullable<typeof t> => t !== null)
@@ -175,6 +185,10 @@ export class TaskController {
       };
     }
 
+    const taskHistory = this.database.taskEvents.filter(
+      (te) => te.taskId === task.id
+    );
+
     return of({
       id: task.id,
       name: task.name,
@@ -189,6 +203,8 @@ export class TaskController {
       assignee,
       priority: task.priority,
       myRole,
+      dueDate: task.dueDate,
+      taskHistory,
     });
   }
 
@@ -205,8 +221,8 @@ export class TaskController {
     }
 
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
-    this.database.taskHistory.splice(
-      this.database.taskHistory.findIndex((th) => th.taskId === taskId),
+    this.database.taskEvents.splice(
+      this.database.taskEvents.findIndex((th) => th.taskId === taskId),
       1
     );
 
@@ -222,6 +238,10 @@ export class TaskController {
       return of(undefined);
     }
 
+    const taskHistory = this.database.taskEvents.filter(
+      (te) => te.taskId === task.id
+    );
+
     return of({
       id: task.id,
       name: task.name,
@@ -234,6 +254,7 @@ export class TaskController {
         status: status.name,
       },
       myRole,
+      taskHistory,
     });
   }
 
@@ -266,6 +287,17 @@ export class TaskController {
       return of(undefined);
     }
 
+    this.database.taskEvents.push({
+      id: this.database.taskEvents.length + 1,
+      taskId: taskEntity.id,
+      description: `Task ${taskEntity.name} was created`,
+      date: new Date(),
+    });
+
+    const taskHistory = this.database.taskEvents.filter(
+      (te) => te.taskId === taskEntity.id
+    );
+
     return of({
       id: taskEntity.id,
       name: taskEntity.name,
@@ -278,6 +310,7 @@ export class TaskController {
         status: status.name,
       },
       myRole,
+      taskHistory,
     });
   }
 
@@ -337,7 +370,27 @@ export class TaskController {
       };
     }
 
-    return of({
+    console.log(taskEntity.dueDate);
+
+    const initialTask: Task = {
+      id: taskEntity.id,
+      name: taskEntity.name,
+      description: taskEntity.description,
+      status: status.name,
+      project: {
+        id: projectEntity.id,
+        name: projectEntity.name,
+        description: projectEntity.description,
+        status: status.name,
+      },
+      assignee,
+      priority: taskEntity.priority,
+      dueDate: taskEntity.dueDate,
+      myRole,
+      taskHistory: [],
+    };
+
+    const updatedTask: Task = {
       id: updatedTaskEntity.id,
       name: updatedTaskEntity.name,
       description: updatedTaskEntity.description,
@@ -352,6 +405,70 @@ export class TaskController {
       priority: updatedTaskEntity.priority,
       dueDate: updatedTaskEntity.dueDate,
       myRole,
+      taskHistory: [],
+    };
+
+    const description = this.parseTaskUpdate(initialTask, updatedTask);
+    if (!description) {
+      return of(undefined);
+    }
+
+    this.database.taskEvents.push({
+      id: this.database.taskEvents.length + 1,
+      taskId: updatedTaskEntity.id,
+      description,
+      date: new Date(),
     });
+
+    const taskHistory = this.database.taskEvents.filter(
+      (te) => te.taskId === updatedTaskEntity.id
+    );
+
+    updatedTask.taskHistory = taskHistory;
+
+    return of(updatedTask);
+  }
+
+  private parseTaskUpdate(
+    initialTask: Task,
+    updatedTask: Task
+  ): string | undefined {
+    const changes: string[] = [];
+
+    const addChange = (
+      label: string,
+      oldValue: string | undefined,
+      newValue: string | undefined
+    ): void => {
+      if (oldValue !== newValue) {
+        changes.push(`${label}: ${oldValue} > ${newValue}`);
+      }
+    };
+
+    addChange('name', initialTask.name, updatedTask.name);
+    addChange('description', initialTask.description, updatedTask.description);
+    addChange('status', initialTask.status, updatedTask.status);
+    addChange('project', initialTask.project.name, updatedTask.project.name);
+    addChange(
+      'assignee',
+      initialTask.assignee?.username,
+      updatedTask.assignee?.username
+    );
+    addChange(
+      'priority',
+      initialTask.priority?.toString(),
+      updatedTask.priority?.toString()
+    );
+    addChange(
+      'dueDate',
+      initialTask.dueDate?.toLocaleDateString(),
+      updatedTask.dueDate?.toLocaleDateString()
+    );
+
+    if (changes.length > 0) {
+      return `Task ${updatedTask.name} was updated: \n${changes.join('\n')}\n`;
+    }
+
+    return undefined;
   }
 }

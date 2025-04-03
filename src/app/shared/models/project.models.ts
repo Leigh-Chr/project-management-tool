@@ -2,11 +2,11 @@ import type {
   ProjectMemberEntity,
   RoleEntity,
   StatusEntity,
+  TaskEntity,
   UserEntity,
 } from './entities';
 
 import type { ProjectEntity } from './entities';
-import type { Task as TaskModel } from './task.models';
 
 export type Project = {
   id: ProjectEntity['id'];
@@ -43,7 +43,20 @@ export type ProjectMember = {
   role: RoleEntity['name'];
 };
 
-export type Task = TaskModel;
+export type Task = {
+  id: TaskEntity['id'];
+  name: TaskEntity['name'];
+  description?: TaskEntity['description'];
+  status: StatusEntity['name'];
+  priority?: TaskEntity['priority'];
+  dueDate?: TaskEntity['dueDate'];
+  assignee?: {
+    id: UserEntity['id'];
+    username: UserEntity['username'];
+    email: UserEntity['email'];
+    role: RoleEntity['name'];
+  };
+};
 
 export type PostProjectMemberRequest = Omit<ProjectMemberEntity, 'id'>;
 export type PostProjectMemberResponse = ProjectMember;

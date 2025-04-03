@@ -13,9 +13,9 @@ import { AuthService } from '../services/auth.service';
   selector: 'pmt-default-layout',
   imports: [RouterLink],
   template: `
-    <div class="flex flex-col p-4 gap-4">
+    <div class="layout">
       @if (user(); as user) {
-      <nav class="card rounded elevation p-4 w-full flex justify-between">
+      <nav class="nav card rounded p-4 w-full flex justify-between">
         <h1>
           <a [routerLink]="['/']" class="link">Project Management Tool</a>
         </h1>
@@ -32,12 +32,26 @@ import { AuthService } from '../services/auth.service';
         </div>
       </nav>
       }
-      <main class="w-full h-full">
+      <main class="main">
         <ng-content />
       </main>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+    .layout {
+      display: grid;
+      grid-template-rows: auto 1fr;
+      height: 100vh;
+      padding: var(--spacing-4);
+      gap: var(--spacing-4);
+    }
+
+    .main {
+      overflow: auto;
+      padding: var(--spacing-4);
+    }
+  `,
 })
 export class DefaultLayoutComponent {
   private readonly titleService = inject(Title);

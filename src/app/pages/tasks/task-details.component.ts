@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  Injector,
   computed,
   effect,
   inject,
@@ -10,7 +11,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TaskDetails } from '@app/shared/models/task.models';
+import type { TaskDetails } from '@app/shared/models/task.models';
 import { AuthService } from '@app/shared/services/auth.service';
 import { ProjectService } from '@app/shared/services/data/project.service';
 import { map } from 'rxjs';
@@ -18,6 +19,7 @@ import { DeleteTaskPopupComponent } from '../../shared/components/popups/delete-
 import { PatchTaskPopupComponent } from '../../shared/components/popups/patch-task-popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { TaskService } from '../../shared/services/data/task.service';
+
 type PopupType = 'deleteTask' | 'patchTask';
 
 @Component({
@@ -33,135 +35,153 @@ type PopupType = 'deleteTask' | 'patchTask';
   template: `
     <pmt-default-layout pageTitle="{{ task() ? task()!.name : 'Loading...' }}">
       @if (task(); as task) {
-      <div class="flex flex-col gap-4">
-        <header class="flex gap-4 items-center">
-          <div>
-            <h1>
-              {{ task.name }}
-            </h1>
-            <p>
-              {{ task.description || 'No description provided.' }}
-            </p>
-          </div>
-          @if (!isObserver()) {
-          <button
-            class="btn btn--danger"
-            (click)="showPopup('deleteTask', task.id)"
-          >
-            <i class="fi fi-rr-trash"></i>
-          </button>
-          <button
-            class="btn btn--primary"
-            (click)="showPopup('patchTask', task.id)"
-          >
-            <i class="fi fi-rr-pencil"></i>
-          </button>
-          }
-        </header>
+      <div class="flex justify-between gap-4">
         <div class="flex flex-col gap-4">
-          <section class="flex flex-col gap-4">
-            <h2>Task Information</h2>
-            <div class="flex flex-wrap gap-4">
-              <div class="card">
-                <h4>Status</h4>
-                <p>
-                  {{ task.status }}
-                </p>
-              </div>
-              <div class="card">
-                <h4>Due Date</h4>
-                <p>
-                  {{ (task.dueDate | date : 'longDate') || 'No due date' }}
-                </p>
-              </div>
-              <div class="card">
-                <h4>Priority</h4>
-                <p>
-                  {{ task.priority || 'No priority' }}
-                </p>
-              </div>
+          <header class="flex gap-4 items-center">
+            <div>
+              <h1>
+                {{ task.name }}
+              </h1>
+              <p>
+                {{ task.description || 'No description provided.' }}
+              </p>
             </div>
-          </section>
+            @if (!isObserver()) {
+            <button
+              class="btn btn--danger"
+              (click)="showPopup('deleteTask', task.id)"
+            >
+              <i class="fi fi-rr-trash"></i>
+            </button>
+            <button
+              class="btn btn--primary"
+              (click)="showPopup('patchTask', task.id)"
+            >
+              <i class="fi fi-rr-pencil"></i>
+            </button>
+            }
+          </header>
           <div class="flex flex-col gap-4">
             <section class="flex flex-col gap-4">
-              <header class="flex gap-4">
-                <h2>Assignee</h2>
-              </header>
-              <div class="flex flex-wrap gap-4">
-                @if (task.assignee; as assignee) {
-                <div class="card">
-                  <h4>Username</h4>
-                  <p>
-                    {{ assignee.username }}
-                  </p>
-                </div>
-                <div class="card">
-                  <h4>Email</h4>
-                  <p>
-                    {{ assignee.email }}
-                  </p>
-                </div>
-                <div class="card">
-                  <h4>Role</h4>
-                  <p>
-                    {{ assignee.role }}
-                  </p>
-                </div>
-                } @else {
-                <p>No Assignee</p>
-                }
-              </div>
-            </section>
-            <section class="flex flex-col gap-4">
-              <header class="flex gap-4">
-                <h2>Project</h2>
-                <button
-                  class="btn btn--primary"
-                  (click)="goToProject(task.project.id)"
-                >
-                  <i class="fi fi-rr-door-open"></i>
-                </button>
-              </header>
+              <h2>Task Information</h2>
               <div class="flex flex-wrap gap-4">
                 <div class="card">
-                  <h4>Project Name</h4>
+                  <h4>Status</h4>
                   <p>
-                    {{ task.project.name }}
+                    {{ task.status }}
                   </p>
                 </div>
-                @if (task.project.description) {
                 <div class="card">
-                  <h4>Project Description</h4>
+                  <h4>Due Date</h4>
                   <p>
-                    {{ task.project.description }}
+                    {{ (task.dueDate | date : 'longDate') || 'No due date' }}
                   </p>
                 </div>
-                } @if (task.project.startDate) {
                 <div class="card">
-                  <h4>Start Date</h4>
+                  <h4>Priority</h4>
                   <p>
-                    {{ task.project.startDate }}
-                  </p>
-                </div>
-                } @if (task.project.endDate) {
-                <div class="card">
-                  <h4>End Date</h4>
-                  <p>
-                    {{ task.project.endDate }}
-                  </p>
-                </div>
-                }
-                <div class="card">
-                  <h4>Project Status</h4>
-                  <p>
-                    {{ task.project.status }}
+                    {{ task.priority || 'No priority' }}
                   </p>
                 </div>
               </div>
             </section>
+            <div class="flex flex-col gap-4">
+              <section class="flex flex-col gap-4">
+                <header class="flex gap-4">
+                  <h2>Assignee</h2>
+                </header>
+                <div class="flex flex-wrap gap-4">
+                  @if (task.assignee; as assignee) {
+                  <div class="card">
+                    <h4>Username</h4>
+                    <p>
+                      {{ assignee.username }}
+                    </p>
+                  </div>
+                  <div class="card">
+                    <h4>Email</h4>
+                    <p>
+                      {{ assignee.email }}
+                    </p>
+                  </div>
+                  <div class="card">
+                    <h4>Role</h4>
+                    <p>
+                      {{ assignee.role }}
+                    </p>
+                  </div>
+                  } @else {
+                  <p>No Assignee</p>
+                  }
+                </div>
+              </section>
+              <section class="flex flex-col gap-4">
+                <header class="flex gap-4">
+                  <h2>Project</h2>
+                  <button
+                    class="btn btn--primary"
+                    (click)="goToProject(task.project.id)"
+                  >
+                    <i class="fi fi-rr-door-open"></i>
+                  </button>
+                </header>
+                <div class="flex flex-wrap gap-4">
+                  <div class="card">
+                    <h4>Project Name</h4>
+                    <p>
+                      {{ task.project.name }}
+                    </p>
+                  </div>
+                  @if (task.project.description) {
+                  <div class="card">
+                    <h4>Project Description</h4>
+                    <p>
+                      {{ task.project.description }}
+                    </p>
+                  </div>
+                  } @if (task.project.startDate) {
+                  <div class="card">
+                    <h4>Start Date</h4>
+                    <p>
+                      {{ task.project.startDate }}
+                    </p>
+                  </div>
+                  } @if (task.project.endDate) {
+                  <div class="card">
+                    <h4>End Date</h4>
+                    <p>
+                      {{ task.project.endDate }}
+                    </p>
+                  </div>
+                  }
+                  <div class="card">
+                    <h4>Project Status</h4>
+                    <p>
+                      {{ task.project.status }}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            </div>
           </div>
         </div>
+
+        <section class="flex flex-col gap-4">
+          <header>
+            <h2>Task History</h2>
+          </header>
+
+          <div class="flex flex-col gap-4">
+            @for (taskEvent of task.taskHistory; track taskEvent.id) {
+            <div class="card">
+              <strong>{{ taskEvent.date | date : 'longDate' }}</strong>
+              <p>{{ taskEvent.description }}</p>
+            </div>
+            }
+          </div>
+        </section>
       </div>
+
       } @else {
       <p>Task Not Found</p>
       }
@@ -180,9 +200,11 @@ export class TaskDetailsComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
+  private readonly injector = inject(Injector);
 
   readonly id: number = Number.parseInt(this.route.snapshot.params['id']);
   readonly task = signal<TaskDetails | null>(null);
+
   readonly isObserver = computed(() => this.task()?.myRole === 'Observer');
   readonly currentUser = computed(() => this.authService.authUser()?.username);
 
@@ -193,19 +215,24 @@ export class TaskDetailsComponent {
     const task = toSignal(
       this.taskService.getTaskDetails(this.id).pipe(map((task) => task ?? null))
     );
+
     effect(() => {
       this.task.set(task() ?? null);
     });
 
     effect(() => {
       const patchedTask = this.taskService.patchedTask();
-      if (!patchedTask) {return;}
+      if (!patchedTask) {
+        return;
+      }
       this.task.set(patchedTask);
     });
 
     effect(() => {
       const deletedTask = this.taskService.deletedTask();
-      if (!deletedTask) {return;}
+      if (!deletedTask) {
+        return;
+      }
 
       untracked(() => {
         if (deletedTask === this.id) {
@@ -216,11 +243,15 @@ export class TaskDetailsComponent {
 
     effect(() => {
       const deletedProject = this.projectService.deletedProject();
-      if (!deletedProject) {return;}
+      if (!deletedProject) {
+        return;
+      }
 
       untracked(() => {
         const task = this.task();
-        if (!task) {return;}
+        if (!task) {
+          return;
+        }
         if (deletedProject === task.project.id) {
           this.router.navigate(['/projects']);
         }
@@ -230,7 +261,9 @@ export class TaskDetailsComponent {
 
   showPopup(popupType: PopupType, id?: number): void {
     this.activePopup.set(popupType);
-    if (id) {this.activeId.set(id);}
+    if (id) {
+      this.activeId.set(id);
+    }
   }
 
   hidePopup(): void {

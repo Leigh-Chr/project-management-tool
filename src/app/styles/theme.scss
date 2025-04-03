@@ -3,6 +3,10 @@
 @use "sass:map";
 @use "sass:color";
 
+p {
+  white-space: pre-line;
+}
+
 .table {
   width: 100%;
   border-spacing: 0;

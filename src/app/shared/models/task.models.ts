@@ -4,6 +4,7 @@ import type {
   RoleEntity,
   StatusEntity,
   TaskEntity,
+  TaskEventEntity,
   UserEntity,
 } from './entities';
 
@@ -29,6 +30,7 @@ export type Task = {
     role: RoleEntity['name'];
   };
   priority?: TaskEntity['priority'];
+  taskHistory: TaskEvent[];
   myRole?: RoleEntity['name'];
 };
 
@@ -48,3 +50,9 @@ export type GetTaskDetailsResponse = TaskDetails;
 
 export type PatchTaskRequest = Partial<Omit<TaskEntity, 'id'>>;
 export type PatchTaskResponse = Task;
+
+export type TaskEvent = {
+  id: TaskEventEntity['id'];
+  description?: TaskEventEntity['description'];
+  date: TaskEventEntity['date'];
+};

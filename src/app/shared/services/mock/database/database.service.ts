@@ -358,7 +358,7 @@ export class DatabaseMockService {
     },
   ];
 
-  readonly taskHistory: TaskEventEntity[] = [
+  readonly taskEvents: TaskEventEntity[] = [
     {
       id: 1,
       taskId: 1,

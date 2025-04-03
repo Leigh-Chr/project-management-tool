@@ -114,11 +114,11 @@ export class ProjectController {
       if (task) {
         this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
       }
-      const historyIndex = this.database.taskHistory.findIndex(
+      const historyIndex = this.database.taskEvents.findIndex(
         (th) => th.taskId === taskId
       );
       if (historyIndex !== -1) {
-        this.database.taskHistory.splice(historyIndex, 1);
+        this.database.taskEvents.splice(historyIndex, 1);
       }
     }
 
@@ -255,6 +255,10 @@ export class ProjectController {
           const assignee = this.database.users.find(
             (u) => u.id === t.assigneeId
           );
+          if (!assignee) {
+            return null;
+          }
+
           const status = this.database.statuses.find(
             (s) => s.id === t.statusId
           );
@@ -284,14 +288,12 @@ export class ProjectController {
               description: projectEntity.description,
               status: status.name,
             },
-            assignee: assignee
-              ? {
-                  id: assignee.id,
-                  username: assignee.username,
-                  email: assignee.email,
-                  role: roleEntity.name,
-                }
-              : undefined,
+            assignee: {
+              id: assignee.id,
+              username: assignee.username,
+              email: assignee.email,
+              role: roleEntity.name,
+            },
             priority: t.priority,
           };
         })
