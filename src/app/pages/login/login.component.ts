@@ -97,7 +97,9 @@ export class LoginComponent {
   );
 
   async onSubmit(): Promise<void> {
-    if (this.loginForm().invalid) return;
+    if (this.loginForm().invalid) {
+      return;
+    }
 
     const res = await this.authService.login(this.loginForm().value);
     if (!res) {

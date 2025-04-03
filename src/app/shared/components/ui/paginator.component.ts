@@ -8,7 +8,7 @@ import {
   input,
   Input,
   Output,
-  signal,
+  signal, OnInit,
 } from '@angular/core';
 
 @Component({
@@ -85,7 +85,7 @@ import {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PaginatorComponent {
+export class PaginatorComponent implements OnInit {
   readonly totalItems = input.required<number>();
   readonly pageSizeOptions = input<number[]>([5, 10, 20, 50]);
   @Input() showTotalPages = false;

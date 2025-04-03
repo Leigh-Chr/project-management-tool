@@ -6,7 +6,7 @@ import {
   input,
   output,
   signal,
-  untracked,
+  untracked, OnInit,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { ProjectMember } from '@app/shared/models/project.models';
@@ -53,7 +53,7 @@ import { PopupComponent } from '../ui/popup.component';
     }
   `,
 })
-export class DeleteProjectMemberPopupComponent {
+export class DeleteProjectMemberPopupComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
   private readonly injector = inject(Injector);
@@ -79,7 +79,7 @@ export class DeleteProjectMemberPopupComponent {
 
     effect(() => {
       const deleteProjectMember = this.projectService.deletedProjectMember();
-      if (!deleteProjectMember) return;
+      if (!deleteProjectMember) {return;}
 
       untracked(() => {
         this.toastService.showToast({

@@ -7,7 +7,7 @@ import {
   input,
   output,
   signal,
-  untracked,
+  untracked, OnInit,
 } from '@angular/core';
 import type { Project } from '@app/shared/models/project.models';
 import { ProjectService } from '../../services/data/project.service';
@@ -59,7 +59,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class DeleteProjectPopupComponent {
+export class DeleteProjectPopupComponent implements OnInit {
   private readonly injector = inject(Injector);
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
@@ -72,7 +72,7 @@ export class DeleteProjectPopupComponent {
   constructor() {
     effect(() => {
       const deletedProject = this.projectService.deletedProject();
-      if (!deletedProject) return;
+      if (!deletedProject) {return;}
       untracked(() => {
         this.toastService.showToast({
           title: 'Success',

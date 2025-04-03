@@ -42,7 +42,7 @@ export class TaskService {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const deletedTask = deletedTaskSignal();
-        if (!deletedTask) return;
+        if (!deletedTask) {return;}
         this.deletedTask.set(deletedTask.id);
       });
     });
@@ -60,7 +60,7 @@ export class TaskService {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const addedTask = addedTaskSignal();
-        if (!addedTask) return;
+        if (!addedTask) {return;}
         this.postedTask.set(addedTask);
       });
     });
@@ -95,7 +95,7 @@ export class TaskService {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const patchedTask = patchedTaskSignal();
-        if (!patchedTask) return;
+        if (!patchedTask) {return;}
         this.patchedTask.set(patchedTask);
       });
     });

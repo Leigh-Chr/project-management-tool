@@ -131,16 +131,16 @@ export class AddProjectPopupComponent {
     this.projectForm.reset();
     effect(() => {
       const postedProject = this.projectService.postedProject();
-      if (!postedProject) return;
+      if (!postedProject) {return;}
       this.onClose.emit();
     });
   }
 
   async submit(): Promise<void> {
-    if (!this.projectForm.valid) return;
+    if (!this.projectForm.valid) {return;}
 
     const statusId = Number.parseInt(this.status.value || '');
-    if (Number.isNaN(statusId)) return;
+    if (Number.isNaN(statusId)) {return;}
 
     const newProject: PostProjectRequest = {
       name: this.name.value,

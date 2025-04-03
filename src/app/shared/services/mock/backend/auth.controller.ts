@@ -26,7 +26,7 @@ export class AuthController {
     });
 
     const userEntity = this.database.users.find((user) => user.id === id);
-    if (!userEntity) return null;
+    if (!userEntity) {return null;}
 
     return {
       ...userEntity,
@@ -49,7 +49,7 @@ export class AuthController {
         user.password === loginRequest.password
     );
 
-    if (!userEntity) return null;
+    if (!userEntity) {return null;}
 
     const exp = Math.floor(Date.now() / 1000) + 60 * 60 * 24;
 

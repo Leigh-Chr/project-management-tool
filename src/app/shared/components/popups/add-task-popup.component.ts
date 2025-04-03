@@ -130,13 +130,13 @@ export class AddTaskPopupComponent {
   constructor() {
     effect(() => {
       const postedTask = this.taskService.postedTask();
-      if (!postedTask) return;
+      if (!postedTask) {return;}
       this.onClose.emit();
     });
   }
 
   async submit(): Promise<void> {
-    if (this.taskForm.invalid) return;
+    if (this.taskForm.invalid) {return;}
 
     const newTask = {
       name: this.name.value,

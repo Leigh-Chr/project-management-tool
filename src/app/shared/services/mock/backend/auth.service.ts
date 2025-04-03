@@ -10,25 +10,25 @@ export class AuthService {
 
   getRole(projectId: number): RoleEntity['name'] | undefined {
     const authUser = this.authServiceFront.authUser();
-    if (!authUser) return undefined;
+    if (!authUser) {return undefined;}
 
     const project = this.database.projects.find((p) => p.id === projectId);
-    if (!project) return undefined;
+    if (!project) {return undefined;}
 
     const projectMember = this.database.projectMembers.find(
       (pm) => pm.projectId === projectId && pm.userId === authUser.id
     );
-    if (!projectMember) return undefined;
+    if (!projectMember) {return undefined;}
 
     const role = this.database.roles.find((r) => r.id === projectMember.roleId);
-    if (!role) return undefined;
+    if (!role) {return undefined;}
 
     return role.name;
   }
 
   getUserId(): number | undefined {
     const authUser = this.authServiceFront.authUser();
-    if (!authUser) return undefined;
+    if (!authUser) {return undefined;}
     return authUser.id;
   }
 }

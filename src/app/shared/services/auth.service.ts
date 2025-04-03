@@ -36,7 +36,7 @@ export class AuthService {
     const loginResponse = await this.authController.login(loginRequest);
     this.authUser.set(loginResponse);
 
-    if (!loginResponse) return null;
+    if (!loginResponse) {return null;}
 
     this.setUserInCookies(loginResponse);
     this.setTokenExpirationTimeout(loginResponse.exp);
@@ -56,7 +56,7 @@ export class AuthService {
 
   private loadUserFromCookies(): void {
     const user = this.cookieService.get('user');
-    if (!user) return;
+    if (!user) {return;}
     const parsedUser = JSON.parse(user);
     this.authUser.set(parsedUser);
     this.setTokenExpirationTimeout(parsedUser.exp);
@@ -68,12 +68,12 @@ export class AuthService {
 
   private setTokenExpirationTimeout(expiration: number): void {
     const expiresIn = expiration * 1000 - Date.now();
-    if (expiresIn > 0) setTimeout(() => this.logout(), expiresIn);
-    else this.logout();
+    if (expiresIn > 0) {setTimeout(() => this.logout(), expiresIn);}
+    else {this.logout();}
   }
 
   private checkTokenExpiration(): void {
     const user = this.authUser();
-    if (user?.exp) this.setTokenExpirationTimeout(user.exp);
+    if (user?.exp) {this.setTokenExpirationTimeout(user.exp);}
   }
 }

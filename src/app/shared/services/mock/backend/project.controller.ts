@@ -20,21 +20,21 @@ export class ProjectController {
 
   getProject(projectId: number): Observable<GetProjectResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (!myRole) return of(undefined);
+    if (!myRole) {return of(undefined);}
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === projectId
     );
-    if (!projectEntity) return of(undefined);
+    if (!projectEntity) {return of(undefined);}
     const statusEntity = this.database.statuses.find(
       (s) => s.id === projectEntity.statusId
     );
-    if (!statusEntity) return of(undefined);
+    if (!statusEntity) {return of(undefined);}
 
     const project: GetProjectResponse = {
       ...projectEntity,
       status: statusEntity.name,
-      myRole: myRole,
+      myRole,
     };
 
     return of(project);
@@ -45,18 +45,18 @@ export class ProjectController {
       this.database.projects
         .map((p) => {
           const myRole = this.authService.getRole(p.id);
-          if (!myRole) return null;
+          if (!myRole) {return null;}
 
           const statusEntity = this.database.statuses.find(
             (s) => s.id === p.statusId
           );
 
-          if (!statusEntity) return null;
+          if (!statusEntity) {return null;}
 
           return {
             ...p,
             status: statusEntity.name,
-            myRole: myRole,
+            myRole,
           };
         })
         .filter(
@@ -69,12 +69,12 @@ export class ProjectController {
     projectId: number
   ): Observable<DeleteProjectResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Admin') return of(undefined);
+    if (myRole !== 'Admin') {return of(undefined);}
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === projectId
     );
-    if (!projectEntity) return of(undefined);
+    if (!projectEntity) {return of(undefined);}
 
     this.database.projects.splice(
       this.database.projects.indexOf(projectEntity),
@@ -112,7 +112,7 @@ export class ProjectController {
       (s) => s.id === projectEntity.statusId
     );
 
-    if (!status) return of(undefined);
+    if (!status) {return of(undefined);}
 
     return of({
       id: projectEntity.id,
@@ -126,7 +126,7 @@ export class ProjectController {
     project: PostProjectRequest
   ): Observable<PostProjectResponse | undefined> {
     const userId = this.authService.getUserId();
-    if (!userId) return of(undefined);
+    if (!userId) {return of(undefined);}
 
     const projectEntity: ProjectEntity = {
       id: this.database.projects.length + 1,
@@ -141,15 +141,15 @@ export class ProjectController {
     const status = this.database.statuses.find(
       (s) => s.id === projectEntity.statusId
     );
-    if (!status) return of(undefined);
+    if (!status) {return of(undefined);}
 
     const role = this.database.roles.find((r) => r.name === 'Admin');
-    if (!role) return of(undefined);
+    if (!role) {return of(undefined);}
 
     this.database.projectMembers.push({
       id: this.database.projectMembers.length + 1,
       projectId: projectEntity.id,
-      userId: userId,
+      userId,
       roleId: role.id,
     });
 
@@ -166,24 +166,24 @@ export class ProjectController {
     projectId: number
   ): Observable<GetProjectDetailsResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (!myRole) return of(undefined);
+    if (!myRole) {return of(undefined);}
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === projectId
     );
-    if (!projectEntity) return of(undefined);
+    if (!projectEntity) {return of(undefined);}
 
     const statusEntity = this.database.statuses.find(
       (s) => s.id === projectEntity.statusId
     );
-    if (!statusEntity) return of(undefined);
+    if (!statusEntity) {return of(undefined);}
 
     const projectMembers = this.database.projectMembers
       .filter((pm) => pm.projectId === projectId)
       .map((pm) => {
         const user = this.database.users.find((u) => u.id === pm.userId);
         const role = this.database.roles.find((r) => r.id === pm.roleId);
-        if (!user || !role) return null;
+        if (!user || !role) {return null;}
         return {
           id: pm.id,
           user: user.username,
@@ -205,7 +205,7 @@ export class ProjectController {
       projectMembers: projectMembers
         .map((pm) => {
           const user = this.database.users.find((u) => u.id === pm.id);
-          if (!user) return null;
+          if (!user) {return null;}
           return {
             id: pm.id,
             project: projectEntity.name,
@@ -225,7 +225,7 @@ export class ProjectController {
           const status = this.database.statuses.find(
             (s) => s.id === t.statusId
           );
-          if (!status) return null;
+          if (!status) {return null;}
 
           const projectMember = this.database.projectMembers.find(
             (pm) =>
@@ -234,7 +234,7 @@ export class ProjectController {
           const roleEntity = this.database.roles.find(
             (r) => r.id === projectMember?.roleId
           );
-          if (!roleEntity) return null;
+          if (!roleEntity) {return null;}
 
           return {
             id: t.id,
@@ -259,7 +259,7 @@ export class ProjectController {
           };
         })
         .filter((task): task is NonNullable<typeof task> => task !== null),
-      myRole: myRole,
+      myRole,
     };
 
     return of(projectDetails);

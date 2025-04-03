@@ -6,7 +6,7 @@ import {
   Injector,
   input,
   output,
-  signal,
+  signal, OnInit,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -81,7 +81,7 @@ import type { GetStatusesResponse } from '../../models/status.models';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PatchTaskPopupComponent {
+export class PatchTaskPopupComponent implements OnInit {
   private readonly injector = inject(Injector);
   private readonly taskService = inject(TaskService);
   private readonly projectService = inject(ProjectService);
@@ -131,7 +131,7 @@ export class PatchTaskPopupComponent {
   constructor() {
     effect(() => {
       const task = this.task();
-      if (!task) return;
+      if (!task) {return;}
 
       const project = this.project();
       if (project) {
@@ -168,14 +168,14 @@ export class PatchTaskPopupComponent {
 
     effect(() => {
       const patchedTask = this.taskService.patchedTask();
-      if (!patchedTask) return;
+      if (!patchedTask) {return;}
       this.onClose.emit();
     });
   }
 
   async ngOnInit(): Promise<void> {
     const task = this.task();
-    if (!task) return;
+    if (!task) {return;}
 
     this.project = toSignal(
       this.projectService.getProjectDetails(task.project.id),
@@ -190,7 +190,7 @@ export class PatchTaskPopupComponent {
   }
 
   async submit(): Promise<void> {
-    if (this.taskForm.invalid) return;
+    if (this.taskForm.invalid) {return;}
 
     const updatedTask = {
       name: this.name.value,

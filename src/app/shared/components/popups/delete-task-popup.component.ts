@@ -6,7 +6,7 @@ import {
   input,
   output,
   signal,
-  untracked,
+  untracked, OnInit,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import type { Task } from '@app/shared/models/task.models';
@@ -49,7 +49,7 @@ import { PopupComponent } from '../ui/popup.component';
     }
   `,
 })
-export class DeleteTaskPopupComponent {
+export class DeleteTaskPopupComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly taskService = inject(TaskService);
   private readonly injector = inject(Injector);
@@ -75,7 +75,7 @@ export class DeleteTaskPopupComponent {
 
     effect(() => {
       const deletedTask = this.taskService.deletedTask();
-      if (!deletedTask) return;
+      if (!deletedTask) {return;}
 
       untracked(() => {
         this.toastService.showToast({

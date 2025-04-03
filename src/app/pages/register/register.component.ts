@@ -7,12 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import {
-  AbstractControl,
+  type AbstractControl,
   FormBuilder,
-  FormControl,
-  FormGroup,
+  type FormControl,
+  type FormGroup,
   ReactiveFormsModule,
-  ValidationErrors,
+  type ValidationErrors,
   Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -114,27 +114,27 @@ import { AuthService } from '../../shared/services/auth.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RegisterComponent {
-  private readonly fb = inject(FormBuilder);
-  private readonly authService = inject(AuthService);
-  private readonly router = inject(Router);
-  private readonly toastService = inject(ToastService);
-
-  readonly matchValidator = (
-    control: AbstractControl
-  ): ValidationErrors | null => {
-    const source = 'password';
-    const target = 'confirmPassword';
-    const sourceCtrl = control.get(source);
-    const targetCtrl = control.get(target);
-    return sourceCtrl?.value === targetCtrl?.value ? null : { mismatch: true };
-  };
-
+  readonly fb = inject(FormBuilder);
   readonly registerForm = signal<FormGroup>(
     this.fb.group({
       username: ['', [Validators.required]],
       email: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required, this.matchValidator]],
+      confirmPassword: [
+        '',
+        [
+          Validators.required,
+          (control: AbstractControl): ValidationErrors | null => {
+            const source = 'password';
+            const target = 'confirmPassword';
+            const sourceCtrl = control.get(source);
+            const targetCtrl = control.get(target);
+            return sourceCtrl?.value === targetCtrl?.value
+              ? null
+              : { mismatch: true };
+          },
+        ],
+      ],
     })
   );
 
@@ -151,8 +151,14 @@ export class RegisterComponent {
     () => this.registerForm().get('confirmPassword') as FormControl
   );
 
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly toastService = inject(ToastService);
+
   async onSubmit(): Promise<void> {
-    if (this.registerForm().invalid) return;
+    if (this.registerForm().invalid) {
+      return;
+    }
 
     const { password, confirmPassword } = this.registerForm().value;
     if (password !== confirmPassword) {

@@ -150,7 +150,7 @@ export class ProjectsComponent {
 
   showPopup(type: PopupType, projectId?: number): void {
     this.activePopup.set(type);
-    if (projectId === undefined) return;
+    if (projectId === undefined) {return;}
     this.activeProjectId.set(projectId);
   }
 

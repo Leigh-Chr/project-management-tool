@@ -32,7 +32,7 @@ export class ToastService {
    */
   showToast(input: ToastInput): void {
     const currentToasts = this.toastsSubject.value;
-    if (currentToasts.length >= 5) currentToasts.shift(); // Max 5 toasts
+    if (currentToasts.length >= 5) {currentToasts.shift();} // Max 5 toasts
 
     const newToast: Toast = {
       id: this.nextId++,

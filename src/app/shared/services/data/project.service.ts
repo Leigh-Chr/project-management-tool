@@ -60,7 +60,7 @@ export class ProjectService {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const deletedProject = deletedProjectSignal();
-        if (!deletedProject) return;
+        if (!deletedProject) {return;}
         this.deletedProject.set(projectId);
       });
     });
@@ -80,7 +80,7 @@ export class ProjectService {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const postedProject = postedProjectSignal();
-        if (!postedProject) return;
+        if (!postedProject) {return;}
         this.postedProject.set(postedProject);
       });
     });
@@ -119,7 +119,7 @@ export class ProjectService {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const postedProjectMember = postedProjectMemberSignal();
-        if (!postedProjectMember) return;
+        if (!postedProjectMember) {return;}
         this.postedProjectMember.set(postedProjectMember);
       });
     });
@@ -143,7 +143,7 @@ export class ProjectService {
     runInInjectionContext(this.injector, () => {
       effect(() => {
         const deletedProjectMember = deletedProjectMemberSignal();
-        if (!deletedProjectMember) return;
+        if (!deletedProjectMember) {return;}
         this.deletedProjectMember.set(deletedProjectMember);
       });
     });

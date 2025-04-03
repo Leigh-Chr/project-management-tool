@@ -4,7 +4,7 @@ import {
   effect,
   inject,
   input,
-  output,
+  output, OnDestroy,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 @Component({
@@ -70,7 +70,7 @@ import { Title } from '@angular/platform-browser';
     `,
   ],
 })
-export class PopupComponent {
+export class PopupComponent implements OnDestroy {
   private readonly titleService = inject(Title);
   popupTitle = input.required<string>();
   isSubmitDisabled = input<boolean>(false);

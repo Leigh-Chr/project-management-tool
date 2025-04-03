@@ -6,7 +6,7 @@ import {
   Injector,
   input,
   output,
-  signal,
+  signal, OnInit,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -58,7 +58,7 @@ import { SelectFieldComponent } from '../ui/select-field.component';
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddProjectMemberPopupComponent {
+export class AddProjectMemberPopupComponent implements OnInit {
   private readonly injector = inject(Injector);
   private readonly fb = inject(FormBuilder);
   private readonly toastService = inject(ToastService);
@@ -145,7 +145,7 @@ export class AddProjectMemberPopupComponent {
     });
 
     effect(() => {
-      if (!this.projectService.postedProjectMember()) return;
+      if (!this.projectService.postedProjectMember()) {return;}
       this.toastService.showToast({
         title: 'Success',
         message: 'Member added',
@@ -176,14 +176,14 @@ export class AddProjectMemberPopupComponent {
   }
 
   async addMember(): Promise<void> {
-    if (this.memberForm.invalid) return;
+    if (this.memberForm.invalid) {return;}
     const projectId = this.projectId();
-    if (!projectId) return;
+    if (!projectId) {return;}
 
     const userId = Number.parseInt(this.userControl.value || '');
     const roleId = Number.parseInt(this.roleControl.value || '');
 
-    if (Number.isNaN(userId) || Number.isNaN(roleId)) return;
+    if (Number.isNaN(userId) || Number.isNaN(roleId)) {return;}
 
     this.projectService.postProjectMember(projectId, userId, roleId);
   }

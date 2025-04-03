@@ -199,13 +199,13 @@ export class TaskDetailsComponent {
 
     effect(() => {
       const patchedTask = this.taskService.patchedTask();
-      if (!patchedTask) return;
+      if (!patchedTask) {return;}
       this.task.set(patchedTask);
     });
 
     effect(() => {
       const deletedTask = this.taskService.deletedTask();
-      if (!deletedTask) return;
+      if (!deletedTask) {return;}
 
       untracked(() => {
         if (deletedTask === this.id) {
@@ -216,11 +216,11 @@ export class TaskDetailsComponent {
 
     effect(() => {
       const deletedProject = this.projectService.deletedProject();
-      if (!deletedProject) return;
+      if (!deletedProject) {return;}
 
       untracked(() => {
         const task = this.task();
-        if (!task) return;
+        if (!task) {return;}
         if (deletedProject === task.project.id) {
           this.router.navigate(['/projects']);
         }
@@ -230,7 +230,7 @@ export class TaskDetailsComponent {
 
   showPopup(popupType: PopupType, id?: number): void {
     this.activePopup.set(popupType);
-    if (id) this.activeId.set(id);
+    if (id) {this.activeId.set(id);}
   }
 
   hidePopup(): void {

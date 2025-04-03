@@ -282,7 +282,7 @@ export class ProjectDetailsComponent {
       const deletedProject = this.projectService.deletedProject();
       untracked(() => {
         const project = this.project();
-        if (!project) return;
+        if (!project) {return;}
         if (deletedProject === project.id) {
           this.router.navigate(['/projects']);
         }
@@ -293,8 +293,8 @@ export class ProjectDetailsComponent {
       const postedProjectMember = this.projectService.postedProjectMember();
       untracked(() => {
         const project = this.project();
-        if (!project) return;
-        if (!postedProjectMember) return;
+        if (!project) {return;}
+        if (!postedProjectMember) {return;}
         this.project.set({
           ...project,
           projectMembers: [...project.projectMembers, postedProjectMember],
@@ -306,8 +306,8 @@ export class ProjectDetailsComponent {
       const deletedProjectMember = this.projectService.deletedProjectMember();
       untracked(() => {
         const project = this.project();
-        if (!project) return;
-        if (!deletedProjectMember) return;
+        if (!project) {return;}
+        if (!deletedProjectMember) {return;}
         this.project.set({
           ...project,
           projectMembers: project.projectMembers.filter(
@@ -324,8 +324,8 @@ export class ProjectDetailsComponent {
       const postedTask = this.taskService.postedTask();
       untracked(() => {
         const project = this.project();
-        if (!project) return;
-        if (!postedTask) return;
+        if (!project) {return;}
+        if (!postedTask) {return;}
 
         this.project.set({
           ...project,
@@ -338,8 +338,8 @@ export class ProjectDetailsComponent {
       const deletedTask = this.taskService.deletedTask();
       untracked(() => {
         const project = this.project();
-        if (!project) return;
-        if (!deletedTask) return;
+        if (!project) {return;}
+        if (!deletedTask) {return;}
         this.project.set({
           ...project,
           tasks: project.tasks.filter((task) => task.id !== deletedTask),
@@ -349,7 +349,7 @@ export class ProjectDetailsComponent {
   }
 
   showPopup(popupType: PopupType, id?: number): void {
-    if (id === undefined) return;
+    if (id === undefined) {return;}
     this.activePopup.set(popupType);
     this.activeId.set(id);
   }

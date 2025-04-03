@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
+import type { GetUsersResponse } from '@app/shared/models/user.models';
 import { Observable, of } from 'rxjs';
-import { UserEntity } from '../../../models/entities';
 import { DatabaseMockService } from '../database/database.service';
-import type { GetUsersResponse, User } from '@app/shared/models/user.models';
 
 @Injectable({ providedIn: 'root' })
 export class UserController {
