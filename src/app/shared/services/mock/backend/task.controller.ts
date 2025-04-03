@@ -22,20 +22,28 @@ export class TaskController {
 
   getTask(taskId: number): Observable<GetTaskResponse | undefined> {
     const taskEntity = this.database.tasks.find((t) => t.id === taskId);
-    if (!taskEntity) {return of(undefined);}
+    if (!taskEntity) {
+      return of(undefined);
+    }
 
     const myRole = this.authService.getRole(taskEntity.projectId);
-    if (!myRole) {return of(undefined);}
+    if (!myRole) {
+      return of(undefined);
+    }
 
     const status = this.database.statuses.find(
       (s) => s.id === taskEntity.statusId
     );
-    if (!status) {return of(undefined);}
+    if (!status) {
+      return of(undefined);
+    }
 
     const project = this.database.projects.find(
       (p) => p.id === taskEntity.projectId
     );
-    if (!project) {return of(undefined);}
+    if (!project) {
+      return of(undefined);
+    }
 
     return of({
       id: taskEntity.id,
@@ -59,17 +67,23 @@ export class TaskController {
       this.database.tasks
         .map((t) => {
           const myRole = this.authService.getRole(t.projectId);
-          if (!myRole) {return null;}
+          if (!myRole) {
+            return null;
+          }
 
           const statusEntity = this.database.statuses.find(
             (s) => s.id === t.statusId
           );
-          if (!statusEntity) {return null;}
+          if (!statusEntity) {
+            return null;
+          }
 
           const projectEntity = this.database.projects.find(
             (p) => p.id === t.projectId
           );
-          if (!projectEntity) {return null;}
+          if (!projectEntity) {
+            return null;
+          }
 
           const projectMemberEntity = this.database.projectMembers.find(
             (pm) => pm.projectId === t.projectId && pm.userId === t.assigneeId
@@ -118,18 +132,26 @@ export class TaskController {
     taskId: number
   ): Observable<GetTaskDetailsResponse | undefined> {
     const task = this.database.tasks.find((t) => t.id === taskId);
-    if (!task) {return of(undefined);}
+    if (!task) {
+      return of(undefined);
+    }
 
     const myRole = this.authService.getRole(task.projectId);
-    if (!myRole) {return of(undefined);}
+    if (!myRole) {
+      return of(undefined);
+    }
 
     const status = this.database.statuses.find((s) => s.id === task.statusId);
-    if (!status) {return of(undefined);}
+    if (!status) {
+      return of(undefined);
+    }
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === task.projectId
     );
-    if (!projectEntity) {return of(undefined);}
+    if (!projectEntity) {
+      return of(undefined);
+    }
 
     const projectMemberEntity = this.database.projectMembers.find(
       (pm) => pm.projectId === task.projectId && pm.userId === task.assigneeId
@@ -173,10 +195,14 @@ export class TaskController {
   deleteTask(taskId: number): Observable<DeleteTaskResponse | undefined> {
     const task: TaskEntity | null =
       this.database.tasks.find((t) => t.id === taskId) ?? null;
-    if (!task) {return of(undefined);}
+    if (!task) {
+      return of(undefined);
+    }
 
     const myRole = this.authService.getRole(task.projectId);
-    if (!myRole || myRole !== 'Admin') {return of(undefined);}
+    if (!myRole || myRole !== 'Administrator') {
+      return of(undefined);
+    }
 
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
     this.database.taskHistory.splice(
@@ -185,12 +211,16 @@ export class TaskController {
     );
 
     const status = this.database.statuses.find((s) => s.id === task.statusId);
-    if (!status) {return of(undefined);}
+    if (!status) {
+      return of(undefined);
+    }
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === task.projectId
     );
-    if (!projectEntity) {return of(undefined);}
+    if (!projectEntity) {
+      return of(undefined);
+    }
 
     return of({
       id: task.id,
@@ -209,7 +239,9 @@ export class TaskController {
 
   addTask(task: PostTaskRequest): Observable<PostTaskResponse | undefined> {
     const myRole = this.authService.getRole(task.projectId);
-    if (!myRole || myRole !== 'Admin') {return of(undefined);}
+    if (!myRole || myRole !== 'Administrator') {
+      return of(undefined);
+    }
 
     const defaultStatus = this.database.statuses[0];
 
@@ -223,12 +255,16 @@ export class TaskController {
     const status = this.database.statuses.find(
       (s) => s.id === taskEntity.statusId
     );
-    if (!status) {return of(undefined);}
+    if (!status) {
+      return of(undefined);
+    }
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === taskEntity.projectId
     );
-    if (!projectEntity) {return of(undefined);}
+    if (!projectEntity) {
+      return of(undefined);
+    }
 
     return of({
       id: taskEntity.id,
@@ -250,10 +286,14 @@ export class TaskController {
     task: PatchTaskRequest
   ): Observable<PatchTaskResponse | undefined> {
     const taskEntity = this.database.tasks.find((t) => t.id === taskId);
-    if (!taskEntity) {return of(undefined);}
+    if (!taskEntity) {
+      return of(undefined);
+    }
 
     const myRole = this.authService.getRole(taskEntity.projectId);
-    if (!myRole || myRole !== 'Admin') {return of(undefined);}
+    if (!myRole || myRole !== 'Administrator') {
+      return of(undefined);
+    }
 
     const updatedTaskEntity = { ...taskEntity, ...task };
     this.database.tasks[this.database.tasks.indexOf(taskEntity)] =
@@ -262,12 +302,16 @@ export class TaskController {
     const status = this.database.statuses.find(
       (s) => s.id === updatedTaskEntity.statusId
     );
-    if (!status) {return of(undefined);}
+    if (!status) {
+      return of(undefined);
+    }
 
     const projectEntity = this.database.projects.find(
       (p) => p.id === updatedTaskEntity.projectId
     );
-    if (!projectEntity) {return of(undefined);}
+    if (!projectEntity) {
+      return of(undefined);
+    }
 
     const projectMemberEntity = this.database.projectMembers.find(
       (pm) =>

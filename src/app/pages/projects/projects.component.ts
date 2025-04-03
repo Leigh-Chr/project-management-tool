@@ -78,7 +78,7 @@ type PopupType = 'addProject' | 'deleteProject';
                 </td>
                 <td class="table__cell table__cell--center">
                   <div class="flex gap-2 justify-center">
-                    @if (item.myRole === 'Admin') {
+                    @if (item.myRole === 'Administrator') {
                     <button
                       class="btn btn--danger w-full"
                       (click)="showPopup('deleteProject', item.id)"
@@ -150,7 +150,9 @@ export class ProjectsComponent {
 
   showPopup(type: PopupType, projectId?: number): void {
     this.activePopup.set(type);
-    if (projectId === undefined) {return;}
+    if (projectId === undefined) {
+      return;
+    }
     this.activeProjectId.set(projectId);
   }
 

@@ -21,22 +21,30 @@ export class ProjectMemberController {
     const projectMemberEntity = this.database.projectMembers.find(
       (pm) => pm.id === projectMemberId
     );
-    if (!projectMemberEntity) {return of(undefined);}
+    if (!projectMemberEntity) {
+      return of(undefined);
+    }
 
     const project = this.database.projects.find(
       (p) => p.id === projectMemberEntity.projectId
     );
-    if (!project) {return of(undefined);}
+    if (!project) {
+      return of(undefined);
+    }
 
     const user = this.database.users.find(
       (u) => u.id === projectMemberEntity.userId
     );
-    if (!user) {return of(undefined);}
+    if (!user) {
+      return of(undefined);
+    }
 
     const role = this.database.roles.find(
       (r) => r.id === projectMemberEntity.roleId
     );
-    if (!role) {return of(undefined);}
+    if (!role) {
+      return of(undefined);
+    }
 
     return of({
       id: projectMemberEntity.id,
@@ -57,11 +65,15 @@ export class ProjectMemberController {
     const projectMemberEntity = this.database.projectMembers.find(
       (pm) => pm.id === projectMemberId
     );
-    if (!projectMemberEntity) {return of(undefined);}
+    if (!projectMemberEntity) {
+      return of(undefined);
+    }
 
-    const {projectId} = projectMemberEntity;
+    const { projectId } = projectMemberEntity;
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Admin') {return of(undefined);}
+    if (myRole !== 'Administrator') {
+      return of(undefined);
+    }
 
     this.database.projectMembers.splice(
       this.database.projectMembers.indexOf(projectMemberEntity),
@@ -71,17 +83,23 @@ export class ProjectMemberController {
     const project = this.database.projects.find(
       (p) => p.id === projectMemberEntity.projectId
     );
-    if (!project) {return of(undefined);}
+    if (!project) {
+      return of(undefined);
+    }
 
     const user = this.database.users.find(
       (u) => u.id === projectMemberEntity.userId
     );
-    if (!user) {return of(undefined);}
+    if (!user) {
+      return of(undefined);
+    }
 
     const role = this.database.roles.find(
       (r) => r.id === projectMemberEntity.roleId
     );
-    if (!role) {return of(undefined);}
+    if (!role) {
+      return of(undefined);
+    }
 
     return of({
       id: projectMemberEntity.id,
@@ -98,16 +116,24 @@ export class ProjectMemberController {
     roleId: number
   ): Observable<PostProjectMemberResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Admin') {return of(undefined);}
+    if (myRole !== 'Administrator') {
+      return of(undefined);
+    }
 
     const project = this.database.projects.find((p) => p.id === projectId);
-    if (!project) {return of(undefined);}
+    if (!project) {
+      return of(undefined);
+    }
 
     const user = this.database.users.find((u) => u.id === userId);
-    if (!user) {return of(undefined);}
+    if (!user) {
+      return of(undefined);
+    }
 
     const role = this.database.roles.find((r) => r.id === roleId);
-    if (!role) {return of(undefined);}
+    if (!role) {
+      return of(undefined);
+    }
 
     const newIndex = this.database.projectMembers.length + 1;
 

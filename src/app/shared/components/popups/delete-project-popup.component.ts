@@ -7,7 +7,8 @@ import {
   input,
   output,
   signal,
-  untracked, OnInit,
+  untracked,
+  OnInit,
 } from '@angular/core';
 import type { Project } from '@app/shared/models/project.models';
 import { ProjectService } from '../../services/data/project.service';
@@ -72,7 +73,9 @@ export class DeleteProjectPopupComponent implements OnInit {
   constructor() {
     effect(() => {
       const deletedProject = this.projectService.deletedProject();
-      if (!deletedProject) {return;}
+      if (!deletedProject) {
+        return;
+      }
       untracked(() => {
         this.toastService.showToast({
           title: 'Success',
@@ -99,7 +102,7 @@ export class DeleteProjectPopupComponent implements OnInit {
       this.onClose.emit();
     }
 
-    if (project?.myRole !== 'Admin') {
+    if (project?.myRole !== 'Administrator') {
       this.toastService.showToast({
         title: 'Error',
         message: 'You are not authorized to delete this project',
