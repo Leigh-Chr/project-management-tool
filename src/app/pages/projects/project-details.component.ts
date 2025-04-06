@@ -158,62 +158,62 @@ type PopupType =
               }
             </header>
             @if (project.tasks.length > 0) {
-            <div class="flex gap-4 flex-wrap">
-              @for (task of project.tasks; track task.id) {
-              <div class="card flex flex-col gap-2">
-                <h4>
-                  {{ task.name }}
-                </h4>
-                <div>
-                  <p>
-                    <strong class="label"> Due Date: </strong>
-                    <span>
-                      {{ (task.dueDate | date : 'longDate') || 'No due date' }}
-                    </span>
-                  </p>
-                  <p>
-                    <strong class="label">Assigned To:</strong>
-                    @if (task.assignee) {
-                    <span>
-                      {{ task.assignee.username }}
-                    </span>
-                    } @else {
-                    <span> Unassigned </span>
-                    }
-                  </p>
-                  <p>
-                    <strong class="label"> Priority: </strong>
-                    <span>
-                      {{ task.priority || 'No priority' }}
-                    </span>
-                  </p>
-                  <p>
-                    <strong class="label"> Status: </strong>
-                    @if (task.status) {
-                    <span>
-                      {{ task.status }}
-                    </span>
-                    } @else {
-                    <span> No status </span>
-                    }
-                  </p>
+            <div class="grid">
+              @for (status of taskStatuses(); track status) {
+              <div class="flex flex-col gap-2">
+                <h3 class="text-lg font-semibold">{{ status }}</h3>
+                <div class="flex flex-col gap-4">
+                  @for (task of project.tasks; track task.id) { @if (task.status
+                  === status) {
+                  <div class="card flex flex-col gap-2">
+                    <h4>
+                      {{ task.name }}
+                    </h4>
+                    <div>
+                      <p>
+                        <strong class="label"> Due Date: </strong>
+                        <span>
+                          {{
+                            (task.dueDate | date : 'longDate') || 'No due date'
+                          }}
+                        </span>
+                      </p>
+                      <p>
+                        <strong class="label">Assigned To:</strong>
+                        @if (task.assignee) {
+                        <span>
+                          {{ task.assignee.username }}
+                        </span>
+                        } @else {
+                        <span> Unassigned </span>
+                        }
+                      </p>
+                      <p>
+                        <strong class="label"> Priority: </strong>
+                        <span>
+                          {{ task.priority || 'No priority' }}
+                        </span>
+                      </p>
+                    </div>
+                    <footer class="flex gap-2">
+                      <button
+                        class="btn btn--primary w-full"
+                        (click)="goToTask(task.id)"
+                      >
+                        <i class="fi fi-rr-door-open"></i>
+                      </button>
+                      @if (!isObserver()) {
+                      <button
+                        class="btn btn--danger w-full"
+                        (click)="showPopup('deleteTask', task.id)"
+                      >
+                        <i class="fi fi-rr-trash"></i>
+                      </button>
+                      }
+                    </footer>
+                  </div>
+                  } }
                 </div>
-                <footer class="flex gap-2">
-                  <button
-                    class="btn btn--primary w-full"
-                    (click)="goToTask(task.id)"
-                  >
-                    <i class="fi fi-rr-door-open"></i>
-                  </button>
-                  @if (!isObserver()) {
-                  <button
-                    class="btn btn--danger w-full"
-                    (click)="showPopup('deleteTask', task.id)"
-                  >
-                    <i class="fi fi-rr-trash"></i>
-                  </button>
-                  }
-                </footer>
               </div>
               }
             </div>
@@ -263,6 +263,14 @@ export class ProjectDetailsComponent {
   readonly isAdmin = computed(() => this.project()?.myRole === 'Admin');
   readonly isObserver = computed(() => this.project()?.myRole === 'Observer');
   readonly currentUser = computed(() => this.authService.authUser()?.username);
+  readonly taskStatuses = computed(() => {
+    const statuses = new Set(
+      this.project()
+        ?.tasks.map((t) => t.status)
+        .filter(Boolean) ?? []
+    );
+    return Array.from(statuses);
+  });
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeId = signal<number | null>(null);
