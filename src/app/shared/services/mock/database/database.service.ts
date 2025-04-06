@@ -11,98 +11,10 @@ import type {
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseMockService {
-  readonly users: UserEntity[] = [
-    {
-      id: 1,
-      username: 'alice',
-      email: 'alice@example.com',
-      password: 'alicePass',
-    },
-    { id: 2, username: 'bob', email: 'bob@example.com', password: 'bobPass' },
-    {
-      id: 3,
-      username: 'charlie',
-      email: 'charlie@example.com',
-      password: 'charliePass',
-    },
-    {
-      id: 4,
-      username: 'diana',
-      email: 'diana@example.com',
-      password: 'dianaPass',
-    },
-    { id: 5, username: 'eve', email: 'eve@example.com', password: 'evePass' },
-    {
-      id: 6,
-      username: 'frank',
-      email: 'frank@example.com',
-      password: 'frankPass',
-    },
-    {
-      id: 7,
-      username: 'grace',
-      email: 'grace@example.com',
-      password: 'gracePass',
-    },
-    {
-      id: 8,
-      username: 'henry',
-      email: 'henry@example.com',
-      password: 'henryPass',
-    },
-  ];
-
   readonly statuses: StatusEntity[] = [
     { id: 1, name: 'To Do' },
     { id: 2, name: 'In Progress' },
     { id: 3, name: 'Done' },
-  ];
-
-  readonly projects: ProjectEntity[] = [
-    {
-      id: 1,
-      name: 'Project Alpha',
-      description:
-        'Frontend redesign project for the customer portal with modern UI components and improved UX',
-      startDate: new Date(2023, 0, 1),
-      endDate: new Date(2023, 2, 30),
-      statusId: 2,
-    },
-    {
-      id: 2,
-      name: 'Project Beta',
-      description:
-        'Backend API development with microservices architecture and automated tests',
-      startDate: new Date(2023, 1, 15),
-      endDate: new Date(2023, 4, 15),
-      statusId: 2,
-    },
-    {
-      id: 3,
-      name: 'Project Gamma',
-      description:
-        'Mobile application development for iOS and Android with shared codebase',
-      startDate: new Date(2023, 4, 1),
-      endDate: new Date(2023, 7, 30),
-      statusId: 1,
-    },
-    {
-      id: 4,
-      name: 'Project Delta',
-      description:
-        'Database migration and optimization project to improve application performance',
-      startDate: new Date(2023, 4, 15),
-      endDate: new Date(2023, 6, 15),
-      statusId: 3,
-    },
-    {
-      id: 5,
-      name: 'Project Epsilon',
-      description: 'Infrastructure modernization with cloud migration to AWS',
-      startDate: new Date(2023, 2, 1),
-      endDate: new Date(2023, 5, 30),
-      statusId: 1,
-    },
   ];
 
   readonly roles: RoleEntity[] = [
@@ -111,34 +23,89 @@ export class DatabaseMockService {
     { id: 3, name: 'Observer' },
   ];
 
+  readonly users: UserEntity[] = [
+    {
+      id: 1,
+      username: 'admin',
+      email: 'admin@example.com',
+      password: 'admin123',
+    },
+    {
+      id: 2,
+      username: 'alice',
+      email: 'alice@example.com',
+      password: 'alice123',
+    },
+    { id: 3, username: 'bob', email: 'bob@example.com', password: 'bob123' },
+    {
+      id: 4,
+      username: 'charlie',
+      email: 'charlie@example.com',
+      password: 'charlie123',
+    },
+    {
+      id: 5,
+      username: 'diana',
+      email: 'diana@example.com',
+      password: 'diana123',
+    },
+  ];
+
+  readonly projects: ProjectEntity[] = [
+    {
+      id: 1,
+      name: 'E-commerce Website',
+      description:
+        'Development of a modern e-commerce platform with payment integration',
+      startDate: new Date(2024, 0, 1),
+      endDate: new Date(2024, 5, 30),
+      statusId: 2,
+    },
+    {
+      id: 2,
+      name: 'Mobile App',
+      description: 'Cross-platform mobile application for iOS and Android',
+      startDate: new Date(2024, 2, 1),
+      endDate: new Date(2024, 7, 31),
+      statusId: 1,
+    },
+    {
+      id: 3,
+      name: 'Backend API',
+      description: 'RESTful API development with microservices architecture',
+      startDate: new Date(2024, 1, 15),
+      endDate: new Date(2024, 6, 15),
+      statusId: 2,
+    },
+  ];
+
   readonly projectMembers: ProjectMemberEntity[] = [
-    { id: 1, projectId: 1, userId: 1, roleId: 2 },
-    { id: 2, projectId: 1, userId: 2, roleId: 3 },
-    { id: 3, projectId: 2, userId: 3, roleId: 2 },
-    { id: 4, projectId: 2, userId: 4, roleId: 3 },
-    { id: 5, projectId: 3, userId: 5, roleId: 2 },
-    { id: 6, projectId: 3, userId: 6, roleId: 3 },
-    { id: 7, projectId: 4, userId: 3, roleId: 3 },
-    { id: 8, projectId: 1, userId: 6, roleId: 1 },
-    { id: 9, projectId: 2, userId: 1, roleId: 1 },
-    { id: 10, projectId: 3, userId: 2, roleId: 1 },
-    { id: 11, projectId: 4, userId: 5, roleId: 1 },
-    { id: 12, projectId: 5, userId: 7, roleId: 1 },
-    { id: 13, projectId: 1, userId: 8, roleId: 2 },
-    { id: 14, projectId: 2, userId: 7, roleId: 2 },
-    { id: 15, projectId: 3, userId: 8, roleId: 3 },
-    { id: 16, projectId: 4, userId: 7, roleId: 2 },
-    { id: 17, projectId: 5, userId: 8, roleId: 1 },
-    { id: 18, projectId: 5, userId: 4, roleId: 2 },
+    // E-commerce Website
+    { id: 1, projectId: 1, userId: 1, roleId: 1 }, // Admin
+    { id: 2, projectId: 1, userId: 2, roleId: 2 }, // Alice - Member
+    { id: 3, projectId: 1, userId: 3, roleId: 2 }, // Bob - Member
+    { id: 4, projectId: 1, userId: 5, roleId: 3 }, // Diana - Observer
+
+    // Mobile App
+    { id: 5, projectId: 2, userId: 1, roleId: 1 }, // Admin
+    { id: 6, projectId: 2, userId: 3, roleId: 2 }, // Bob - Member
+    { id: 7, projectId: 2, userId: 4, roleId: 2 }, // Charlie - Member
+
+    // Backend API
+    { id: 8, projectId: 3, userId: 1, roleId: 1 }, // Admin
+    { id: 9, projectId: 3, userId: 2, roleId: 2 }, // Alice - Member
+    { id: 10, projectId: 3, userId: 4, roleId: 2 }, // Charlie - Member
+    { id: 11, projectId: 3, userId: 5, roleId: 3 }, // Diana - Observer
   ];
 
   readonly tasks: TaskEntity[] = [
+    // E-commerce Website tasks
     {
       id: 1,
       projectId: 1,
-      name: 'Design UI Components',
-      description: 'Create reusable UI components based on the design system',
-      dueDate: new Date(2023, 0, 10),
+      name: 'Design Homepage',
+      description: 'Create wireframes and design for the homepage',
+      dueDate: new Date(2024, 0, 15),
       priority: 1,
       assigneeId: 2,
       statusId: 3,
@@ -146,374 +113,150 @@ export class DatabaseMockService {
     {
       id: 2,
       projectId: 1,
-      name: 'Setup Database Schema',
-      description:
-        'Define database tables and relationships for the user portal',
-      dueDate: new Date(2023, 0, 12),
-      priority: 2,
-      assigneeId: 1,
-      statusId: 3,
-    },
-    {
-      id: 3,
-      projectId: 2,
-      name: 'Implement Authentication API',
-      description: 'Create REST endpoints for user authentication with JWT',
-      dueDate: new Date(2023, 1, 20),
+      name: 'Implement Payment Gateway',
+      description: 'Integrate Stripe payment system',
+      dueDate: new Date(2024, 1, 28),
       priority: 1,
       assigneeId: 3,
       statusId: 2,
     },
     {
-      id: 4,
+      id: 3,
       projectId: 1,
-      name: 'Review UI Design',
-      description: 'Conduct usability testing and gather feedback on UI design',
-      dueDate: new Date(2023, 0, 15),
-      priority: 3,
-      assigneeId: 1,
-      statusId: 3,
+      name: 'Product Catalog',
+      description: 'Develop product listing and filtering system',
+      dueDate: new Date(2024, 2, 15),
+      priority: 2,
+      assigneeId: 2,
+      statusId: 1,
+    },
+
+    // Mobile App tasks
+    {
+      id: 4,
+      projectId: 2,
+      name: 'Setup React Native',
+      description: 'Configure development environment',
+      dueDate: new Date(2024, 2, 10),
+      priority: 1,
+      assigneeId: 3,
+      statusId: 1,
     },
     {
       id: 5,
       projectId: 2,
-      name: 'Test Beta Features',
-      description: 'Write and execute test cases for new Beta features',
-      dueDate: new Date(2023, 2, 25),
-      priority: 2,
+      name: 'Design App UI',
+      description: 'Create app screens and navigation flow',
+      dueDate: new Date(2024, 2, 20),
+      priority: 1,
       assigneeId: 4,
-      statusId: 2,
+      statusId: 1,
     },
+
+    // Backend API tasks
     {
       id: 6,
       projectId: 3,
-      name: 'Create Wireframes',
-      description: 'Design low-fidelity wireframes for mobile app screens',
-      dueDate: new Date(2023, 4, 10),
+      name: 'Design API Schema',
+      description: 'Define endpoints and data structures',
+      dueDate: new Date(2024, 1, 28),
       priority: 1,
-      assigneeId: 5,
+      assigneeId: 2,
       statusId: 3,
     },
     {
       id: 7,
-      projectId: 1,
-      name: 'Implement User Dashboard',
-      description: 'Develop the main dashboard with analytics widgets',
-      dueDate: new Date(2023, 0, 20),
+      projectId: 3,
+      name: 'Implement Authentication',
+      description: 'Create JWT authentication system',
+      dueDate: new Date(2024, 2, 15),
       priority: 1,
-      assigneeId: 8,
-      statusId: 3,
+      assigneeId: 4,
+      statusId: 2,
     },
     {
       id: 8,
-      projectId: 1,
-      name: 'Optimize Frontend Performance',
-      description: 'Improve load times and rendering performance',
-      dueDate: new Date(2023, 1, 5),
+      projectId: 3,
+      name: 'Database Setup',
+      description: 'Configure PostgreSQL and migrations',
+      dueDate: new Date(2024, 2, 1),
       priority: 2,
       assigneeId: 2,
-      statusId: 2,
-    },
-    {
-      id: 9,
-      projectId: 1,
-      name: 'Write End-to-End Tests',
-      description: 'Create automated tests for critical user journeys',
-      dueDate: new Date(2023, 1, 15),
-      priority: 3,
-      assigneeId: 1,
-      statusId: 1,
-    },
-    {
-      id: 10,
-      projectId: 2,
-      name: 'Implement User Management API',
-      description: 'Create CRUD endpoints for user administration',
-      dueDate: new Date(2023, 2, 5),
-      priority: 1,
-      assigneeId: 3,
-      statusId: 3,
-    },
-    {
-      id: 11,
-      projectId: 2,
-      name: 'Set Up CI/CD Pipeline',
-      description: 'Configure automated build and deployment workflow',
-      dueDate: new Date(2023, 2, 15),
-      priority: 2,
-      assigneeId: 7,
-      statusId: 1,
-    },
-    {
-      id: 12,
-      projectId: 2,
-      name: 'Create API Documentation',
-      description: 'Generate Swagger documentation for all endpoints',
-      dueDate: new Date(2023, 3, 10),
-      priority: 3,
-      assigneeId: 4,
-      statusId: 1,
-    },
-    {
-      id: 13,
-      projectId: 3,
-      name: 'Set Up React Native Environment',
-      description:
-        'Configure development environment for cross-platform mobile development',
-      dueDate: new Date(2023, 4, 15),
-      priority: 1,
-      assigneeId: 6,
-      statusId: 3,
-    },
-    {
-      id: 14,
-      projectId: 3,
-      name: 'Implement User Authentication',
-      description: 'Create login, registration and password reset screens',
-      dueDate: new Date(2023, 5, 1),
-      priority: 1,
-      assigneeId: 5,
-      statusId: 2,
-    },
-    {
-      id: 15,
-      projectId: 3,
-      name: 'Design App Icons',
-      description:
-        'Create app icons and splash screens for all required resolutions',
-      dueDate: new Date(2023, 5, 15),
-      priority: 2,
-      assigneeId: 8,
-      statusId: 1,
-    },
-    {
-      id: 16,
-      projectId: 4,
-      name: 'Analyze Current Database Performance',
-      description: 'Identify bottlenecks and optimization opportunities',
-      dueDate: new Date(2023, 4, 25),
-      priority: 1,
-      assigneeId: 3,
-      statusId: 3,
-    },
-    {
-      id: 17,
-      projectId: 4,
-      name: 'Create Migration Scripts',
-      description: 'Develop scripts for safely migrating data to new schema',
-      dueDate: new Date(2023, 5, 5),
-      priority: 1,
-      assigneeId: 5,
-      statusId: 3,
-    },
-    {
-      id: 18,
-      projectId: 4,
-      name: 'Implement Database Sharding',
-      description: 'Set up horizontal partitioning for improved scalability',
-      dueDate: new Date(2023, 5, 20),
-      priority: 2,
-      assigneeId: 7,
-      statusId: 2,
-    },
-    {
-      id: 19,
-      projectId: 5,
-      name: 'Audit Current Infrastructure',
-      description: 'Document existing servers, services and dependencies',
-      dueDate: new Date(2023, 2, 15),
-      priority: 1,
-      assigneeId: 8,
-      statusId: 3,
-    },
-    {
-      id: 20,
-      projectId: 5,
-      name: 'Create AWS Architecture Diagram',
-      description: 'Design cloud infrastructure architecture with AWS services',
-      dueDate: new Date(2023, 3, 1),
-      priority: 1,
-      assigneeId: 4,
-      statusId: 3,
-    },
-    {
-      id: 21,
-      projectId: 5,
-      name: 'Set Up Terraform Scripts',
-      description: 'Create infrastructure as code for AWS resources',
-      dueDate: new Date(2023, 3, 20),
-      priority: 2,
-      assigneeId: 7,
-      statusId: 1,
-    },
-    {
-      id: 22,
-      projectId: 5,
-      name: 'Implement Monitoring Solution',
-      description: 'Set up CloudWatch dashboards and alerts',
-      dueDate: new Date(2023, 4, 10),
-      priority: 2,
-      assigneeId: 4,
       statusId: 1,
     },
   ];
 
   readonly taskEvents: TaskEventEntity[] = [
+    // Homepage Design events
     {
       id: 1,
       taskId: 1,
       description: 'Task created',
-      date: new Date(2023, 0, 2),
+      date: new Date(2024, 0, 1),
     },
     {
       id: 2,
       taskId: 1,
-      description: 'Assigned to Bob',
-      date: new Date(2023, 0, 2),
+      description: 'Assigned to Alice',
+      date: new Date(2024, 0, 1),
     },
     {
       id: 3,
       taskId: 1,
       description: 'Status changed to In Progress',
-      date: new Date(2023, 0, 3),
+      date: new Date(2024, 0, 5),
     },
     {
       id: 4,
       taskId: 1,
-      description: 'Added component library documentation',
-      date: new Date(2023, 0, 5),
+      description: 'Status changed to Done',
+      date: new Date(2024, 0, 14),
     },
+
+    // Payment Gateway events
     {
       id: 5,
-      taskId: 1,
-      description: 'Status changed to Done',
-      date: new Date(2023, 0, 9),
+      taskId: 2,
+      description: 'Task created',
+      date: new Date(2024, 1, 1),
     },
     {
       id: 6,
       taskId: 2,
-      description: 'Task created',
-      date: new Date(2023, 0, 2),
+      description: 'Assigned to Bob',
+      date: new Date(2024, 1, 1),
     },
     {
       id: 7,
       taskId: 2,
-      description: 'Assigned to Alice',
-      date: new Date(2023, 0, 3),
+      description: 'Status changed to In Progress',
+      date: new Date(2024, 1, 5),
     },
+
+    // API Schema events
     {
       id: 8,
-      taskId: 2,
-      description: 'Status changed to In Progress',
-      date: new Date(2023, 0, 4),
+      taskId: 6,
+      description: 'Task created',
+      date: new Date(2024, 1, 15),
     },
     {
       id: 9,
-      taskId: 2,
-      description: 'Updated schema based on requirements change',
-      date: new Date(2023, 0, 8),
+      taskId: 6,
+      description: 'Assigned to Alice',
+      date: new Date(2024, 1, 15),
     },
     {
       id: 10,
-      taskId: 2,
-      description: 'Status changed to Done',
-      date: new Date(2023, 0, 11),
+      taskId: 6,
+      description: 'Status changed to In Progress',
+      date: new Date(2024, 1, 16),
     },
     {
       id: 11,
-      taskId: 3,
-      description: 'Task created',
-      date: new Date(2023, 1, 16),
-    },
-    {
-      id: 12,
-      taskId: 3,
-      description: 'Assigned to Charlie',
-      date: new Date(2023, 1, 16),
-    },
-    {
-      id: 13,
-      taskId: 3,
-      description: 'Status changed to In Progress',
-      date: new Date(2023, 1, 17),
-    },
-    {
-      id: 14,
-      taskId: 4,
-      description: 'Task created',
-      date: new Date(2023, 0, 5),
-    },
-    {
-      id: 15,
-      taskId: 4,
-      description: 'Assigned to Alice',
-      date: new Date(2023, 0, 5),
-    },
-    {
-      id: 16,
-      taskId: 4,
-      description: 'Status changed to In Progress',
-      date: new Date(2023, 0, 6),
-    },
-    {
-      id: 17,
-      taskId: 4,
-      description: 'Usability testing session completed',
-      date: new Date(2023, 0, 10),
-    },
-    {
-      id: 18,
-      taskId: 4,
+      taskId: 6,
       description: 'Status changed to Done',
-      date: new Date(2023, 0, 13),
-    },
-    {
-      id: 19,
-      taskId: 5,
-      description: 'Task created',
-      date: new Date(2023, 2, 1),
-    },
-    {
-      id: 20,
-      taskId: 5,
-      description: 'Assigned to Diana',
-      date: new Date(2023, 2, 1),
-    },
-    {
-      id: 21,
-      taskId: 5,
-      description: 'Status changed to In Progress',
-      date: new Date(2023, 2, 5),
-    },
-    {
-      id: 22,
-      taskId: 21,
-      description: 'Task created',
-      date: new Date(2023, 3, 1),
-    },
-    {
-      id: 23,
-      taskId: 21,
-      description: 'Assigned to Grace',
-      date: new Date(2023, 3, 1),
-    },
-    {
-      id: 24,
-      taskId: 21,
-      description: 'Status changed to In Progress',
-      date: new Date(2023, 3, 5),
-    },
-    {
-      id: 25,
-      taskId: 21,
-      description: 'Dependency issue identified',
-      date: new Date(2023, 3, 12),
-    },
-    {
-      id: 26,
-      taskId: 21,
-      description: 'Status changed to To Do',
-      date: new Date(2023, 3, 12),
+      date: new Date(2024, 1, 27),
     },
   ];
 }

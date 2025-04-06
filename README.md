@@ -53,22 +53,17 @@ The application comes pre-configured with demo data for testing purposes.
 
 | Username | Email                 | Password   | Notes                     |
 |----------|----------------------|------------|---------------------------|
-| alice    | alice@example.com    | alicePass  | Administrator on Project Beta |
-| bob      | bob@example.com      | bobPass    | Administrator on Project Gamma |
-| charlie  | charlie@example.com  | charliePass| Member on Project Beta    |
-| diana    | diana@example.com    | dianaPass  | Observer on Project Beta  |
-| eve      | eve@example.com      | evePass    | Administrator on Project Delta |
-| frank    | frank@example.com    | frankPass  | Administrator on Project Alpha |
-| grace    | grace@example.com    | gracePass  | Administrator on Project Epsilon |
-| henry    | henry@example.com    | henryPass  | Member on Project Alpha   |
+| admin    | admin@example.com    | admin123   | Administrator on all projects |
+| alice    | alice@example.com    | alice123   | Member on E-commerce and Backend API |
+| bob      | bob@example.com      | bob123     | Member on E-commerce and Mobile App |
+| charlie  | charlie@example.com  | charlie123 | Member on Mobile App and Backend API |
+| diana    | diana@example.com    | diana123   | Observer on E-commerce and Backend API |
 
 ### Demo Projects
 
-- **Project Alpha**: Frontend redesign project for the customer portal
-- **Project Beta**: Backend API development with microservices
-- **Project Gamma**: Mobile application development for iOS/Android
-- **Project Delta**: Database migration and optimization project
-- **Project Epsilon**: Infrastructure modernization with AWS migration
+- **E-commerce Website**: Development of a modern e-commerce platform with payment integration
+- **Mobile App**: Cross-platform mobile application for iOS and Android
+- **Backend API**: RESTful API development with microservices architecture
 
 ### Available Statuses
 
