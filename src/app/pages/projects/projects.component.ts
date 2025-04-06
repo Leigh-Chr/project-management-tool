@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   signal,
@@ -34,70 +35,66 @@ type PopupType = 'addProject' | 'deleteProject';
             <span>Add Project</span>
           </button>
         </div>
-        <div>
-          <table class="table" role="grid">
-            <thead class="table__header">
-              <tr>
-                <th class="table__cell" scope="col">Id</th>
-                <th class="table__cell" scope="col">Name</th>
-                <th class="table__cell" scope="col">Description</th>
-                <th class="table__cell" scope="col">Start Date</th>
-                <th class="table__cell" scope="col">End Date</th>
-                <th class="table__cell" scope="col">Status</th>
-                <th class="table__cell" scope="col">My Role</th>
-                <th class="table__cell" scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="table__body">
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          @for (status of projectStatuses(); track status) {
+          <div class="flex flex-col gap-2">
+            <h3 class="text-lg font-semibold">{{ status }}</h3>
+            <div class="flex flex-col gap-4">
               @let _projects = projects(); @if (_projects?.length === 0) {
-              <tr>
-                <td class="table__cell" colspan="7" role="alert">
-                  No data available
-                </td>
-              </tr>
-              } @else { @for (item of _projects; track $index) {
-              <tr class="table__row">
-                <td class="table__cell table__cell--center">{{ item.id }}</td>
-                <td class="table__cell table__cell--center">{{ item.name }}</td>
-                <td class="table__cell table__cell--center text-ellipsis">
-                  {{ item.description || '-' }}
-                </td>
-                <td class="table__cell table__cell--center">
-                  {{
-                    item.startDate ? item.startDate.toLocaleDateString() : '-'
-                  }}
-                </td>
-                <td class="table__cell table__cell--center">
-                  {{ item.endDate ? item.endDate.toLocaleDateString() : '-' }}
-                </td>
-                <td class="table__cell table__cell--center">
-                  {{ item.status || '-' }}
-                </td>
-                <td class="table__cell table__cell--center">
-                  {{ item.myRole || '-' }}
-                </td>
-                <td class="table__cell table__cell--center">
-                  <div class="flex gap-2 justify-center">
-                    @if (item.myRole === 'Admin') {
-                    <button
-                      class="btn btn--danger w-full"
-                      (click)="showPopup('deleteProject', item.id)"
-                    >
-                      <i class="fi fi-rr-trash"></i>
-                    </button>
-                    }
-                    <button
-                      class="btn btn--primary w-full"
-                      (click)="goToProject(item.id)"
-                    >
-                      <i class="fi fi-rr-door-open"></i>
-                    </button>
+              <div class="text-center p-4" role="alert">
+                No projects available
+              </div>
+              } @else { @for (project of _projects; track project.id) { @if
+              (project.status === status) {
+              <div class="card flex flex-col gap-2">
+                <h4 class="text-lg font-semibold">{{ project.name }}</h4>
+                <p class="text-gray-600 text-sm line-clamp-2">
+                  {{ project.description || 'No description provided' }}
+                </p>
+                <div class="flex flex-col gap-1 text-sm">
+                  <div class="flex justify-between">
+                    <span class="text-gray-500">Start Date:</span>
+                    <span>{{
+                      project.startDate
+                        ? project.startDate.toLocaleDateString()
+                        : '-'
+                    }}</span>
                   </div>
-                </td>
-              </tr>
-              } }
-            </tbody>
-          </table>
+                  <div class="flex justify-between">
+                    <span class="text-gray-500">End Date:</span>
+                    <span>{{
+                      project.endDate
+                        ? project.endDate.toLocaleDateString()
+                        : '-'
+                    }}</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span class="text-gray-500">Your Role:</span>
+                    <span>{{ project.myRole || '-' }}</span>
+                  </div>
+                </div>
+                <div class="flex gap-2 mt-auto pt-2">
+                  @if (project.myRole === 'Admin') {
+                  <button
+                    class="btn btn--danger w-full"
+                    (click)="showPopup('deleteProject', project.id)"
+                  >
+                    <i class="fi fi-rr-trash"></i>
+                  </button>
+                  }
+                  <button
+                    class="btn btn--primary w-full"
+                    (click)="goToProject(project.id)"
+                  >
+                    <i class="fi fi-rr-door-open"></i>
+                  </button>
+                </div>
+              </div>
+              } } }
+            </div>
+          </div>
+          }
         </div>
 
         @switch (activePopup()) { @case ('addProject') {
@@ -117,6 +114,14 @@ export class ProjectsComponent {
   private readonly projectService = inject(ProjectService);
 
   readonly projects = signal<Project[]>([]);
+  readonly projectStatuses = computed(() => {
+    const statuses = new Set(
+      this.projects()
+        ?.map((p) => p.status)
+        .filter(Boolean) ?? []
+    );
+    return Array.from(statuses);
+  });
 
   readonly activePopup = signal<PopupType | null>(null);
   readonly activeProjectId = signal<number | null>(null);
