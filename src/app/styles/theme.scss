@@ -1,7 +1,5 @@
 @use 'reset' as *;
 @use 'variables' as *;
-@use "sass:map";
-@use "sass:color";
 
 p {
   white-space: pre-line;
@@ -155,14 +153,14 @@ p {
 
 // Links
 .link {
-  color: color.adjust(hsl(230, 97%, 70%), $lightness: -10%);
+  color: color-mix(in srgb, hsl(230, 97%, 70%) 90%, black 10%);
   text-decoration: none;
   &:hover {
-    color: color.adjust(hsl(230, 97%, 70%), $lightness: -25%);
+    color: color-mix(in srgb, hsl(230, 97%, 70%) 75%, black 25%);
   }
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 2px color.adjust(hsl(230, 97%, 70%), $lightness: -25%);
+    box-shadow: 0 0 0 2px color-mix(in srgb, hsl(230, 97%, 70%) 75%, black 25%);
   }
 }
 
