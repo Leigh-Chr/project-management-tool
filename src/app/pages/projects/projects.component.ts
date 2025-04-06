@@ -36,7 +36,7 @@ type PopupType = 'addProject' | 'deleteProject';
           </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid">
           @for (status of projectStatuses(); track status) {
           <div class="flex flex-col gap-2">
             <h3 class="text-lg font-semibold">{{ status }}</h3>
