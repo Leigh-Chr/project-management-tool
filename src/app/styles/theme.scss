@@ -103,37 +103,6 @@ p {
 // Components
 // =============================================
 
-// Table
-.table {
-  width: 100%;
-  border-spacing: 0;
-  background-color: var(--neutral-color-0);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 2px solid currentColor;
-  overflow: hidden;
-}
-.table__cell {
-  padding: var(--spacing-2);
-  &--center {
-    text-align: center;
-  }
-}
-.table__header {
-  background-color: var(--neutral-color-1);
-}
-.table__row {
-  &:nth-child(even) {
-    background-color: var(--neutral-color-1);
-  }
-  &.clickable {
-    cursor: pointer;
-    &:hover {
-      background-color: var(--neutral-color-1);
-    }
-  }
-}
-
 // Lists
 .list {
   list-style: none;
