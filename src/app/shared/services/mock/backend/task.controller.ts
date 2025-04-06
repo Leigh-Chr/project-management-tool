@@ -221,10 +221,17 @@ export class TaskController {
     }
 
     this.database.tasks.splice(this.database.tasks.indexOf(task), 1);
-    this.database.taskEvents.splice(
-      this.database.taskEvents.findIndex((th) => th.taskId === taskId),
-      1
+
+    // Supprimer tous les événements associés à la tâche
+    const taskEvents = this.database.taskEvents.filter(
+      (te) => te.taskId === taskId
     );
+    for (const event of taskEvents) {
+      this.database.taskEvents.splice(
+        this.database.taskEvents.indexOf(event),
+        1
+      );
+    }
 
     const status = this.database.statuses.find((s) => s.id === task.statusId);
     if (!status) {
