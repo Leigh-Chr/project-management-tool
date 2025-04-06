@@ -15,7 +15,7 @@ import { AuthService } from '../services/auth.service';
   template: `
     <div class="layout">
       @if (user(); as user) {
-      <nav class="nav card rounded p-4 w-full flex justify-between">
+      <nav class="nav card p-4 w-full flex justify-between">
         <h1>
           <a [routerLink]="['/']" class="link">Project Management Tool</a>
         </h1>

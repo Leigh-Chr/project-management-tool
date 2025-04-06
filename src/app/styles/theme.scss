@@ -1,10 +1,76 @@
 @use 'reset' as *;
 @use 'variables' as *;
 
+// =============================================
+// Base styles
+// =============================================
 p {
   white-space: pre-line;
 }
 
+// =============================================
+// Layout utilities
+// =============================================
+
+// Flex
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+
+// Justify
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.justify-center { justify-content: center; }
+
+// Align
+.items-center { align-items: center; }
+
+// Gap
+.gap-2 { gap: var(--spacing-2); }
+.gap-4 { gap: var(--spacing-4); }
+.gap-8 { gap: var(--spacing-8); }
+
+// =============================================
+// Spacing utilities
+// =============================================
+
+// Padding
+.p-2 { padding: var(--spacing-2); }
+.p-4 { padding: var(--spacing-4); }
+
+// Margin
+.m-2 { margin: var(--spacing-2); }
+.m-4 { margin: var(--spacing-4); }
+
+// =============================================
+// Sizing utilities
+// =============================================
+
+// Width
+.w-full { width: 100%; }
+.w-screen { width: 100vw; }
+
+// Height
+.h-full { height: 100%; }
+.h-screen { height: 100vh; }
+
+// =============================================
+// Typography utilities
+// =============================================
+.text-center { text-align: center; }
+.text-ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 20rem;
+}
+
+// =============================================
+// Components
+// =============================================
+
+// Table
 .table {
   width: 100%;
   border-spacing: 0;
@@ -32,135 +98,6 @@ p {
     &:hover {
       background-color: var(--neutral-color-1);
     }
-  }
-}
-
-// Body
-.body {
-  font-family: var(--font-family-base);
-  background-color: var(--neutral-color-1);
-  color: var(--text-color);
-
-  // Textured overlay
-  &::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url('../assets/paper-texture.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.3;
-    mix-blend-mode: darken;
-    pointer-events: none;
-    z-index: 100;
-  }
-}
-
-// Flex
-.flex {
-  display: flex;
-}
-.flex-col {
-  flex-direction: column;
-}
-.flex-row {
-  flex-direction: row;
-}
-.flex-wrap {
-  flex-wrap: wrap;
-}
-
-// Justify
-.justify-between {
-  justify-content: space-between;
-}
-.justify-end {
-  justify-content: flex-end;
-}
-.justify-center {
-  justify-content: center;
-}
-
-// Align
-.items-center {
-  align-items: center;
-}
-
-// Gap
-.gap-2 {
-  gap: var(--spacing-2);
-}
-.gap-4 {
-  gap: var(--spacing-4);
-}
-.gap-8 {
-  gap: var(--spacing-8);
-}
-
-// Padding
-.p-2 {
-  padding: var(--spacing-2);
-}
-.p-4 {
-  padding: var(--spacing-4);
-}
-
-// Margin
-.m-2 {
-  margin: var(--spacing-2);
-}
-.m-4 {
-  margin: var(--spacing-4);
-}
-
-// Width
-.w-full {
-  width: 100%;
-}
-.w-screen {
-  width: 100vw;
-}
-
-// Height
-.h-full {
-  height: 100%;
-}
-.h-screen {
-  height: 100vh;
-}
-
-// Elevation
-.elevation {
-  background-color: var(--neutral-color-0);
-}
-
-// Rounded Border
-.rounded {
-  border-radius: var(--border-radius-md);
-}
-
-// Text
-.text-center {
-  text-align: center;
-}
-.text-ellipsis {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  max-width: 20rem;
-}
-
-// Links
-.link {
-  color: color-mix(in srgb, hsl(230, 97%, 70%) 90%, black 10%);
-  text-decoration: none;
-  &:hover {
-    color: color-mix(in srgb, hsl(230, 97%, 70%) 75%, black 25%);
-  }
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px color-mix(in srgb, hsl(230, 97%, 70%) 75%, black 25%);
   }
 }
 
@@ -228,7 +165,7 @@ p {
   margin-bottom: 1rem;
 }
 
-// Button Variants
+// Buttons
 .btn {
   display: flex;
   align-items: center;
@@ -257,6 +194,43 @@ p {
   &--disabled {
     opacity: 0.5;
     pointer-events: none;
+  }
+}
+
+// Links
+.link {
+  color: color-mix(in srgb, hsl(230, 97%, 70%) 90%, black 10%);
+  text-decoration: none;
+  &:hover {
+    color: color-mix(in srgb, hsl(230, 97%, 70%) 75%, black 25%);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px color-mix(in srgb, hsl(230, 97%, 70%) 75%, black 25%);
+  }
+}
+
+// =============================================
+// Global styles
+// =============================================
+.body {
+  font-family: var(--font-family-base);
+  background-color: var(--neutral-color-1);
+  color: var(--text-color);
+
+  // Textured overlay
+  &::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('../assets/paper-texture.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.3;
+    mix-blend-mode: darken;
+    pointer-events: none;
+    z-index: 100;
   }
 }
 
