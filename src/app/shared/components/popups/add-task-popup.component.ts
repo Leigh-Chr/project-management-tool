@@ -5,6 +5,7 @@ import {
   inject,
   input,
   output,
+  signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
@@ -19,7 +20,10 @@ import { UserService } from '../../services/data/user.service';
 import { ToastService } from '../toast/toast.service';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
-import { SelectFieldComponent } from '../ui/select-field.component';
+import {
+  SelectFieldComponent,
+  type SelectOption,
+} from '../ui/select-field.component';
 import { StatusService } from '@app/shared/services/data/status.service';
 
 @Component({
@@ -102,18 +106,7 @@ export class AddTaskPopupComponent {
   projectId = input.required<number>();
   onClose = output<void>();
 
-  userOptions = toSignal(
-    this.userService
-      .getUsers()
-      .pipe(
-        map((users) =>
-          users.map((user) => ({ value: user.id, label: user.username }))
-        )
-      ),
-    {
-      initialValue: [],
-    }
-  );
+  userOptions = signal<SelectOption<number>[]>([]);
   statusOptions = toSignal(
     this.statusService
       .getStatuses()
@@ -129,14 +122,37 @@ export class AddTaskPopupComponent {
 
   constructor() {
     effect(() => {
+      const projectId = this.projectId();
+      if (projectId) {
+        this.taskService
+          .getProjectMembers(projectId)
+          .pipe(
+            map((members) =>
+              members.map((member) => ({
+                value: member.id,
+                label: member.username,
+              }))
+            )
+          )
+          .subscribe((options) => {
+            this.userOptions.set(options);
+          });
+      }
+    });
+
+    effect(() => {
       const postedTask = this.taskService.postedTask();
-      if (!postedTask) {return;}
+      if (!postedTask) {
+        return;
+      }
       this.onClose.emit();
     });
   }
 
   async submit(): Promise<void> {
-    if (this.taskForm.invalid) {return;}
+    if (this.taskForm.invalid) {
+      return;
+    }
 
     const newTask = {
       name: this.name.value,

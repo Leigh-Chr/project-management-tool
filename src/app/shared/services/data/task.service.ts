@@ -19,6 +19,7 @@ import type {
   PostTaskResponse,
   Task,
 } from '../../models/task.models';
+import type { ProjectMember } from '../../models/project.models';
 import { TaskController } from '../mock/backend/task.controller';
 
 @Injectable({
@@ -84,6 +85,10 @@ export class TaskService {
     taskId: number
   ): Observable<GetTaskDetailsResponse | undefined> {
     return this.taskController.getTaskDetails(taskId);
+  }
+
+  getProjectMembers(projectId: number): Observable<ProjectMember[]> {
+    return this.taskController.getProjectMembers(projectId);
   }
 
   patchTask(

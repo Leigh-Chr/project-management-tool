@@ -12,6 +12,7 @@ import type {
   PostTaskResponse,
   Task,
 } from '../../../models/task.models';
+import type { ProjectMember } from '../../../models/project.models';
 import { DatabaseMockService } from '../database/database.service';
 import { AuthService } from './auth.service';
 
@@ -477,5 +478,31 @@ export class TaskController {
     }
 
     return undefined;
+  }
+
+  getProjectMembers(projectId: number): Observable<ProjectMember[]> {
+    const projectMembers = this.database.projectMembers.filter(
+      (pm) => pm.projectId === projectId
+    );
+
+    const members = projectMembers
+      .map((pm) => {
+        const user = this.database.users.find((u) => u.id === pm.userId);
+        const role = this.database.roles.find((r) => r.id === pm.roleId);
+
+        if (!user || !role) {
+          return null;
+        }
+
+        return {
+          id: pm.id,
+          username: user.username,
+          email: user.email,
+          role: role.name,
+        };
+      })
+      .filter((member): member is ProjectMember => member !== null);
+
+    return of(members);
   }
 }
