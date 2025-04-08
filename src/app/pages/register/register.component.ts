@@ -116,26 +116,23 @@ import { AuthService } from '../../shared/services/auth.service';
 export class RegisterComponent {
   readonly fb = inject(FormBuilder);
   readonly registerForm = signal<FormGroup>(
-    this.fb.group({
-      username: ['', [Validators.required]],
-      email: ['', [Validators.required]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: [
-        '',
-        [
-          Validators.required,
-          (control: AbstractControl): ValidationErrors | null => {
-            const source = 'password';
-            const target = 'confirmPassword';
-            const sourceCtrl = control.get(source);
-            const targetCtrl = control.get(target);
-            return sourceCtrl?.value === targetCtrl?.value
-              ? null
-              : { mismatch: true };
+    this.fb.group(
+      {
+        username: ['', [Validators.required]],
+        email: ['', [Validators.required]],
+        password: ['', [Validators.required, Validators.minLength(8)]],
+        confirmPassword: ['', [Validators.required]],
+      },
+      {
+        validators: [
+          (group: AbstractControl): ValidationErrors | null => {
+            const password = group.get('password')?.value;
+            const confirmPassword = group.get('confirmPassword')?.value;
+            return password === confirmPassword ? null : { mismatch: true };
           },
         ],
-      ],
-    })
+      }
+    )
   );
 
   readonly usernameControl = computed(
