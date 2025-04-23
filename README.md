@@ -93,6 +93,7 @@ The application will be available at: `http://localhost:80`
 
 ## Tests
 
+Run all tests:
 ```bash
 npm run test
 ```
