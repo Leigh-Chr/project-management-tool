@@ -1,14 +1,14 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 @Component({
   standalone: true,
   selector: 'ui-icon',
   template: `
     <i 
-      class="icon {{ class }}" 
+      class="icon {{ class() }}" 
       [attr.aria-hidden]="true"
       role="img"
-      [attr.aria-label]="ariaLabel"
+      [attr.aria-label]="ariaLabel()"
     ></i>
   `,
   styles: [`
@@ -21,6 +21,6 @@ import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconComponent {
-  @Input({ required: true }) class!: string;
-  @Input() ariaLabel?: string;
+  class = input.required<string>();
+  ariaLabel = input<string>();
 }

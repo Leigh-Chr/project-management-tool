@@ -201,8 +201,10 @@ export class PatchTaskPopupComponent implements OnInit {
       statusId: +this.statusId.value,
     };
 
-    const res = this.taskService.patchTask(this.task().id, updatedTask);
-    if (!res) {
+    const resSignal = toSignal(this.taskService.patchTask(this.task().id, updatedTask), {
+      injector: this.injector,
+    });
+    if (!resSignal()) {
       this.toastService.showToast({
         title: 'Error',
         message: 'Failed to update task',

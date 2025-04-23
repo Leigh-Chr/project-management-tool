@@ -3,6 +3,7 @@ import {
   Component,
   effect,
   inject,
+  Injector,
   input,
   output,
   signal,
@@ -14,9 +15,9 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { StatusService } from '@app/shared/services/data/status.service';
 import { map } from 'rxjs';
 import { TaskService } from '../../services/data/task.service';
-import { UserService } from '../../services/data/user.service';
 import { ToastService } from '../toast/toast.service';
 import { InputFieldComponent } from '../ui/input-field.component';
 import { PopupComponent } from '../ui/popup.component';
@@ -24,7 +25,6 @@ import {
   SelectFieldComponent,
   type SelectOption,
 } from '../ui/select-field.component';
-import { StatusService } from '@app/shared/services/data/status.service';
 
 @Component({
   selector: 'pmt-add-task-popup',
@@ -81,9 +81,9 @@ import { StatusService } from '@app/shared/services/data/status.service';
 })
 export class AddTaskPopupComponent {
   private readonly taskService = inject(TaskService);
-  private readonly userService = inject(UserService);
-  private readonly toastService = inject(ToastService);
+  private readonly  toastService = inject(ToastService);
   private readonly statusService = inject(StatusService);
+  private readonly injector = inject(Injector);
 
   readonly taskForm = new FormGroup({
     name: new FormControl<string>('', [Validators.required]),
@@ -164,8 +164,10 @@ export class AddTaskPopupComponent {
       statusId: +this.statusId.value,
     };
 
-    const res = this.taskService.addTask(newTask);
-    if (!res) {
+    const resSignal = toSignal(this.taskService.addTask(newTask), {
+      injector: this.injector,
+    });
+    if (!resSignal()) {
       this.toastService.showToast({
         title: 'Error',
         message: 'Failed to add task',
