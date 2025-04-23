@@ -3,16 +3,10 @@ import {
   Component,
   effect,
   inject,
+  Injector,
   output,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import type { PostProjectRequest } from '@app/shared/models/project.models';
-import { StatusService } from '@app/shared/services/data/status.service';
-import { map } from 'rxjs';
-import { ProjectService } from '../../services/data/project.service';
-import { InputFieldComponent } from '../ui/input-field.component';
-import { PopupComponent } from '../ui/popup.component';
-import { SelectFieldComponent } from '../ui/select-field.component';
 import {
   FormBuilder,
   FormControl,
@@ -20,6 +14,14 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import type { PostProjectRequest } from '@app/shared/models/project.models';
+import { StatusService } from '@app/shared/services/data/status.service';
+import { map } from 'rxjs';
+import { ProjectService } from '../../services/data/project.service';
+import { ToastService } from '../toast/toast.service';
+import { InputFieldComponent } from '../ui/input-field.component';
+import { PopupComponent } from '../ui/popup.component';
+import { SelectFieldComponent } from '../ui/select-field.component';
 
 @Component({
   selector: 'pmt-add-project-popup',
@@ -83,9 +85,11 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddProjectPopupComponent {
+  private readonly injector = inject(Injector);
   private readonly projectService = inject(ProjectService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly statusService = inject(StatusService);
+  private readonly toastService = inject(ToastService);
 
   onClose = output<void>();
 
@@ -132,6 +136,11 @@ export class AddProjectPopupComponent {
     effect(() => {
       const postedProject = this.projectService.postedProject();
       if (!postedProject) {return;}
+      this.toastService.showToast({
+        title: 'Success',
+        message: 'Project created',
+        type: 'success'
+      });
       this.onClose.emit();
     });
   }
@@ -148,10 +157,22 @@ export class AddProjectPopupComponent {
       startDate: this.startDate.value
         ? new Date(this.startDate.value)
         : undefined,
-      endDate: this.endDate.value ? new Date(this.endDate.value) : undefined,
+      endDate: this.endDate.value
+        ? new Date(this.endDate.value)
+        : undefined,
       statusId,
     };
 
-    this.projectService.postProject(newProject);
+    const resSignal = toSignal(this.projectService.postProject(newProject), {
+      injector: this.injector,
+    });
+
+    if (!resSignal()) {
+      this.toastService.showToast({
+        title: 'Error',
+        message: 'Failed to create project',
+        type: 'error'
+      });
+    }
   }
 }
