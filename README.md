@@ -1,6 +1,8 @@
 # Project Management Tool
 
-Web application for project management developed with Angular 19.
+A full-stack web application for project management, featuring a modern Angular frontend and a robust Spring Boot backend.
+
+> **Note**: The backend is currently under development. The frontend application is not yet connected to the backend and runs in standalone mode with mock data.
 
 ## Features
 
@@ -13,19 +15,42 @@ Web application for project management developed with Angular 19.
   - Task creation and tracking
   - Project association
 - Modern and responsive user interface
+- RESTful API with JWT authentication
+- Role-based access control
 
 ## Prerequisites
 
 - Node.js 20 (LTS version)
-- npm
-- Docker
+- Java 17
+- Maven 3.6+
+- MySQL 8.0+
+
+## Project Structure
+
+```
+project-management-tool/
+├── frontend/              # Angular frontend application
+│   ├── src/              # Source code
+│   ├── public/           # Static files
+│   └── docs/             # Frontend documentation
+├── backend/              # Spring Boot backend application (under development)
+│   ├── src/             # Source code
+│   └── docs/            # Backend documentation
+└── docs/                # Project documentation
+    ├── api-documentation.md
+    ├── backend-architecture.md
+    ├── database-migrations.md
+    ├── data-model.md
+    └── features.md
+```
 
 ## Installation
 
-1. Clone the repository:
+### Frontend
+
+1. Navigate to the frontend directory:
 ```bash
-git clone https://github.com/Leigh-Chr/project-management-tool
-cd project-management-tool
+cd frontend
 ```
 
 2. Install dependencies:
@@ -38,12 +63,43 @@ npm install
 cp src/environments/environment.example.ts src/environments/environment.ts
 ```
 
-4. Start the application:
+4. Start the development server:
 ```bash
 npm start
 ```
 
-The application will be available at: `http://localhost:4200`
+The frontend will be available at: `http://localhost:4200`
+
+> **Note**: The frontend currently uses mock data for demonstration purposes. Backend integration will be implemented in a future update.
+
+### Backend
+
+> **Note**: The backend is currently under development. The following instructions will be updated once the backend is ready for use.
+
+1. Navigate to the backend directory:
+```bash
+cd backend
+```
+
+2. Build the application:
+```bash
+./mvnw clean install
+```
+
+3. Start the application:
+```bash
+./mvnw spring-boot:run
+```
+
+The backend API will be available at: `http://localhost:8080`
+
+## Documentation
+
+- [API Documentation](docs/api-documentation.md)
+- [Backend Architecture](docs/backend-architecture.md)
+- [Database Migrations](docs/database-migrations.md)
+- [Data Model](docs/data-model.md)
+- [Features](docs/features.md)
 
 ## Demo Data
 
@@ -65,52 +121,16 @@ The application comes pre-configured with demo data for testing purposes.
 - **Mobile App**: Cross-platform mobile application for iOS and Android
 - **Backend API**: RESTful API development with microservices architecture
 
-### Available Statuses
+## Testing
 
-- To Do
-- In Progress
-- Done
-
-### Available Roles
-
-- Admin
-- Member
-- Observer
-
-## Build & Deployment
-
-Build for production:
+### Frontend Tests
 ```bash
-npm run build
-```
-
-Deploy with Docker:
-```bash
-docker-compose up -d
-```
-
-The application will be available at: `http://localhost:80`
-
-## Tests
-
-Run all tests:
-```bash
+cd frontend
 npm run test
 ```
 
-## Project Structure
-
-```
-project-management-tool/
-├── src/                    # Source code
-│   ├── app/               # Application
-│   │   ├── core/         # Core services
-│   │   ├── shared/       # Reusable content
-│   │   ├── pages/        # Pages
-│   │   ├── interceptors/ # HTTP interceptors
-│   │   └── styles/       # Specific styles
-│   ├── environments/      # Configuration
-│   └── assets/           # Resources
-├── public/                # Static files
-└── docs/                  # Documentation
+### Backend Tests
+```bash
+cd backend
+./mvnw test
 ```
