@@ -1,0 +1,16 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "frontend/Dockerfile"
+watchPatterns = [
+  "frontend/**/*.ts",
+  "frontend/**/*.html",
+  "frontend/**/*.scss",
+  "frontend/**/*.json"
+]
+
+[deploy]
+startCommand = "cd frontend && nginx -g 'daemon off;'"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 10 
