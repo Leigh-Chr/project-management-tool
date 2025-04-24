@@ -51,7 +51,7 @@ export type Task = {
   priority?: TaskEntity['priority'];
   dueDate?: TaskEntity['dueDate'];
   assignee?: {
-    id: UserEntity['id'];
+    id: ProjectMemberEntity['id'];
     username: UserEntity['username'];
     email: UserEntity['email'];
     role: RoleEntity['name'];
