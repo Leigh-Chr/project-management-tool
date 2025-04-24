@@ -1,6 +1,6 @@
 [build]
-builder = "nixpacks"
-buildCommand = "npm ci && npm run build -- --configuration production"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "nginx -g 'daemon off;'"
