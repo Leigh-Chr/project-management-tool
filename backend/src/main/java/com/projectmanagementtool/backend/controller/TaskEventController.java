@@ -5,7 +5,7 @@ import com.projectmanagementtool.backend.mapper.TaskEventMapper;
 import com.projectmanagementtool.backend.model.TaskEvent;
 import com.projectmanagementtool.backend.service.TaskEventService;
 import com.projectmanagementtool.backend.service.TaskService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,18 +14,12 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/task-events")
+@RequiredArgsConstructor
 public class TaskEventController {
 
     private final TaskEventService taskEventService;
     private final TaskService taskService;
     private final TaskEventMapper taskEventMapper;
-
-    @Autowired
-    public TaskEventController(TaskEventService taskEventService, TaskService taskService, TaskEventMapper taskEventMapper) {
-        this.taskEventService = taskEventService;
-        this.taskService = taskService;
-        this.taskEventMapper = taskEventMapper;
-    }
 
     @GetMapping("/task/{taskId}")
     public ResponseEntity<List<TaskEventDTO>> getTaskEventsByTaskId(@PathVariable Long taskId) {
@@ -42,10 +36,12 @@ public class TaskEventController {
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskEventDTO> getTaskEventById(@PathVariable Long id) {
-        return taskEventService.findById(id)
-                .map(taskEventMapper::toDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        try {
+            TaskEvent taskEvent = taskEventService.findById(id);
+            return ResponseEntity.ok(taskEventMapper.toDTO(taskEvent));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -55,10 +51,14 @@ public class TaskEventController {
             return ResponseEntity.badRequest().build();
         }
 
-        TaskEvent taskEvent = taskEventMapper.toEntity(taskEventDTO);
-        taskEvent.setTask(taskService.findById(taskEventDTO.getTaskId()).orElseThrow());
-        TaskEvent savedEvent = taskEventService.save(taskEvent);
-        return ResponseEntity.ok(taskEventMapper.toDTO(savedEvent));
+        try {
+            TaskEvent taskEvent = taskEventMapper.toEntity(taskEventDTO);
+            taskEvent.setTask(taskService.findById(taskEventDTO.getTaskId()));
+            TaskEvent savedEvent = taskEventService.save(taskEvent);
+            return ResponseEntity.ok(taskEventMapper.toDTO(savedEvent));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @DeleteMapping("/{id}")

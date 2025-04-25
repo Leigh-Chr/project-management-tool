@@ -1,9 +1,9 @@
 package com.projectmanagementtool.backend.controller;
 
 import com.projectmanagementtool.backend.model.Project;
-import com.projectmanagementtool.backend.model.ProjectStatus;
+import com.projectmanagementtool.backend.model.Status;
 import com.projectmanagementtool.backend.service.ProjectService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,19 +11,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
+@RequiredArgsConstructor
 public class ProjectController {
-
-    @Autowired
-    private ProjectService projectService;
+    private final ProjectService projectService;
 
     @GetMapping
     public ResponseEntity<List<Project>> getAllProjects() {
         return ResponseEntity.ok(projectService.getAllProjects());
     }
 
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Project>> getProjectsByStatus(@PathVariable ProjectStatus status) {
-        return ResponseEntity.ok(projectService.getProjectsByStatus(status));
+    @GetMapping("/status/{statusId}")
+    public ResponseEntity<List<Project>> getProjectsByStatus(@PathVariable Long statusId) {
+        return ResponseEntity.ok(projectService.getProjectsByStatusId(statusId));
     }
 
     @GetMapping("/{id}")
@@ -41,14 +40,14 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.updateProject(id, project));
     }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<Project> updateProjectStatus(@PathVariable Long id, @RequestBody ProjectStatus status) {
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Project> updateProjectStatus(@PathVariable Long id, @RequestBody Status status) {
         return ResponseEntity.ok(projectService.updateProjectStatus(id, status));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 } 

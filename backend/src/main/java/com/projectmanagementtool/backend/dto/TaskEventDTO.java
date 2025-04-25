@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TaskEventDTO {
     private Long id;
-    private Long taskId;
     private String description;
     private LocalDateTime date;
+    private LocalDateTime createdAt;
+    private Long taskId;
+    private String taskName;
 } 

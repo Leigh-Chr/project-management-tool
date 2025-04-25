@@ -1,48 +1,48 @@
 package com.projectmanagementtool.backend.service.impl;
 
 import com.projectmanagementtool.backend.model.ProjectMember;
-import com.projectmanagementtool.backend.model.Role;
 import com.projectmanagementtool.backend.repository.ProjectMemberRepository;
 import com.projectmanagementtool.backend.service.ProjectMemberService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class ProjectMemberServiceImpl implements ProjectMemberService {
+
     private final ProjectMemberRepository projectMemberRepository;
 
-    @Autowired
-    public ProjectMemberServiceImpl(ProjectMemberRepository projectMemberRepository) {
-        this.projectMemberRepository = projectMemberRepository;
-    }
-
     @Override
+    @Transactional(readOnly = true)
     public List<ProjectMember> findAll() {
         return projectMemberRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ProjectMember> findById(Long id) {
         return projectMemberRepository.findById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProjectMember> findByProjectId(Long projectId) {
         return projectMemberRepository.findByProjectId(projectId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProjectMember> findByUserId(Long userId) {
         return projectMemberRepository.findByUserId(userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<ProjectMember> findByProjectIdAndUserId(Long projectId, Long userId) {
         return projectMemberRepository.findByProjectIdAndUserId(projectId, userId);
     }
@@ -54,24 +54,16 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     @Override
     public void deleteById(Long id) {
-        if (!projectMemberRepository.existsById(id)) {
-            throw new EntityNotFoundException("ProjectMember not found with id: " + id);
-        }
         projectMemberRepository.deleteById(id);
     }
 
     @Override
-    public ProjectMember updateRole(Long id, Role role) {
+    public ProjectMember updateProjectMember(Long id, ProjectMember projectMember) {
         return projectMemberRepository.findById(id)
                 .map(existingMember -> {
-                    existingMember.setRole(role);
+                    existingMember.setRole(projectMember.getRole());
                     return projectMemberRepository.save(existingMember);
                 })
-                .orElseThrow(() -> new EntityNotFoundException("ProjectMember not found with id: " + id));
-    }
-
-    @Override
-    public boolean existsByProjectIdAndUserId(Long projectId, Long userId) {
-        return projectMemberRepository.existsByProjectIdAndUserId(projectId, userId);
+                .orElseThrow(() -> new RuntimeException("Project member not found with id: " + id));
     }
 } 

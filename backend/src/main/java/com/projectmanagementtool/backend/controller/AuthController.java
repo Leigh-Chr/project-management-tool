@@ -6,26 +6,23 @@ import com.projectmanagementtool.backend.model.User;
 import com.projectmanagementtool.backend.security.JwtService;
 import com.projectmanagementtool.backend.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest request) {
@@ -34,10 +31,13 @@ public class AuthController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtService.generateToken(authentication.getPrincipal());
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String jwt = jwtService.generateToken(userDetails);
 
-        User user = userService.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userService.findByUsername(request.getUsername());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
 
         return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getUsername(), "ROLE_USER"));
     }

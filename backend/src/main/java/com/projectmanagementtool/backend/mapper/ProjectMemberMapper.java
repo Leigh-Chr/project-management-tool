@@ -2,37 +2,20 @@ package com.projectmanagementtool.backend.mapper;
 
 import com.projectmanagementtool.backend.dto.ProjectMemberDTO;
 import com.projectmanagementtool.backend.model.ProjectMember;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Component
-public class ProjectMemberMapper {
+@Mapper(componentModel = "spring")
+public interface ProjectMemberMapper {
+    
+    @Mapping(source = "project.name", target = "project")
+    @Mapping(source = "user.username", target = "username")
+    @Mapping(source = "user.email", target = "email")
+    @Mapping(source = "role.name", target = "role")
+    ProjectMemberDTO toDTO(ProjectMember projectMember);
 
-    public ProjectMemberDTO toDTO(ProjectMember projectMember) {
-        if (projectMember == null) {
-            return null;
-        }
-
-        ProjectMemberDTO dto = new ProjectMemberDTO();
-        dto.setId(projectMember.getId());
-        dto.setProjectId(projectMember.getProject().getId());
-        dto.setUserId(projectMember.getUser().getId());
-        dto.setUsername(projectMember.getUser().getUsername());
-        dto.setEmail(projectMember.getUser().getEmail());
-        dto.setRole(projectMember.getRole().name());
-
-        return dto;
-    }
-
-    public ProjectMember toEntity(ProjectMemberDTO dto) {
-        if (dto == null) {
-            return null;
-        }
-
-        ProjectMember entity = new ProjectMember();
-        entity.setId(dto.getId());
-        // Note: Project and User entities should be set by the service layer
-        // as they require database lookups
-
-        return entity;
-    }
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    ProjectMember toEntity(ProjectMemberDTO projectMemberDTO);
 } 
