@@ -7,13 +7,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    List<User> findAll();
-    User findById(Long id);
-    User findByUsername(String username);
-    User findByEmail(String email);
-    User save(User user);
-    User updateUser(Long id, User user);
-    void deleteById(Long id);
+    List<User> getAllUsers();
+    User getUserByUsername(String username);
+    User createUser(User user);
+    User updateUser(String username, User user);
+    void deleteUser(String username);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
+    User findByUsername(String username);
+    User save(User user);
 } 

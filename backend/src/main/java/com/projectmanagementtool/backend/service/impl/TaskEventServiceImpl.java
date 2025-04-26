@@ -1,7 +1,7 @@
 package com.projectmanagementtool.backend.service.impl;
 
-import com.projectmanagementtool.backend.dto.TaskEventDTO;
-import com.projectmanagementtool.backend.mapper.TaskMapper;
+import com.projectmanagementtool.backend.dto.TaskEventDto;
+import com.projectmanagementtool.backend.mapper.TaskEventMapper;
 import com.projectmanagementtool.backend.model.Task;
 import com.projectmanagementtool.backend.model.TaskEvent;
 import com.projectmanagementtool.backend.repository.TaskEventRepository;
@@ -21,19 +21,19 @@ import java.util.stream.Collectors;
 public class TaskEventServiceImpl implements TaskEventService {
     private final TaskEventRepository taskEventRepository;
     private final TaskRepository taskRepository;
-    private final TaskMapper taskMapper;
+    private final TaskEventMapper taskEventMapper;
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskEventDTO> getTaskEvents(Long taskId) {
+    public List<TaskEventDto> getTaskEvents(Long taskId) {
         return taskEventRepository.findByTaskId(taskId).stream()
-                .map(taskMapper::toEventDTO)
+                .map(taskEventMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public TaskEventDTO createTaskEvent(Long taskId, String description) {
+    public TaskEventDto createTaskEvent(Long taskId, String description) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskId));
 
@@ -43,7 +43,7 @@ public class TaskEventServiceImpl implements TaskEventService {
         event.setDate(LocalDateTime.now());
 
         TaskEvent savedEvent = taskEventRepository.save(event);
-        return taskMapper.toEventDTO(savedEvent);
+        return taskEventMapper.toDto(savedEvent);
     }
 
     @Override

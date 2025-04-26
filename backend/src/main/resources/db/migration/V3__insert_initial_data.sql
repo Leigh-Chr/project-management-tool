@@ -14,11 +14,11 @@ INSERT INTO roles (id, name) VALUES
 -- Users
 -- Note: These are plain text passwords for demo purposes only
 INSERT INTO users (id, username, email, password) VALUES
-(1, 'admin', 'admin@example.com', 'admin123'),
-(2, 'alice', 'alice@example.com', 'alice123'),
-(3, 'bob', 'bob@example.com', 'bob123'),
-(4, 'charlie', 'charlie@example.com', 'charlie123'),
-(5, 'diana', 'diana@example.com', 'diana123');
+(1, 'admin', 'admin@example.com', '$2a$10$6x6LaEwgOLQQMTVWHyzOoOp7nNg9tAkvlY8bWIeMqRrfn1PaGdSKq'), -- admin123
+(2, 'alice', 'alice@example.com', '$2a$10$oqFowf3q4xfEEpeU6m2NFeBJeCUha7qbTZODlTIPhsR6FFA1POqAW'), -- alice123
+(3, 'bob', 'bob@example.com', '$2a$10$gGb5uGySwkA2G8vu/GEAOuBElyvojSNN4jCwyzceInofMPJn909OG'), -- bob123
+(4, 'charlie', 'charlie@example.com', '$2a$10$ZIzTDsr0oAIoGt.ird.MdeUjBnFGmD/LE3ziZL1vnmCFt/iX5N2Gi'), -- charlie123
+(5, 'diana', 'diana@example.com', '$2a$10$/CENigrDJDKkv1e0ANsXWepn3TheMVrC3YRH6D4mc6ZR6VHlzg8uK'); -- diana123
 
 -- Projects
 INSERT INTO projects (id, name, description, start_date, end_date, status_id) VALUES

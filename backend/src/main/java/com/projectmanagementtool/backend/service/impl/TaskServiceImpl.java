@@ -1,156 +1,262 @@
 package com.projectmanagementtool.backend.service.impl;
 
-import com.projectmanagementtool.backend.dto.TaskDTO;
-import com.projectmanagementtool.backend.dto.TaskDetailsDTO;
-import com.projectmanagementtool.backend.dto.TaskRequestDTO;
+import com.projectmanagementtool.backend.dto.TaskDetailsDto;
+import com.projectmanagementtool.backend.dto.TaskDto;
+import com.projectmanagementtool.backend.dto.TaskRequestDto;
 import com.projectmanagementtool.backend.mapper.TaskMapper;
-import com.projectmanagementtool.backend.model.Task;
+import com.projectmanagementtool.backend.model.Project;
+import com.projectmanagementtool.backend.model.ProjectMember;
+import com.projectmanagementtool.backend.model.Role;
 import com.projectmanagementtool.backend.model.Status;
+import com.projectmanagementtool.backend.model.Task;
+import com.projectmanagementtool.backend.repository.ProjectMemberRepository;
+import com.projectmanagementtool.backend.repository.ProjectRepository;
+import com.projectmanagementtool.backend.repository.StatusRepository;
 import com.projectmanagementtool.backend.repository.TaskRepository;
-import com.projectmanagementtool.backend.service.ProjectMemberService;
-import com.projectmanagementtool.backend.service.TaskEventService;
 import com.projectmanagementtool.backend.service.TaskService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
-    private final ProjectMemberService projectMemberService;
-    private final TaskEventService taskEventService;
     private final TaskMapper taskMapper;
+    private final ProjectMemberRepository projectMemberRepository;
+    private final ProjectRepository projectRepository;
+    private final StatusRepository statusRepository;
+
+    private String getCurrentUsername() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        return principal.toString();
+    }
+
+    private Optional<ProjectMember> getCurrentUserProjectMember(Long projectId) {
+        return projectMemberRepository.findByProjectIdAndUserUsername(projectId, getCurrentUsername());
+    }
+
+    private String getUserRole(Long projectId) {
+        return getCurrentUserProjectMember(projectId)
+                .map(member -> member.getRole().getName())
+                .orElse(null);
+    }
+
+    private boolean hasPermission(Long projectId, String requiredRole) {
+        String userRole = getUserRole(projectId);
+        if (userRole == null) {
+            return false;
+        }
+        
+        if ("Admin".equals(requiredRole)) {
+            return "Admin".equals(userRole);
+        } else if ("Member".equals(requiredRole)) {
+            return "Admin".equals(userRole) || "Member".equals(userRole);
+        }
+        
+        return true; // Observer can view
+    }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskDTO> getAllTasks() {
+    public List<TaskDto> getAllTasks() {
         return taskRepository.findAll().stream()
-                .map(taskMapper::toDTO)
-                .toList();
+                .filter(task -> hasPermission(task.getProject().getId(), "Observer"))
+                .map(task -> {
+                    TaskDto dto = taskMapper.toDto(task);
+                    dto.setMyRole(getUserRole(task.getProject().getId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TaskDetailsDTO getTaskById(Long id) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
-        return taskMapper.toDetailsDTO(task);
+    public List<TaskDto> getAllTasksForCurrentUser() {
+        String username = getCurrentUsername();
+        return taskRepository.findAll().stream()
+                .filter(task -> {
+                    String role = getUserRole(task.getProject().getId());
+                    return role != null && (
+                        task.getAssignee() != null && task.getAssignee().getUser().getUsername().equals(username) ||
+                        "Admin".equals(role) ||
+                        "Member".equals(role)
+                    );
+                })
+                .map(task -> {
+                    TaskDto dto = taskMapper.toDto(task);
+                    dto.setMyRole(getUserRole(task.getProject().getId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TaskDetailsDTO getTaskDetails(Long id) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
-        return taskMapper.toDetailsDTO(task);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<TaskDTO> getTasksByProjectId(Long projectId) {
+    public List<TaskDto> getTasksByProjectId(Long projectId) {
+        if (!hasPermission(projectId, "Observer")) {
+            return List.of();
+        }
+        
         return taskRepository.findByProjectId(projectId).stream()
-                .map(taskMapper::toDTO)
-                .toList();
+                .map(task -> {
+                    TaskDto dto = taskMapper.toDto(task);
+                    dto.setMyRole(getUserRole(projectId));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskDTO> getTasksByAssigneeId(Long assigneeId) {
+    public List<TaskDto> getTasksByAssigneeId(Long assigneeId) {
         return taskRepository.findByAssigneeId(assigneeId).stream()
-                .map(taskMapper::toDTO)
-                .toList();
+                .filter(task -> hasPermission(task.getProject().getId(), "Observer"))
+                .map(task -> {
+                    TaskDto dto = taskMapper.toDto(task);
+                    dto.setMyRole(getUserRole(task.getProject().getId()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<TaskDTO> getTasksByProjectIdAndStatusId(Long projectId, Long statusId) {
+    public List<TaskDto> getTasksByProjectIdAndStatusId(Long projectId, Long statusId) {
+        if (!hasPermission(projectId, "Observer")) {
+            return List.of();
+        }
+        
         return taskRepository.findByProjectIdAndStatusId(projectId, statusId).stream()
-                .map(taskMapper::toDTO)
-                .toList();
+                .map(task -> {
+                    TaskDto dto = taskMapper.toDto(task);
+                    dto.setMyRole(getUserRole(projectId));
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public TaskDTO createTask(TaskRequestDTO taskRequestDTO) {
-        Task task = taskMapper.toEntity(taskRequestDTO);
-        Task savedTask = taskRepository.save(task);
-        taskEventService.createTaskEvent(savedTask.getId(), "Task " + savedTask.getName() + " was created");
-        
-        if (task.getAssignee() != null) {
-            taskEventService.createTaskEvent(savedTask.getId(), 
-                "Assigned to " + task.getAssignee().getUser().getUsername());
-        }
-        
-        return taskMapper.toDTO(savedTask);
-    }
-
-    @Override
-    public TaskDTO updateTask(Long id, TaskRequestDTO taskRequestDTO) {
-        Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
-        
-        String oldName = existingTask.getName();
-        String oldDescription = existingTask.getDescription();
-        Integer oldPriority = existingTask.getPriority();
-        Status oldStatus = existingTask.getStatus();
-        
-        Task updatedTask = taskMapper.toEntity(taskRequestDTO);
-        existingTask.setName(updatedTask.getName());
-        existingTask.setDescription(updatedTask.getDescription());
-        existingTask.setDueDate(updatedTask.getDueDate());
-        existingTask.setPriority(updatedTask.getPriority());
-        existingTask.setAssignee(updatedTask.getAssignee());
-        existingTask.setStatus(updatedTask.getStatus());
-        
-        Task savedTask = taskRepository.save(existingTask);
-        
-        if (!oldName.equals(savedTask.getName())) {
-            taskEventService.createTaskEvent(id, "Name changed from '" + oldName + 
-                "' to '" + savedTask.getName() + "'");
-        }
-        
-        if ((oldDescription == null && savedTask.getDescription() != null) ||
-            (oldDescription != null && !oldDescription.equals(savedTask.getDescription()))) {
-            taskEventService.createTaskEvent(id, "Description updated");
-        }
-        
-        if (!oldPriority.equals(savedTask.getPriority())) {
-            taskEventService.createTaskEvent(id, "Priority changed from " + oldPriority + 
-                " to " + savedTask.getPriority());
-        }
-        
-        if (!oldStatus.getId().equals(savedTask.getStatus().getId())) {
-            taskEventService.createTaskEvent(id, "Status changed to " + savedTask.getStatus().getName());
-        }
-        
-        return taskMapper.toDTO(savedTask);
-    }
-
-    @Override
-    public TaskDTO updateTaskStatus(Long id, Status status) {
+    @Transactional(readOnly = true)
+    public TaskDto getTaskById(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+                
+        if (!hasPermission(task.getProject().getId(), "Observer")) {
+            throw new RuntimeException("Access denied");
+        }
         
-        if (!task.getStatus().getId().equals(status.getId())) {
-            taskEventService.createTaskEvent(id, "Status changed to " + status.getName());
+        TaskDto dto = taskMapper.toDto(task);
+        dto.setMyRole(getUserRole(task.getProject().getId()));
+        return dto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TaskDetailsDto getTaskDetails(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+                
+        if (!hasPermission(task.getProject().getId(), "Observer")) {
+            throw new RuntimeException("Access denied");
+        }
+        
+        TaskDetailsDto dto = taskMapper.toDetailsDto(task);
+        dto.setMyRole(getUserRole(task.getProject().getId()));
+        return dto;
+    }
+
+    @Override
+    @Transactional
+    public TaskDto createTask(TaskRequestDto taskRequestDto) {
+        if (!hasPermission(taskRequestDto.getProjectId(), "Member")) {
+            throw new RuntimeException("Access denied");
+        }
+        
+        Project project = projectRepository.findById(taskRequestDto.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+                
+        Status status = statusRepository.findById(taskRequestDto.getStatusId())
+                .orElseThrow(() -> new RuntimeException("Status not found"));
+                
+        ProjectMember assignee = null;
+        if (taskRequestDto.getAssigneeId() != null) {
+            assignee = projectMemberRepository.findById(taskRequestDto.getAssigneeId())
+                    .orElseThrow(() -> new RuntimeException("Assignee not found"));
+        }
+        
+        Task task = taskMapper.toEntity(taskRequestDto);
+        task.setProject(project);
+        task.setStatus(status);
+        task.setAssignee(assignee);
+        
+        Task savedTask = taskRepository.save(task);
+        
+        TaskDto dto = taskMapper.toDto(savedTask);
+        dto.setMyRole(getUserRole(taskRequestDto.getProjectId()));
+        return dto;
+    }
+
+    @Override
+    @Transactional
+    public TaskDto updateTask(Long id, TaskRequestDto taskRequestDto) {
+        Task existingTask = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+                
+        if (!hasPermission(existingTask.getProject().getId(), "Member")) {
+            throw new RuntimeException("Access denied");
+        }
+        
+        taskMapper.updateTaskFromDto(taskRequestDto, existingTask);
+        Task updatedTask = taskRepository.save(existingTask);
+        
+        TaskDto dto = taskMapper.toDto(updatedTask);
+        dto.setMyRole(getUserRole(existingTask.getProject().getId()));
+        return dto;
+    }
+
+    @Override
+    @Transactional
+    public TaskDto updateTaskStatus(Long id, Status status) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+                
+        if (!hasPermission(task.getProject().getId(), "Member")) {
+            throw new RuntimeException("Access denied");
         }
         
         task.setStatus(status);
-        Task savedTask = taskRepository.save(task);
-        return taskMapper.toDTO(savedTask);
+        Task updatedTask = taskRepository.save(task);
+        
+        TaskDto dto = taskMapper.toDto(updatedTask);
+        dto.setMyRole(getUserRole(task.getProject().getId()));
+        return dto;
     }
 
     @Override
-    public void deleteTask(Long id) {
-        if (!taskRepository.existsById(id)) {
-            throw new EntityNotFoundException("Task not found with id: " + id);
+    @Transactional
+    public TaskDto deleteTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+                
+        if (!hasPermission(task.getProject().getId(), "Admin")) {
+            throw new RuntimeException("Access denied");
         }
-        taskEventService.deleteTaskEvents(id);
-        taskRepository.deleteById(id);
+        
+        TaskDto dto = taskMapper.toDto(task);
+        dto.setMyRole(getUserRole(task.getProject().getId()));
+        
+        taskRepository.delete(task);
+        return dto;
     }
 
     @Override
@@ -161,8 +267,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    public Task findById(Long id) {
+    public Task getTaskEntityById(Long id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Task not found"));
     }
 } 

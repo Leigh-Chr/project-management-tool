@@ -1,21 +1,22 @@
 package com.projectmanagementtool.backend.mapper;
 
-import com.projectmanagementtool.backend.dto.ProjectMemberDTO;
+import com.projectmanagementtool.backend.dto.ProjectMemberDto;
 import com.projectmanagementtool.backend.model.ProjectMember;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {UserMapper.class})
 public interface ProjectMemberMapper {
-    
-    @Mapping(source = "project.name", target = "project")
-    @Mapping(source = "user.username", target = "username")
-    @Mapping(source = "user.email", target = "email")
-    @Mapping(source = "role.name", target = "role")
-    ProjectMemberDTO toDTO(ProjectMember projectMember);
+    @Mapping(target = "projectId", source = "project.id")
+    @Mapping(target = "projectName", source = "project.name")
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "username", source = "user.username")
+    @Mapping(target = "email", source = "user.email")
+    @Mapping(target = "role", source = "role.name")
+    ProjectMemberDto toDto(ProjectMember projectMember);
 
-    @Mapping(target = "project", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "role", ignore = true)
-    ProjectMember toEntity(ProjectMemberDTO projectMemberDTO);
+    @Mapping(target = "project", ignore = true)
+    ProjectMember toEntity(ProjectMemberDto projectMemberDto);
 } 

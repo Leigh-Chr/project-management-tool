@@ -60,6 +60,10 @@ public class JwtService {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    public Long getExpirationTime(String token) {
+        return extractExpiration(token).getTime();
+    }
+
     private Claims extractAllClaims(String token) {
         return Jwts
                 .parserBuilder()

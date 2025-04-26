@@ -2,7 +2,7 @@ package com.projectmanagementtool.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +14,7 @@ public class TaskEvent {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false)
     private Task task;
@@ -22,7 +23,4 @@ public class TaskEvent {
 
     @Column(nullable = false)
     private LocalDateTime date;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 } 

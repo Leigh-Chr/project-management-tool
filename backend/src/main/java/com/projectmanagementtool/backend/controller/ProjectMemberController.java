@@ -1,6 +1,7 @@
 package com.projectmanagementtool.backend.controller;
 
-import com.projectmanagementtool.backend.dto.ProjectMemberDTO;
+import com.projectmanagementtool.backend.dto.ProjectMemberDto;
+import com.projectmanagementtool.backend.dto.ProjectMemberRequestDto;
 import com.projectmanagementtool.backend.mapper.ProjectMemberMapper;
 import com.projectmanagementtool.backend.model.ProjectMember;
 import com.projectmanagementtool.backend.service.ProjectMemberService;
@@ -20,50 +21,68 @@ public class ProjectMemberController {
     private final ProjectMemberMapper projectMemberMapper;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProjectMemberDTO> getProjectMember(@PathVariable Long id) {
+    public ResponseEntity<ProjectMemberDto> getProjectMember(@PathVariable Long id) {
         return projectMemberService.findById(id)
-                .map(projectMemberMapper::toDTO)
+                .map(projectMemberMapper::toDto)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectMemberDTO>> getProjectMembers() {
-        List<ProjectMemberDTO> dtos = projectMemberService.findAll().stream()
-                .map(projectMemberMapper::toDTO)
+    public ResponseEntity<List<ProjectMemberDto>> getProjectMembers() {
+        List<ProjectMemberDto> dtos = projectMemberService.findAll().stream()
+                .map(projectMemberMapper::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<List<ProjectMemberDTO>> getProjectMembersByProject(@PathVariable Long projectId) {
-        List<ProjectMemberDTO> dtos = projectMemberService.findByProjectId(projectId).stream()
-                .map(projectMemberMapper::toDTO)
+    public ResponseEntity<List<ProjectMemberDto>> getProjectMembersByProject(@PathVariable Long projectId) {
+        List<ProjectMemberDto> dtos = projectMemberService.findByProjectId(projectId).stream()
+                .map(projectMemberMapper::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
 
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<ProjectMemberDto>> getProjectMembersByUser(@PathVariable Long userId) {
+        List<ProjectMemberDto> dtos = projectMemberService.findByUserId(userId).stream()
+                .map(projectMemberMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/project/{projectId}/user/{userId}")
+    public ResponseEntity<ProjectMemberDto> getProjectMemberByProjectAndUser(
+            @PathVariable Long projectId,
+            @PathVariable Long userId) {
+        return projectMemberService.findByProjectIdAndUserId(projectId, userId)
+                .map(projectMemberMapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @PostMapping
-    public ResponseEntity<ProjectMemberDTO> createProjectMember(@RequestBody ProjectMember projectMember) {
-        ProjectMember saved = projectMemberService.save(projectMember);
-        return ResponseEntity.ok(projectMemberMapper.toDTO(saved));
+    public ResponseEntity<ProjectMemberDto> createProjectMember(@RequestBody ProjectMemberRequestDto request) {
+        ProjectMember saved = projectMemberService.createProjectMember(request);
+        return ResponseEntity.ok(projectMemberMapper.toDto(saved));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ProjectMemberDTO> deleteProjectMember(@PathVariable Long id) {
+    public ResponseEntity<ProjectMemberDto> deleteProjectMember(@PathVariable Long id) {
         return projectMemberService.findById(id)
                 .map(member -> {
                     projectMemberService.deleteById(id);
-                    return ResponseEntity.ok(projectMemberMapper.toDTO(member));
+                    return ResponseEntity.ok(projectMemberMapper.toDto(member));
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectMemberDTO> updateProjectMember(
+    public ResponseEntity<ProjectMemberDto> updateProjectMember(
             @PathVariable Long id,
-            @RequestBody ProjectMember projectMember) {
-        ProjectMember updated = projectMemberService.updateProjectMember(id, projectMember);
-        return ResponseEntity.ok(projectMemberMapper.toDTO(updated));
+            @RequestBody ProjectMemberRequestDto request) {
+        ProjectMember updated = projectMemberService.updateProjectMember(id, request);
+        return ResponseEntity.ok(projectMemberMapper.toDto(updated));
     }
 } 

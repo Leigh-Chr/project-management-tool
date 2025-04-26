@@ -1,80 +1,58 @@
 package com.projectmanagementtool.backend.controller;
 
+import com.projectmanagementtool.backend.dto.UserDto;
+import com.projectmanagementtool.backend.mapper.UserMapper;
 import com.projectmanagementtool.backend.model.User;
 import com.projectmanagementtool.backend.service.UserService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
+@Slf4j
 public class UserController {
-    private final UserService userService;
 
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.findAll());
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        List<UserDto> userDtos = users.stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(userDtos);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        try {
-            return ResponseEntity.ok(userService.findById(id));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/username/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-        try {
-            return ResponseEntity.ok(userService.findByUsername(username));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        try {
-            return ResponseEntity.ok(userService.findByEmail(email));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/{username}")
+    public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
+        User user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        if (userService.existsByUsername(user.getUsername())) {
-            return ResponseEntity.badRequest().build();
-        }
-        if (userService.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().build();
-        }
-        return ResponseEntity.ok(userService.save(user));
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
+        User createdUser = userService.createUser(user);
+        return ResponseEntity.ok(userMapper.toDto(createdUser));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @Valid @RequestBody User user) {
-        return ResponseEntity.ok(userService.updateUser(id, user));
+    @PutMapping("/{username}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable String username, @RequestBody UserDto userDto) {
+        User user = userMapper.toEntity(userDto);
+        User updatedUser = userService.updateUser(username, user);
+        return ResponseEntity.ok(userMapper.toDto(updatedUser));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.deleteById(id);
+    @DeleteMapping("/{username}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username) {
+        userService.deleteUser(username);
         return ResponseEntity.ok().build();
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
     }
 } 

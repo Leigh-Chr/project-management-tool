@@ -2,17 +2,15 @@ package com.projectmanagementtool.backend.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class AuthResponse {
-    private String token;
+public class ProjectMemberDto {
     private Long id;
+    private Long projectId;
+    private String projectName;
+    private Long userId;
     private String username;
     private String email;
-    private Long exp;
+    private String role;
 } 

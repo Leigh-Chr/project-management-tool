@@ -7,6 +7,7 @@ import com.projectmanagementtool.backend.security.JwtService;
 import com.projectmanagementtool.backend.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -26,43 +28,70 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
-        );
+        log.info("Received login request for username: {}", request.getUsername());
+        
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String jwt = jwtService.generateToken(userDetails);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String jwt = jwtService.generateToken(userDetails);
 
-        User user = userService.findByUsername(request.getUsername());
-        if (user == null) {
-            throw new RuntimeException("User not found");
+            User user = userService.findByUsername(request.getUsername());
+            if (user == null) {
+                log.error("User not found after authentication");
+                throw new RuntimeException("User not found");
+            }
+
+            AuthResponse response = new AuthResponse();
+            response.setToken(jwt);
+            response.setId(user.getId());
+            response.setUsername(user.getUsername());
+            response.setEmail(user.getEmail());
+            response.setExp(jwtService.getExpirationTime(jwt));
+
+            log.info("User {} logged in successfully", request.getUsername());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Error during login: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body("Error during login: " + e.getMessage());
         }
-
-        return ResponseEntity.ok(new AuthResponse(jwt, user.getId(), user.getUsername(), "ROLE_USER"));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody AuthRequest request) {
+        log.info("Received registration request for username: {}", request.getUsername());
+        
         if (userService.existsByUsername(request.getUsername())) {
+            log.warn("Username {} is already taken", request.getUsername());
             return ResponseEntity.badRequest().body("Username is already taken!");
         }
 
-        if (userService.existsByEmail(request.getUsername())) {
+        if (userService.existsByEmail(request.getEmail())) {
+            log.warn("Email {} is already in use", request.getEmail());
             return ResponseEntity.badRequest().body("Email is already in use!");
         }
 
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        userService.save(user);
-
-        return ResponseEntity.ok("User registered successfully!");
+        try {
+            User user = new User();
+            user.setUsername(request.getUsername());
+            user.setEmail(request.getEmail());
+            user.setPassword(request.getPassword());
+            userService.save(user);
+            log.info("User {} registered successfully", request.getUsername());
+            return ResponseEntity.ok("User registered successfully!");
+        } catch (Exception e) {
+            log.error("Error registering user: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body("Error registering user: " + e.getMessage());
+        }
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logoutUser() {
         SecurityContextHolder.clearContext();
+        log.info("User logged out successfully");
         return ResponseEntity.ok("Logged out successfully!");
     }
 } 

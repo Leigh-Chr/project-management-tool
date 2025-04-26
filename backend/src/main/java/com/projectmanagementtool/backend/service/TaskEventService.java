@@ -1,14 +1,14 @@
 package com.projectmanagementtool.backend.service;
 
-import com.projectmanagementtool.backend.dto.TaskEventDTO;
+import com.projectmanagementtool.backend.dto.TaskEventDto;
 import com.projectmanagementtool.backend.model.TaskEvent;
 
 import java.util.List;
 
 public interface TaskEventService {
-    List<TaskEventDTO> getTaskEvents(Long taskId);
+    List<TaskEventDto> getTaskEvents(Long taskId);
     
-    TaskEventDTO createTaskEvent(Long taskId, String description);
+    TaskEventDto createTaskEvent(Long taskId, String description);
     
     void deleteTaskEvents(Long taskId);
     

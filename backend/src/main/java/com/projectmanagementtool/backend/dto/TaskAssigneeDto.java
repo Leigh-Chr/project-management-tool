@@ -1,15 +1,13 @@
 package com.projectmanagementtool.backend.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
-public class ProjectMemberDTO {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class TaskAssigneeDto {
     private Long id;
-    private String project;
     private String username;
     private String email;
     private String role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 } 
