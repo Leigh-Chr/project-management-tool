@@ -15,4 +15,6 @@ public interface ProjectMemberService {
     void deleteById(Long id);
     ProjectMember updateProjectMember(Long id, ProjectMemberRequestDto request);
     ProjectMember createProjectMember(ProjectMemberRequestDto request);
+    String getUserRoleInProject(Long projectId);
+    ProjectMember getProjectMember(Long id);
 } 

@@ -1,27 +1,31 @@
 package com.projectmanagementtool.backend.service.impl;
 
-import com.projectmanagementtool.backend.dto.TaskDetailsDto;
 import com.projectmanagementtool.backend.dto.TaskDto;
 import com.projectmanagementtool.backend.dto.TaskRequestDto;
+import com.projectmanagementtool.backend.dto.TaskDetailsDto;
+import com.projectmanagementtool.backend.dto.TaskEventDto;
+import com.projectmanagementtool.backend.dto.ProjectMemberDto;
+import com.projectmanagementtool.backend.exception.ResourceNotFoundException;
+import com.projectmanagementtool.backend.exception.UnauthorizedException;
 import com.projectmanagementtool.backend.mapper.TaskMapper;
+import com.projectmanagementtool.backend.mapper.ProjectMemberMapper;
 import com.projectmanagementtool.backend.model.Project;
-import com.projectmanagementtool.backend.model.ProjectMember;
-import com.projectmanagementtool.backend.model.Role;
-import com.projectmanagementtool.backend.model.Status;
 import com.projectmanagementtool.backend.model.Task;
-import com.projectmanagementtool.backend.repository.ProjectMemberRepository;
+import com.projectmanagementtool.backend.model.TaskEvent;
+import com.projectmanagementtool.backend.model.ProjectMember;
+import com.projectmanagementtool.backend.model.User;
 import com.projectmanagementtool.backend.repository.ProjectRepository;
-import com.projectmanagementtool.backend.repository.StatusRepository;
+import com.projectmanagementtool.backend.repository.TaskEventRepository;
 import com.projectmanagementtool.backend.repository.TaskRepository;
+import com.projectmanagementtool.backend.security.SecurityUtils;
 import com.projectmanagementtool.backend.service.TaskService;
+import com.projectmanagementtool.backend.service.TaskEventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,88 +33,54 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
-    private final ProjectMemberRepository projectMemberRepository;
+    private final SecurityUtils securityUtils;
     private final ProjectRepository projectRepository;
-    private final StatusRepository statusRepository;
-
-    private String getCurrentUsername() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        }
-        return principal.toString();
-    }
-
-    private Optional<ProjectMember> getCurrentUserProjectMember(Long projectId) {
-        return projectMemberRepository.findByProjectIdAndUserUsername(projectId, getCurrentUsername());
-    }
-
-    private String getUserRole(Long projectId) {
-        return getCurrentUserProjectMember(projectId)
-                .map(member -> member.getRole().getName())
-                .orElse(null);
-    }
-
-    private boolean hasPermission(Long projectId, String requiredRole) {
-        String userRole = getUserRole(projectId);
-        if (userRole == null) {
-            return false;
-        }
-        
-        if ("Admin".equals(requiredRole)) {
-            return "Admin".equals(userRole);
-        } else if ("Member".equals(requiredRole)) {
-            return "Admin".equals(userRole) || "Member".equals(userRole);
-        }
-        
-        return true; // Observer can view
-    }
+    private final TaskEventRepository taskEventRepository;
+    private final ProjectMemberMapper projectMemberMapper;
+    private final TaskEventService taskEventService;
 
     @Override
     @Transactional(readOnly = true)
     public List<TaskDto> getAllTasks() {
         return taskRepository.findAll().stream()
-                .filter(task -> hasPermission(task.getProject().getId(), "Observer"))
                 .map(task -> {
-                    TaskDto dto = taskMapper.toDto(task);
-                    dto.setMyRole(getUserRole(task.getProject().getId()));
+                    String myRole = getMyRole(task.getProject());
+                    if (myRole == null) {
+                        return null;
+                    }
+                    
+                    // Check if status exists
+                    if (task.getStatus() == null) {
+                        return null;
+                    }
+                    
+                    // Check if project exists
+                    if (task.getProject() == null) {
+                        return null;
+                    }
+                    
+                    TaskDto dto = taskMapper.toDto(task, myRole);
+                    if (dto != null) {
+                        // Set task history
+                        dto.setTaskHistory(taskEventService.getTaskEvents(task.getId()));
+                    }
+                    
                     return dto;
                 })
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<TaskDto> getAllTasksForCurrentUser() {
-        String username = getCurrentUsername();
-        return taskRepository.findAll().stream()
-                .filter(task -> {
-                    String role = getUserRole(task.getProject().getId());
-                    return role != null && (
-                        task.getAssignee() != null && task.getAssignee().getUser().getUsername().equals(username) ||
-                        "Admin".equals(role) ||
-                        "Member".equals(role)
-                    );
-                })
-                .map(task -> {
-                    TaskDto dto = taskMapper.toDto(task);
-                    dto.setMyRole(getUserRole(task.getProject().getId()));
-                    return dto;
-                })
+                .filter(task -> task != null)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TaskDto> getTasksByProjectId(Long projectId) {
-        if (!hasPermission(projectId, "Observer")) {
-            return List.of();
-        }
-        
         return taskRepository.findByProjectId(projectId).stream()
                 .map(task -> {
-                    TaskDto dto = taskMapper.toDto(task);
-                    dto.setMyRole(getUserRole(projectId));
+                    String myRole = getMyRole(task.getProject());
+                    TaskDto dto = taskMapper.toDto(task, myRole);
+                    if (dto != null) {
+                        dto.setTaskHistory(taskEventService.getTaskEvents(task.getId()));
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -120,10 +90,12 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     public List<TaskDto> getTasksByAssigneeId(Long assigneeId) {
         return taskRepository.findByAssigneeId(assigneeId).stream()
-                .filter(task -> hasPermission(task.getProject().getId(), "Observer"))
                 .map(task -> {
-                    TaskDto dto = taskMapper.toDto(task);
-                    dto.setMyRole(getUserRole(task.getProject().getId()));
+                    String myRole = getMyRole(task.getProject());
+                    TaskDto dto = taskMapper.toDto(task, myRole);
+                    if (dto != null) {
+                        dto.setTaskHistory(taskEventService.getTaskEvents(task.getId()));
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -132,14 +104,13 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional(readOnly = true)
     public List<TaskDto> getTasksByProjectIdAndStatusId(Long projectId, Long statusId) {
-        if (!hasPermission(projectId, "Observer")) {
-            return List.of();
-        }
-        
         return taskRepository.findByProjectIdAndStatusId(projectId, statusId).stream()
                 .map(task -> {
-                    TaskDto dto = taskMapper.toDto(task);
-                    dto.setMyRole(getUserRole(projectId));
+                    String myRole = getMyRole(task.getProject());
+                    TaskDto dto = taskMapper.toDto(task, myRole);
+                    if (dto != null) {
+                        dto.setTaskHistory(taskEventService.getTaskEvents(task.getId()));
+                    }
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -147,16 +118,19 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Transactional(readOnly = true)
-    public TaskDto getTaskById(Long id) {
+    public TaskDto getTask(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-                
-        if (!hasPermission(task.getProject().getId(), "Observer")) {
-            throw new RuntimeException("Access denied");
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+
+        String myRole = getMyRole(task.getProject());
+        if (myRole == null) {
+            return null;
         }
-        
-        TaskDto dto = taskMapper.toDto(task);
-        dto.setMyRole(getUserRole(task.getProject().getId()));
+
+        TaskDto dto = taskMapper.toDto(task, myRole);
+        if (dto != null) {
+            dto.setTaskHistory(taskEventService.getTaskEvents(task.getId()));
+        }
         return dto;
     }
 
@@ -164,111 +138,176 @@ public class TaskServiceImpl implements TaskService {
     @Transactional(readOnly = true)
     public TaskDetailsDto getTaskDetails(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-                
-        if (!hasPermission(task.getProject().getId(), "Observer")) {
-            throw new RuntimeException("Access denied");
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+
+        Project project = task.getProject();
+        String myRole = getMyRole(project);
+        if (myRole == null) {
+            return null;
         }
-        
-        TaskDetailsDto dto = taskMapper.toDetailsDto(task);
-        dto.setMyRole(getUserRole(task.getProject().getId()));
+
+        // Check if status exists
+        if (task.getStatus() == null) {
+            return null;
+        }
+
+        // Check if project exists
+        if (project == null) {
+            return null;
+        }
+
+        TaskDetailsDto dto = taskMapper.toDetailsDto(task, myRole);
+        if (dto != null) {
+            // Set assignee details
+            ProjectMember assignee = task.getAssignee();
+            if (assignee != null) {
+                ProjectMemberDto assigneeDto = projectMemberMapper.toDto(assignee);
+                assigneeDto.setUsername(assignee.getUser().getUsername());
+                assigneeDto.setEmail(assignee.getUser().getEmail());
+                assigneeDto.setRole(assignee.getRole().getName());
+                dto.setAssignee(assigneeDto);
+            }
+            
+            // Set task history
+            List<TaskEventDto> taskHistory = taskEventService.getTaskEvents(task.getId());
+            dto.setTaskHistory(taskHistory);
+            
+            // Set dueDate and priority
+            dto.setDueDate(task.getDueDate());
+            dto.setPriority(task.getPriority());
+        }
+
         return dto;
     }
 
     @Override
     @Transactional
-    public TaskDto createTask(TaskRequestDto taskRequestDto) {
-        if (!hasPermission(taskRequestDto.getProjectId(), "Member")) {
-            throw new RuntimeException("Access denied");
+    public TaskDto createTask(TaskRequestDto request) {
+        Project project = projectRepository.findById(request.getProjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + request.getProjectId()));
+
+        String myRole = getMyRole(project);
+        if (!"Admin".equals(myRole)) {
+            throw new UnauthorizedException("Only admin can create tasks");
         }
-        
-        Project project = projectRepository.findById(taskRequestDto.getProjectId())
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-                
-        Status status = statusRepository.findById(taskRequestDto.getStatusId())
-                .orElseThrow(() -> new RuntimeException("Status not found"));
-                
-        ProjectMember assignee = null;
-        if (taskRequestDto.getAssigneeId() != null) {
-            assignee = projectMemberRepository.findById(taskRequestDto.getAssigneeId())
-                    .orElseThrow(() -> new RuntimeException("Assignee not found"));
-        }
-        
-        Task task = taskMapper.toEntity(taskRequestDto);
+
+        Task task = taskMapper.toEntity(request);
         task.setProject(project);
-        task.setStatus(status);
-        task.setAssignee(assignee);
         
+        // Set status
+        if (request.getStatusId() != null) {
+            task.setStatus(project.getStatus());
+        }
+        
+        // Set assignee if provided
+        if (request.getAssigneeId() != null) {
+            project.getMembers().stream()
+                .filter(member -> member.getId().equals(request.getAssigneeId()))
+                .findFirst()
+                .ifPresent(task::setAssignee);
+        }
+        
+        // Create task event for creation
+        TaskEvent event = new TaskEvent();
+        event.setTask(task);
+        event.setDescription("Task created");
+        event.setDate(LocalDateTime.now());
+        
+        // Save task and event
         Task savedTask = taskRepository.save(task);
+        taskEventRepository.save(event);
         
-        TaskDto dto = taskMapper.toDto(savedTask);
-        dto.setMyRole(getUserRole(taskRequestDto.getProjectId()));
-        return dto;
+        return getTask(savedTask.getId());
     }
 
     @Override
     @Transactional
-    public TaskDto updateTask(Long id, TaskRequestDto taskRequestDto) {
-        Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-                
-        if (!hasPermission(existingTask.getProject().getId(), "Member")) {
-            throw new RuntimeException("Access denied");
-        }
-        
-        taskMapper.updateTaskFromDto(taskRequestDto, existingTask);
-        Task updatedTask = taskRepository.save(existingTask);
-        
-        TaskDto dto = taskMapper.toDto(updatedTask);
-        dto.setMyRole(getUserRole(existingTask.getProject().getId()));
-        return dto;
-    }
-
-    @Override
-    @Transactional
-    public TaskDto updateTaskStatus(Long id, Status status) {
+    public TaskDto updateTask(Long id, TaskRequestDto request) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-                
-        if (!hasPermission(task.getProject().getId(), "Member")) {
-            throw new RuntimeException("Access denied");
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
+
+        String myRole = getMyRole(task.getProject());
+        if (!"Admin".equals(myRole)) {
+            throw new UnauthorizedException("Only admin can update tasks");
         }
         
-        task.setStatus(status);
+        // Keep track of changes for event logging
+        String oldName = task.getName();
+        String oldDescription = task.getDescription();
+        Integer oldPriority = task.getPriority();
+        
+        // Update task fields
+        if (request.getName() != null && !request.getName().equals(oldName)) {
+            task.setName(request.getName());
+            createTaskEvent(task, "Task name changed from '" + oldName + "' to '" + request.getName() + "'");
+        }
+        
+        if (request.getDescription() != null && !request.getDescription().equals(oldDescription)) {
+            task.setDescription(request.getDescription());
+            createTaskEvent(task, "Task description updated");
+        }
+        
+        if (request.getPriority() != null && !request.getPriority().equals(oldPriority)) {
+            task.setPriority(request.getPriority());
+            createTaskEvent(task, "Task priority changed from " + oldPriority + " to " + request.getPriority());
+        }
+        
+        // ... autres mises à jour
+        
         Task updatedTask = taskRepository.save(task);
-        
-        TaskDto dto = taskMapper.toDto(updatedTask);
-        dto.setMyRole(getUserRole(task.getProject().getId()));
-        return dto;
+        return getTask(updatedTask.getId());
     }
 
     @Override
     @Transactional
-    public TaskDto deleteTask(Long id) {
+    public boolean deleteTask(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-                
-        if (!hasPermission(task.getProject().getId(), "Admin")) {
-            throw new RuntimeException("Access denied");
-        }
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
         
-        TaskDto dto = taskMapper.toDto(task);
-        dto.setMyRole(getUserRole(task.getProject().getId()));
+        String myRole = getMyRole(task.getProject());
+        if (!"Admin".equals(myRole)) {
+            throw new UnauthorizedException("Only admin can delete tasks");
+        }
         
         taskRepository.delete(task);
-        return dto;
+        return true;
     }
 
     @Override
     @Transactional(readOnly = true)
+    public List<ProjectMember> getProjectMembers(Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId));
+        return project.getMembers();
+    }
+    
+    private void createTaskEvent(Task task, String description) {
+        TaskEvent event = new TaskEvent();
+        event.setTask(task);
+        event.setDescription(description);
+        event.setDate(LocalDateTime.now());
+        taskEventRepository.save(event);
+    }
+    
+    private String getMyRole(Project project) {
+        User currentUser = securityUtils.getCurrentUser();
+        if (project == null || currentUser == null) return null;
+        
+        return project.getMembers().stream()
+                .filter(member -> member.getUser().getId().equals(currentUser.getId()))
+                .map(member -> member.getRole().getName())
+                .findFirst()
+                .orElse(null);
+    }
+    
+    @Override
     public boolean existsById(Long id) {
         return taskRepository.existsById(id);
     }
-
+    
     @Override
-    @Transactional(readOnly = true)
     public Task getTaskEntityById(Long id) {
         return taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
     }
 } 

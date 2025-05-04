@@ -7,9 +7,12 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface TaskEventMapper {
-    @Mapping(target = "taskId", source = "task.id")
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "description", source = "description")
+    @Mapping(target = "date", source = "date")
     TaskEventDto toDto(TaskEvent taskEvent);
     
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "task", ignore = true)
     TaskEvent toEntity(TaskEventDto taskEventDto);
 } 

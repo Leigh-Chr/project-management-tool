@@ -2,21 +2,69 @@ package com.projectmanagementtool.backend.mapper;
 
 import com.projectmanagementtool.backend.dto.ProjectDetailsDto;
 import com.projectmanagementtool.backend.dto.ProjectDto;
+import com.projectmanagementtool.backend.dto.ProjectMemberDto;
+import com.projectmanagementtool.backend.dto.TaskDto;
 import com.projectmanagementtool.backend.model.Project;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import com.projectmanagementtool.backend.model.ProjectMember;
+import com.projectmanagementtool.backend.model.Task;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring", uses = {ProjectMemberMapper.class, TaskMapper.class})
-public interface ProjectMapper {
-    @Mapping(target = "status", source = "status.name")
-    @Mapping(target = "myRole", ignore = true)
-    @Mapping(target = "projectMembers", source = "members")
-    @Mapping(target = "tasks", source = "tasks")
-    ProjectDto toDto(Project project);
+import java.util.List;
+import java.util.stream.Collectors;
 
-    @Mapping(target = "status", source = "status.name")
-    @Mapping(target = "projectMembers", source = "members")
-    @Mapping(target = "tasks", source = "tasks")
-    @Mapping(target = "myRole", ignore = true)
-    ProjectDetailsDto toDetailsDto(Project project);
+@Component
+public class ProjectMapper {
+    private final TaskMapper taskMapper;
+
+    public ProjectMapper(TaskMapper taskMapper) {
+        this.taskMapper = taskMapper;
+    }
+
+    public ProjectDto toDto(Project project, String myRole) {
+        if (project == null) return null;
+        
+        return ProjectDto.builder()
+                .id(project.getId())
+                .name(project.getName())
+                .description(project.getDescription())
+                .status(project.getStatus() != null ? project.getStatus().getName() : null)
+                .myRole(myRole)
+                .build();
+    }
+
+    public ProjectDetailsDto toDetailsDto(Project project, String myRole) {
+        if (project == null) return null;
+
+        List<ProjectMemberDto> memberDtos = project.getMembers().stream()
+                .map(this::toMemberDto)
+                .collect(Collectors.toList());
+
+        List<TaskDto> taskDtos = project.getTasks().stream()
+                .map(task -> taskMapper.toDto(task, myRole))
+                .collect(Collectors.toList());
+
+        return ProjectDetailsDto.builder()
+                .id(project.getId())
+                .name(project.getName())
+                .description(project.getDescription())
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
+                .status(project.getStatus() != null ? project.getStatus().getName() : null)
+                .myRole(myRole)
+                .projectMembers(memberDtos)
+                .tasks(taskDtos)
+                .build();
+    }
+
+    private ProjectMemberDto toMemberDto(ProjectMember member) {
+        if (member == null) return null;
+
+        return ProjectMemberDto.builder()
+                .id(member.getId())
+                .project(member.getProject().getName())
+                .username(member.getUser().getUsername())
+                .email(member.getUser().getEmail())
+                .role(member.getRole().getName())
+                .build();
+    }
 } 

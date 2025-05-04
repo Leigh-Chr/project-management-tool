@@ -37,4 +37,70 @@ public class Project {
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
+    
+    // Getters
+    public Long getId() {
+        return id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+    
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+    
+    public Status getStatus() {
+        return status;
+    }
+    
+    public List<ProjectMember> getMembers() {
+        return members;
+    }
+    
+    public List<Task> getTasks() {
+        return tasks;
+    }
+    
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+    
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+    
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+    
+    public void setMembers(List<ProjectMember> members) {
+        this.members = members;
+    }
+    
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
 } 

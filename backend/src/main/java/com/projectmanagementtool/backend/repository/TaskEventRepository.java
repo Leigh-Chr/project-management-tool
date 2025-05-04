@@ -10,4 +10,5 @@ import java.util.List;
 public interface TaskEventRepository extends JpaRepository<TaskEvent, Long> {
     List<TaskEvent> findByTaskId(Long taskId);
     List<TaskEvent> findByTaskIdOrderByDateDesc(Long taskId);
+    void deleteByTaskId(Long taskId);
 } 

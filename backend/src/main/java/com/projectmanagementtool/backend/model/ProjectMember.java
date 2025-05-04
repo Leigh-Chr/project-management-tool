@@ -28,4 +28,38 @@ public class ProjectMember {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+    
+    // Getters
+    public Long getId() {
+        return id;
+    }
+    
+    public Project getProject() {
+        return project;
+    }
+    
+    public User getUser() {
+        return user;
+    }
+    
+    public Role getRole() {
+        return role;
+    }
+    
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public void setProject(Project project) {
+        this.project = project;
+    }
+    
+    public void setUser(User user) {
+        this.user = user;
+    }
+    
+    public void setRole(Role role) {
+        this.role = role;
+    }
 } 

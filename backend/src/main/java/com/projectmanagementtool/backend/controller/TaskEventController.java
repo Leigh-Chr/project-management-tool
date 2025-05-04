@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/task-events")
+@RequestMapping("/api/tasks/{taskId}/events")
 @RequiredArgsConstructor
 public class TaskEventController {
 
@@ -22,7 +22,7 @@ public class TaskEventController {
     private final TaskService taskService;
     private final TaskEventMapper taskEventMapper;
 
-    @GetMapping("/task/{taskId}")
+    @GetMapping
     public ResponseEntity<List<TaskEventDto>> getTaskEventsByTaskId(@PathVariable Long taskId) {
         // Vérifier que la tâche existe
         if (!taskService.existsById(taskId)) {
@@ -36,16 +36,27 @@ public class TaskEventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskEventDto> getTaskEventById(@PathVariable Long id) {
+    public ResponseEntity<TaskEventDto> getTaskEventById(@PathVariable Long taskId, @PathVariable Long id) {
         try {
+            // Vérifier que la tâche existe
+            if (!taskService.existsById(taskId)) {
+                return ResponseEntity.notFound().build();
+            }
+            
             TaskEvent taskEvent = taskEventService.findById(id);
+            
+            // Vérifier que l'événement appartient bien à la tâche
+            if (taskEvent.getTask().getId() != taskId) {
+                return ResponseEntity.notFound().build();
+            }
+            
             return ResponseEntity.ok(taskEventMapper.toDto(taskEvent));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @PostMapping("/task/{taskId}")
+    @PostMapping
     public ResponseEntity<TaskEventDto> createTaskEvent(
             @PathVariable Long taskId,
             @RequestBody TaskEventDto taskEventDto) {
@@ -67,7 +78,7 @@ public class TaskEventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTaskEvent(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTaskEvent(@PathVariable Long taskId, @PathVariable Long id) {
         if (!taskEventService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

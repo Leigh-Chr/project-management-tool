@@ -1,6 +1,7 @@
 package com.projectmanagementtool.backend.service;
 
 import com.projectmanagementtool.backend.dto.TaskEventDto;
+import com.projectmanagementtool.backend.model.Task;
 import com.projectmanagementtool.backend.model.TaskEvent;
 
 import java.util.List;
@@ -19,8 +20,8 @@ public interface TaskEventService {
     TaskEvent save(TaskEvent taskEvent);
     
     void deleteById(Long id);
-
+    
     boolean existsById(Long id);
-
+    
     TaskEvent findById(Long id);
 } 

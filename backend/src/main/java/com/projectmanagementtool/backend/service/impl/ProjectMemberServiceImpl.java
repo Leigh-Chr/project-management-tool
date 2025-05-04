@@ -9,6 +9,7 @@ import com.projectmanagementtool.backend.repository.ProjectMemberRepository;
 import com.projectmanagementtool.backend.repository.ProjectRepository;
 import com.projectmanagementtool.backend.repository.UserRepository;
 import com.projectmanagementtool.backend.repository.RoleRepository;
+import com.projectmanagementtool.backend.security.SecurityUtils;
 import com.projectmanagementtool.backend.service.ProjectMemberService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final SecurityUtils securityUtils;
 
     @Override
     @Transactional(readOnly = true)
@@ -143,5 +145,25 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
         projectMember.setRole(role);
 
         return projectMemberRepository.save(projectMember);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public String getUserRoleInProject(Long projectId) {
+        User currentUser = securityUtils.getCurrentUser();
+        if (currentUser == null) {
+            return null;
+        }
+
+        return findByProjectIdAndUserId(projectId, currentUser.getId())
+                .map(member -> member.getRole().getName())
+                .orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProjectMember getProjectMember(Long id) {
+        return findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project member not found with id: " + id));
     }
 } 

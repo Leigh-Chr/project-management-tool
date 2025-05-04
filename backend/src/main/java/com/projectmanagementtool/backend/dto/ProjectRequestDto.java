@@ -22,4 +22,46 @@ public class ProjectRequestDto {
     private LocalDate endDate;
 
     private Long statusId;
+    
+    // Getters
+    public String getName() {
+        return name;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+    
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+    
+    public Long getStatusId() {
+        return statusId;
+    }
+    
+    // Setters
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+    
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+    
+    public void setStatusId(Long statusId) {
+        this.statusId = statusId;
+    }
 } 

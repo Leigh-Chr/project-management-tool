@@ -34,6 +34,11 @@ public class ProjectController {
         return ResponseEntity.ok(projectService.getProjectDetails(id));
     }
 
+    @GetMapping("/status/{statusId}")
+    public ResponseEntity<List<ProjectDto>> getProjectsByStatus(@PathVariable Long statusId) {
+        return ResponseEntity.ok(projectService.getProjectsByStatusId(statusId));
+    }
+
     @PostMapping
     public ResponseEntity<ProjectDto> createProject(@Valid @RequestBody ProjectRequestDto projectRequest) {
         return ResponseEntity.ok(projectService.createProject(projectRequest));

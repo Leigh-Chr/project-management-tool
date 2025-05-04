@@ -47,4 +47,78 @@ public class Task {
     @ToString.Exclude
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskEvent> events = new ArrayList<>();
+    
+    // Getters
+    public Long getId() {
+        return id;
+    }
+    
+    public Project getProject() {
+        return project;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public String getDescription() {
+        return description;
+    }
+    
+    public LocalDate getDueDate() {
+        return dueDate;
+    }
+    
+    public Integer getPriority() {
+        return priority;
+    }
+    
+    public ProjectMember getAssignee() {
+        return assignee;
+    }
+    
+    public Status getStatus() {
+        return status;
+    }
+    
+    public List<TaskEvent> getEvents() {
+        return events;
+    }
+    
+    // Setters
+    public void setId(Long id) {
+        this.id = id;
+    }
+    
+    public void setProject(Project project) {
+        this.project = project;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
+    }
+    
+    public void setDueDate(LocalDate dueDate) {
+        this.dueDate = dueDate;
+    }
+    
+    public void setPriority(Integer priority) {
+        this.priority = priority;
+    }
+    
+    public void setAssignee(ProjectMember assignee) {
+        this.assignee = assignee;
+    }
+    
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+    
+    public void setEvents(List<TaskEvent> events) {
+        this.events = events;
+    }
 } 
