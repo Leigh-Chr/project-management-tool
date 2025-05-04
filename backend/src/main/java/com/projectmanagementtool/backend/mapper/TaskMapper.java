@@ -9,9 +9,6 @@ import com.projectmanagementtool.backend.dto.ProjectDto;
 import com.projectmanagementtool.backend.model.Task;
 import com.projectmanagementtool.backend.model.TaskEvent;
 import com.projectmanagementtool.backend.model.ProjectMember;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -19,10 +16,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class TaskMapper {
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "project", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "assignee", ignore = true)
     public Task toEntity(TaskRequestDto dto) {
         if (dto == null) return null;
         
@@ -88,8 +81,6 @@ public class TaskMapper {
                 .build();
     }
 
-    @Mapping(target = "status", source = "task.status.name")
-    @Mapping(target = "projectId", source = "task.project.id")
     public TaskDetailsDto toDetailsDto(Task task, String myRole) {
         if (task == null) return null;
         

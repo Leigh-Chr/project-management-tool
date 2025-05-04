@@ -3,8 +3,6 @@ package com.projectmanagementtool.backend.controller;
 import com.projectmanagementtool.backend.dto.ProjectDetailsDto;
 import com.projectmanagementtool.backend.dto.ProjectDto;
 import com.projectmanagementtool.backend.dto.ProjectRequestDto;
-import com.projectmanagementtool.backend.model.Project;
-import com.projectmanagementtool.backend.model.Status;
 import com.projectmanagementtool.backend.service.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

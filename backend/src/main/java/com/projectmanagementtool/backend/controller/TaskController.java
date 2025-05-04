@@ -3,7 +3,6 @@ package com.projectmanagementtool.backend.controller;
 import com.projectmanagementtool.backend.dto.TaskDetailsDto;
 import com.projectmanagementtool.backend.dto.TaskDto;
 import com.projectmanagementtool.backend.dto.TaskRequestDto;
-import com.projectmanagementtool.backend.model.ProjectMember;
 import com.projectmanagementtool.backend.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

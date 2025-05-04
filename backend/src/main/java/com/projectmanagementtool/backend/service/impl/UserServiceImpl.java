@@ -3,7 +3,6 @@ package com.projectmanagementtool.backend.service.impl;
 import com.projectmanagementtool.backend.model.User;
 import com.projectmanagementtool.backend.repository.UserRepository;
 import com.projectmanagementtool.backend.service.UserService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;

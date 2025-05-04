@@ -6,7 +6,6 @@ import com.projectmanagementtool.backend.dto.ProjectMemberDto;
 import com.projectmanagementtool.backend.dto.TaskDto;
 import com.projectmanagementtool.backend.model.Project;
 import com.projectmanagementtool.backend.model.ProjectMember;
-import com.projectmanagementtool.backend.model.Task;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

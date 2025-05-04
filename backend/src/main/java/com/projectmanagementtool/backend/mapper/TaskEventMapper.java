@@ -10,6 +10,7 @@ public interface TaskEventMapper {
     @Mapping(target = "id", source = "id")
     @Mapping(target = "description", source = "description")
     @Mapping(target = "date", source = "date")
+    @Mapping(target = "taskId", source = "task.id")
     TaskEventDto toDto(TaskEvent taskEvent);
     
     @Mapping(target = "id", ignore = true)
