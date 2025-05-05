@@ -1,7 +1,6 @@
 package com.projectmanagementtool.backend.service;
 
 import com.projectmanagementtool.backend.dto.TaskEventDto;
-import com.projectmanagementtool.backend.model.Task;
 import com.projectmanagementtool.backend.model.TaskEvent;
 
 import java.util.List;
