@@ -1,28 +1,24 @@
-import { Injectable } from '@angular/core';
-import {
-  HttpEvent,
-  HttpHandler,
-  HttpInterceptor,
-  HttpRequest,
-} from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { LoginResponse } from '../models/auth.models';
 
-@Injectable()
-export class AuthInterceptor implements HttpInterceptor {
-  constructor(private readonly authService: AuthService) {}
-
-  intercept(
-    req: HttpRequest<unknown>,
-    next: HttpHandler
-  ): Observable<HttpEvent<unknown>> {
-    const token = this.authService.authUser()?.token;
-    if (token) {
-      const cloned = req.clone({
-        headers: req.headers.set('Authorization', `Bearer ${token}`),
-      });
-      return next.handle(cloned);
-    }
-    return next.handle(req);
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const authUser = authService.authUser() as LoginResponse | null;
+  
+  // Si l'utilisateur est authentifié et a un token
+  if (authUser && authUser.token) {
+    // Clone la requête et ajoute l'en-tête Authorization
+    const authReq = req.clone({
+      headers: req.headers.set(
+        'Authorization',
+        `Bearer ${authUser.token}`
+      ),
+    });
+    return next(authReq);
   }
-}
+  
+  // Sinon, passe la requête originale sans modification
+  return next(req);
+};

@@ -22,15 +22,13 @@ import type {
 } from '@app/shared/models/project.models';
 import type { Observable } from 'rxjs';
 import type { ProjectMemberEntity } from '../../models/entities';
-import { ProjectMemberController } from '../mock/backend/project-member.controller';
-import { ProjectController } from '../mock/backend/project.controller';
+import { ApiService } from '../api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectService {
-  private readonly projectController = inject(ProjectController);
-  private readonly projectMemberController = inject(ProjectMemberController);
+  private readonly apiService = inject(ApiService);
   private readonly injector = inject(Injector);
 
   readonly deletedProject = signal<number | null>(null);
@@ -40,18 +38,18 @@ export class ProjectService {
   readonly postedProjectMember = signal<ProjectMember | null>(null);
 
   getProject(projectId: number): Observable<GetProjectResponse | undefined> {
-    return this.projectController.getProject(projectId);
+    return this.apiService.get<GetProjectResponse>(`/projects/${projectId}`);
   }
 
   getProjects(): Observable<GetProjectsResponse | undefined> {
-    return this.projectController.getProjects();
+    return this.apiService.get<GetProjectsResponse>('/projects');
   }
 
   deleteProject(
     projectId: number
   ): Observable<DeleteProjectResponse | undefined> {
     const deletedProjectObservable =
-      this.projectController.deleteProject(projectId);
+      this.apiService.delete<DeleteProjectResponse>(`/projects/${projectId}`);
 
     const deletedProjectSignal = toSignal(deletedProjectObservable, {
       injector: this.injector,
@@ -71,7 +69,7 @@ export class ProjectService {
   postProject(
     project: PostProjectRequest
   ): Observable<PostProjectResponse | undefined> {
-    const postedProjectObservable = this.projectController.postProject(project);
+    const postedProjectObservable = this.apiService.post<PostProjectResponse>('/projects', project);
 
     const postedProjectSignal = toSignal(postedProjectObservable, {
       injector: this.injector,
@@ -91,17 +89,18 @@ export class ProjectService {
   getProjectDetails(
     projectId: number
   ): Observable<GetProjectDetailsResponse | undefined> {
-    return this.projectController.getProjectDetails(projectId);
+    return this.apiService.get<GetProjectDetailsResponse>(`/projects/${projectId}/details`);
   }
 
   getProjectMember(
-    projectMemberId: number
+    projectMemberId: number,
+    projectId: number
   ): Observable<GetProjectMemberResponse | undefined> {
-    return this.projectMemberController.getProjectMember(projectMemberId);
+    return this.apiService.get<GetProjectMemberResponse>(`/projects/${projectId}/members/${projectMemberId}`);
   }
 
-  getProjectMembers(): Observable<ProjectMemberEntity[]> {
-    return this.projectMemberController.getProjectMembers();
+  getProjectMembers(projectId: number): Observable<ProjectMemberEntity[]> {
+    return this.apiService.get<ProjectMemberEntity[]>(`/projects/${projectId}/members`);
   }
 
   postProjectMember(
@@ -109,8 +108,9 @@ export class ProjectService {
     userId: number,
     roleId: number
   ): Observable<PostProjectMemberResponse | undefined> {
+    const requestBody = { projectId, userId, roleId };
     const postedProjectMemberObservable =
-      this.projectMemberController.postProjectMember(projectId, userId, roleId);
+      this.apiService.post<PostProjectMemberResponse>(`/projects/${projectId}/members`, requestBody);
 
     const postedProjectMemberSignal = toSignal(postedProjectMemberObservable, {
       injector: this.injector,
@@ -128,10 +128,11 @@ export class ProjectService {
   }
 
   deleteProjectMember(
+    projectId: number,
     projectMemberId: number
   ): Observable<DeleteProjectMemberResponse | undefined> {
     const deletedProjectMemberObservable =
-      this.projectMemberController.deleteProjectMember(projectMemberId);
+      this.apiService.delete<DeleteProjectMemberResponse>(`/projects/${projectId}/members/${projectMemberId}`);
 
     const deletedProjectMemberSignal = toSignal(
       deletedProjectMemberObservable,

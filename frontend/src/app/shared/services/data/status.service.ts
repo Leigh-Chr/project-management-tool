@@ -1,15 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { StatusController } from '../mock/backend/status.controller';
 import type { GetStatusesResponse } from '@app/shared/models/status.models';
+import { ApiService } from '../api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class StatusService {
-  readonly statusController = inject(StatusController);
+  private readonly apiService = inject(ApiService);
 
   getStatuses(): Observable<GetStatusesResponse> {
-    return this.statusController.getStatuses();
+    return this.apiService.get<GetStatusesResponse>('/statuses');
   }
 }

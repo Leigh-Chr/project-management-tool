@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.yourapp.com',
+  apiUrl: 'http://localhost:8080/api',
   logLevel: 'error',
-  featureFlag: false,
+  featureFlag: true,
 };

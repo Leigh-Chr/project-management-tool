@@ -1,19 +1,22 @@
 import { Injectable, inject } from '@angular/core';
-import { RoleController } from '../mock/backend/role.controller';
 import type { RoleEntity } from '../../models/entities';
 import type { Observable } from 'rxjs';
+import { ApiService } from '../api.service';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleService {
-  private readonly roleController = inject(RoleController);
+  private readonly apiService = inject(ApiService);
 
   getRoles(): Observable<RoleEntity[]> {
-    return this.roleController.getRoles();
+    return this.apiService.get<RoleEntity[]>('/roles');
   }
 
   getRole(roleId: number): Observable<RoleEntity | null> {
-    return this.roleController.getRole(roleId);
+    return this.apiService.get<RoleEntity>(`/roles/${roleId}`).pipe(
+      map(role => role || null)
+    );
   }
 }

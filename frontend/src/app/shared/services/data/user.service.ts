@@ -1,15 +1,15 @@
 import { inject, Injectable } from '@angular/core';
-import { UserController } from '../mock/backend/user.controller';
 import type { GetUsersResponse } from '../../models/user.models';
 import type { Observable } from 'rxjs';
+import { ApiService } from '../api.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private readonly userController = inject(UserController);
+  private readonly apiService = inject(ApiService);
 
   getUsers(): Observable<GetUsersResponse> {
-    return this.userController.getUsers();
+    return this.apiService.get<GetUsersResponse>('/users');
   }
 }

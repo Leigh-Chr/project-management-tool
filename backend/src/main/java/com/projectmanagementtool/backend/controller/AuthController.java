@@ -28,22 +28,21 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequest request) {
-        log.info("Received login request for username: {}", request.getUsername());
+        log.info("Received login request for email: {}", request.getEmail());
         
         try {
+            // Find user by email first
+            User user = userService.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + request.getEmail()));
+            
+            // Authenticate using the username and password
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(user.getUsername(), request.getPassword())
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             String jwt = jwtService.generateToken(userDetails);
-
-            User user = userService.findByUsername(request.getUsername());
-            if (user == null) {
-                log.error("User not found after authentication");
-                throw new RuntimeException("User not found");
-            }
 
             AuthResponse response = new AuthResponse();
             response.setToken(jwt);
@@ -52,7 +51,7 @@ public class AuthController {
             response.setEmail(user.getEmail());
             response.setExp(jwtService.getExpirationTime(jwt));
 
-            log.info("User {} logged in successfully", request.getUsername());
+            log.info("User with email {} logged in successfully", request.getEmail());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error during login: {}", e.getMessage(), e);

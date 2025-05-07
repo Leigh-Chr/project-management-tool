@@ -27,6 +27,8 @@ public class ProjectMapper {
                 .name(project.getName())
                 .description(project.getDescription())
                 .status(project.getStatus() != null ? project.getStatus().getName() : null)
+                .startDate(project.getStartDate())
+                .endDate(project.getEndDate())
                 .myRole(myRole)
                 .build();
     }

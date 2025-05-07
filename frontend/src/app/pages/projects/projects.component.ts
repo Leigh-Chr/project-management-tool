@@ -57,7 +57,7 @@ type PopupType = 'addProject' | 'deleteProject';
                     <span class="text-gray-500">Start Date:</span>
                     <span>{{
                       project.startDate
-                        ? project.startDate.toLocaleDateString()
+                        ? project.startDate
                         : '-'
                     }}</span>
                   </div>
@@ -65,7 +65,7 @@ type PopupType = 'addProject' | 'deleteProject';
                     <span class="text-gray-500">End Date:</span>
                     <span>{{
                       project.endDate
-                        ? project.endDate.toLocaleDateString()
+                        ? project.endDate
                         : '-'
                     }}</span>
                   </div>

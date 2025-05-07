@@ -13,6 +13,7 @@ import type { ProjectMember } from '@app/shared/models/project.models';
 import { ProjectService } from '@app/shared/services/data/project.service';
 import { ToastService } from '../toast/toast.service';
 import { PopupComponent } from '../ui/popup.component';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'pmt-delete-project-member-popup',
@@ -57,6 +58,7 @@ export class DeleteProjectMemberPopupComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly projectService = inject(ProjectService);
   private readonly injector = inject(Injector);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   readonly projectMemberId = input.required<number>();
   projectMember = signal<ProjectMember | undefined>(undefined).asReadonly();
@@ -93,8 +95,9 @@ export class DeleteProjectMemberPopupComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    const projectId = this.activatedRoute.snapshot.params['id'];
     this.projectMember = toSignal(
-      this.projectService.getProjectMember(this.projectMemberId()),
+      this.projectService.getProjectMember(this.projectMemberId(), projectId),
       { injector: this.injector }
     );
 
@@ -109,6 +112,7 @@ export class DeleteProjectMemberPopupComponent implements OnInit {
   }
 
   deleteProjectMember(): void {
-    this.projectService.deleteProjectMember(this.projectMemberId());
+    const projectId = this.activatedRoute.snapshot.params['id'];
+    this.projectService.deleteProjectMember(this.projectMemberId(), projectId);
   }
 }

@@ -78,8 +78,18 @@ public class ProjectService {
 
     @Transactional(readOnly = true)
     public ProjectDetailsDto getProjectDetails(Long id) {
-        Project project = projectRepository.findByIdWithTasksAndMembers(id)
+        // D'abord charger le projet avec ses membres
+        Project projectWithMembers = projectRepository.findByIdWithMembers(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        
+        // Ensuite charger le projet avec ses tâches
+        Project projectWithTasks = projectRepository.findByIdWithTasks(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + id));
+        
+        // Utiliser les membres du premier chargement
+        Project project = projectWithMembers;
+        // Ajouter les tâches du second chargement
+        project.setTasks(projectWithTasks.getTasks());
 
         String myRole = getMyRole(project);
         if (myRole == null) {

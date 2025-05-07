@@ -8,15 +8,16 @@ import {
   RegisterResponse,
 } from '../models/auth.models';
 import { UserEntity } from '../models/entities';
-import { AuthController } from './mock/backend/auth.controller';
+import { ApiService } from './api.service';
+import { lastValueFrom } from 'rxjs';
 
-type AuthUser = Omit<UserEntity, 'password'> & { exp: number };
+type AuthUser = Omit<UserEntity, 'password'> & { exp: number; token: string };
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  readonly authController = inject(AuthController);
+  private readonly apiService = inject(ApiService);
   readonly authUser = signal<AuthUser | null>(null);
   private readonly cookieService = inject(CookieService);
   private readonly router = inject(Router);
@@ -29,24 +30,53 @@ export class AuthService {
   async register(
     registerRequest: RegisterRequest
   ): Promise<RegisterResponse | null> {
-    return this.authController.register(registerRequest);
+    try {
+      const response = await lastValueFrom(
+        this.apiService.post<RegisterResponse>('/auth/register', registerRequest)
+      );
+      return response;
+    } catch (error) {
+      console.error('Error during registration:', error);
+      return null;
+    }
   }
 
   async login(loginRequest: LoginRequest): Promise<LoginResponse | null> {
-    const loginResponse = await this.authController.login(loginRequest);
-    this.authUser.set(loginResponse);
-
-    if (!loginResponse) {return null;}
-
-    this.setUserInCookies(loginResponse);
-    this.setTokenExpirationTimeout(loginResponse.exp);
-    return loginResponse;
+    try {
+      const loginResponse = await lastValueFrom(
+        this.apiService.post<LoginResponse>('/auth/login', loginRequest)
+      );
+      
+      if (!loginResponse) {
+        return null;
+      }
+      
+      this.authUser.set(loginResponse);
+      this.setUserInCookies(loginResponse);
+      this.setTokenExpirationTimeout(loginResponse.exp);
+      
+      return loginResponse;
+    } catch (error) {
+      console.error('Error during login:', error);
+      return null;
+    }
   }
 
   logout(): void {
-    this.authUser.set(null);
-    this.removeUserFromCookies();
-    this.router.navigate(['/login']);
+    this.apiService.post('/auth/logout', {}).subscribe({
+      next: () => {
+        this.authUser.set(null);
+        this.removeUserFromCookies();
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Error during logout:', error);
+        // On effectue tout de même la déconnexion côté client
+        this.authUser.set(null);
+        this.removeUserFromCookies();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   private setUserInCookies(loginResponse: AuthUser): void {
