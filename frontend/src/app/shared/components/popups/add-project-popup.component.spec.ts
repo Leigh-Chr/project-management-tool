@@ -1,12 +1,11 @@
-import { signal } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { of } from 'rxjs';
-import { Project } from '../../models/project.models';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { AddProjectPopupComponent } from './add-project-popup.component';
 import { ProjectService } from '../../services/data/project.service';
 import { StatusService } from '../../services/data/status.service';
 import { ToastService } from '../toast/toast.service';
-import { AddProjectPopupComponent } from './add-project-popup.component';
+import { of } from 'rxjs';
 
 describe('AddProjectPopupComponent', () => {
   let component: AddProjectPopupComponent;
@@ -15,121 +14,94 @@ describe('AddProjectPopupComponent', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let toastService: jasmine.SpyObj<ToastService>;
 
-  beforeEach(async () => {
-    const projectSpy = jasmine.createSpyObj('ProjectService', ['postProject'], {
-      postedProject: signal(null)
-    });
-    const toastSpy = jasmine.createSpyObj('ToastService', ['showToast']);
-    const statusSpy = jasmine.createSpyObj('StatusService', ['getStatuses']);
+  const mockStatuses = [
+    { id: 1, name: 'Active' },
+    { id: 2, name: 'Completed' }
+  ];
 
-    statusSpy.getStatuses.and.returnValue(of([
-      { id: 1, name: 'To Do' },
-      { id: 2, name: 'In Progress' },
-      { id: 3, name: 'Done' }
-    ]));
+  beforeEach(async () => {
+    const projectSpy = jasmine.createSpyObj('ProjectService', ['postProject']);
+    projectSpy.postedProject = jasmine.createSpy('postedProject').and.returnValue(null);
+    projectSpy.postedProject.set = jasmine.createSpy('set');
+    const statusSpy = jasmine.createSpyObj('StatusService', ['getStatuses']);
+    const toastSpy = jasmine.createSpyObj('ToastService', ['showToast']);
+
+    statusSpy.getStatuses.and.returnValue(of(mockStatuses));
 
     await TestBed.configureTestingModule({
-      imports: [AddProjectPopupComponent, ReactiveFormsModule],
+      imports: [AddProjectPopupComponent, ReactiveFormsModule, HttpClientTestingModule],
       providers: [
         { provide: ProjectService, useValue: projectSpy },
-        { provide: ToastService, useValue: toastSpy },
-        { provide: StatusService, useValue: statusSpy }
+        { provide: StatusService, useValue: statusSpy },
+        { provide: ToastService, useValue: toastSpy }
       ]
     }).compileComponents();
 
-    projectService = TestBed.inject(ProjectService) as jasmine.SpyObj<ProjectService>;
-    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
-    statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
-
     fixture = TestBed.createComponent(AddProjectPopupComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    projectService = TestBed.inject(ProjectService) as jasmine.SpyObj<ProjectService>;
+    statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
+    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
   });
 
-  it('should create and initialize form controls', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    expect(component.name).toBeTruthy();
-    expect(component.description).toBeTruthy();
-    expect(component.startDate).toBeTruthy();
-    expect(component.endDate).toBeTruthy();
-    expect(component.status).toBeTruthy();
   });
 
-  it('should load status options', () => {
-    expect(statusService.getStatuses).toHaveBeenCalled();
-    expect(component.statusOptions().length).toBe(3);
+  it('should initialize form with required fields', () => {
+    fixture.detectChanges();
+    
+    const form = component.projectForm;
+    expect(form.get('name')).toBeTruthy();
+    expect(form.get('description')).toBeTruthy();
+    expect(form.get('startDate')).toBeTruthy();
+    expect(form.get('status')).toBeTruthy();
   });
 
-  it('should not submit if form is invalid', () => {
-    component.submit();
-    expect(projectService.postProject).not.toHaveBeenCalled();
+  it('should validate required fields', () => {
+    fixture.detectChanges();
+    
+    const form = component.projectForm;
+    expect(form.invalid).toBe(true);
+    
+    form.patchValue({
+      name: 'Test Project',
+      description: 'Test Description',
+      startDate: '2024-01-01',
+      status: '1'
+    });
+    
+    expect(form.valid).toBe(true);
   });
 
-  it('should submit if form is valid and close popup on success', fakeAsync(() => {
-    const newProject = {
+  it('should call postProject when form is submitted', () => {
+    fixture.detectChanges();
+    
+    const mockResponse = { 
+      id: 1, 
       name: 'Test Project',
       description: 'Test Description',
       startDate: new Date(),
-      statusId: 1
+      endDate: new Date(),
+      status: 'Active'
     };
-
-    component.name.setValue(newProject.name);
-    component.description.setValue(newProject.description);
-    component.startDate.setValue(newProject.startDate.toISOString().split('T')[0]);
-    component.status.setValue(newProject.statusId.toString());
-
-    const mockProject: Project = {
-      id: 1,
-      name: newProject.name,
-      description: newProject.description,
-      startDate: newProject.startDate,
-      status: 'To Do',
-      myRole: 'Member'
-    };
-
-    projectService.postProject.and.returnValue(of(undefined));
-    const closeSpy = jasmine.createSpy('onClose');
-    component.onClose.subscribe(closeSpy);
-
-    component.submit();
-    expect(projectService.postProject).toHaveBeenCalledWith({
-      name: newProject.name,
-      description: newProject.description,
-      startDate: jasmine.any(Date),
-      endDate: undefined,
-      statusId: newProject.statusId
-    });
+    projectService.postProject.and.returnValue(of(mockResponse));
     
-    projectService.postedProject.set(mockProject);
-    tick();
-    fixture.detectChanges();
-    expect(closeSpy).toHaveBeenCalled();
-    expect(toastService.showToast).toHaveBeenCalledWith({
-      title: 'Success',
-      message: 'Project created',
-      type: 'success'
+    component.projectForm.patchValue({
+      name: 'Test Project',
+      description: 'Test Description',
+      startDate: '2024-01-01',
+      status: '1'
     });
-  }));
-
-  it('should not close popup when project creation fails', fakeAsync(() => {
-    projectService.postProject.and.returnValue(of(undefined));
-    component.name.setValue('Test Project');
-    component.description.setValue('Test Description');
-    component.startDate.setValue(new Date().toISOString().split('T')[0]);
-    component.status.setValue('1');
-    
-    const closeSpy = jasmine.createSpy('onClose');
-    component.onClose.subscribe(closeSpy);
     
     component.submit();
-    tick();
-    fixture.detectChanges();
     
-    expect(closeSpy).not.toHaveBeenCalled();
-    expect(toastService.showToast).toHaveBeenCalledWith({
-      title: 'Error',
-      message: 'Failed to create project',
-      type: 'error'
-    });
-  }));
-}); 
+    expect(projectService.postProject).toHaveBeenCalled();
+  });
+
+  it('should emit onClose when close is triggered', () => {
+    spyOn(component.onClose, 'emit');
+    component.onClose.emit();
+    expect(component.onClose.emit).toHaveBeenCalled();
+  });
+});

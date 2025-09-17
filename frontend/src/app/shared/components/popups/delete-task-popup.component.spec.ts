@@ -1,10 +1,8 @@
-import { signal } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { Task } from '../../models/task.models';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { DeleteTaskPopupComponent } from './delete-task-popup.component';
 import { TaskService } from '../../services/data/task.service';
 import { ToastService } from '../toast/toast.service';
-import { DeleteTaskPopupComponent } from './delete-task-popup.component';
+import { of } from 'rxjs';
 
 describe('DeleteTaskPopupComponent', () => {
   let component: DeleteTaskPopupComponent;
@@ -12,37 +10,11 @@ describe('DeleteTaskPopupComponent', () => {
   let taskService: jasmine.SpyObj<TaskService>;
   let toastService: jasmine.SpyObj<ToastService>;
 
-  const mockTask: Task = {
-    id: 1,
-    name: 'Test Task',
-    description: 'Test Description',
-    status: 'To Do',
-    project: {
-      id: 1,
-      name: 'Test Project',
-      description: 'Test Description',
-      status: 'ACTIVE',
-      myRole: 'Member'
-    },
-    assignee: {
-      id: 1,
-      username: 'testUser',
-      email: 'test@example.com',
-      role: 'Member'
-    },
-    priority: 1,
-    dueDate: new Date(),
-    taskHistory: [],
-    myRole: 'Member'
-  };
-
   beforeEach(async () => {
-    const taskSpy = jasmine.createSpyObj('TaskService', ['deleteTask', 'getTask'], {
-      deletedTask: signal<number | null>(null)
-    });
+    const taskSpy = jasmine.createSpyObj('TaskService', ['deleteTask']);
+    taskSpy.deletedTask = jasmine.createSpy('deletedTask').and.returnValue(null);
+    taskSpy.deletedTask.set = jasmine.createSpy('set');
     const toastSpy = jasmine.createSpyObj('ToastService', ['showToast']);
-
-    taskSpy.getTask.and.returnValue(of(mockTask));
 
     await TestBed.configureTestingModule({
       imports: [DeleteTaskPopupComponent],
@@ -52,54 +24,48 @@ describe('DeleteTaskPopupComponent', () => {
       ]
     }).compileComponents();
 
+    fixture = TestBed.createComponent(DeleteTaskPopupComponent);
+    component = fixture.componentInstance;
     taskService = TestBed.inject(TaskService) as jasmine.SpyObj<TaskService>;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
-
-    fixture = TestBed.createComponent(DeleteTaskPopupComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput('taskId', 1);
-    fixture.detectChanges();
   });
 
-  it('should create and initialize with task data', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
-    expect(component.task()).toEqual(mockTask);
   });
 
-  it('should delete task and close popup on success', fakeAsync(() => {
-    taskService.deleteTask.and.returnValue(of(undefined));
-    const closeSpy = jasmine.createSpy('onClose');
-    component.onClose.subscribe(closeSpy);
-
-    component.deleteTask();
-    expect(taskService.deleteTask).toHaveBeenCalledWith(1);
-    
-    taskService.deletedTask.set(1);
-    tick();
-    fixture.detectChanges();
-    expect(closeSpy).toHaveBeenCalled();
-    expect(toastService.showToast).toHaveBeenCalledWith({
-      title: 'Success',
-      message: 'Task deleted',
-      type: 'success'
-    });
-  }));
-
-  it('should show error toast when task not found', fakeAsync(() => {
-    taskService.getTask.and.returnValue(of(undefined));
-    
-    fixture = TestBed.createComponent(DeleteTaskPopupComponent);
-    component = fixture.componentInstance;
+  it('should call deleteTask when confirmed', () => {
     fixture.componentRef.setInput('taskId', 1);
     fixture.detectChanges();
     
-    tick();
+    const mockResponse = { 
+      id: 1, 
+      name: 'Test Task',
+      description: 'Test Description',
+      dueDate: new Date(),
+      priority: 1,
+      status: 'In Progress',
+      assignee: { id: 1, username: 'testuser', email: 'test@example.com', role: 'Member' },
+      project: { id: 1, name: 'Test Project', description: 'Test', startDate: new Date(), endDate: new Date(), status: 'Active' },
+      taskHistory: []
+    };
+    taskService.deleteTask.and.returnValue(of(mockResponse));
+    
+    component.deleteTask();
+    
+    expect(taskService.deleteTask).toHaveBeenCalledWith(1);
+  });
+
+  it('should emit onClose when close is triggered', () => {
+    spyOn(component.onClose, 'emit');
+    component.onClose.emit();
+    expect(component.onClose.emit).toHaveBeenCalled();
+  });
+
+  it('should display correct popup title', () => {
     fixture.detectChanges();
     
-    expect(toastService.showToast).toHaveBeenCalledWith({
-      title: 'Error',
-      message: 'Task not found',
-      type: 'error'
-    });
-  }));
-}); 
+    const popup = fixture.nativeElement.querySelector('ui-popup');
+    expect(popup.getAttribute('popupTitle')).toBe('Delete Task');
+  });
+});

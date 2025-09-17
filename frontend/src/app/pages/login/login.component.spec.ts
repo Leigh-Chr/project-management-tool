@@ -43,7 +43,7 @@ describe('LoginComponent', () => {
   });
 
   it('should validate form and call login service', () => {
-    const form = component.loginForm();
+    const form = component.loginForm;
     form.patchValue({
       email: 'test@example.com',
       password: 'password123',
@@ -57,7 +57,7 @@ describe('LoginComponent', () => {
 
   it('should show error toast on failed login', async () => {
     authService.login.and.returnValue(Promise.resolve(null));
-    const form = component.loginForm();
+    const form = component.loginForm;
     form.patchValue({
       email: 'test@example.com',
       password: 'password123',

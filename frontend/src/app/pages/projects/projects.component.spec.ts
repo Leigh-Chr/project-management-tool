@@ -5,6 +5,7 @@ import {
   tick,
 } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ProjectsComponent } from './projects.component';
 import { ProjectService } from '@app/shared/services/data/project.service';
 import { signal } from '@angular/core';
@@ -22,7 +23,7 @@ describe('ProjectsComponent', () => {
     ];
 
     await TestBed.configureTestingModule({
-      imports: [ProjectsComponent],
+      imports: [ProjectsComponent, HttpClientTestingModule],
       providers: [
         {
           provide: Router,

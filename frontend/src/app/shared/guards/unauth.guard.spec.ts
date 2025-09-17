@@ -32,7 +32,7 @@ describe('UnauthGuard', () => {
   });
 
   it('should redirect to projects when user is authenticated', () => {
-    authService.authUser.and.returnValue({ id: 1, username: 'test', email: 'test@test.com', exp: Math.floor(Date.now() / 1000) + 3600 });
+    authService.authUser.and.returnValue({ id: 1, username: 'test', email: 'test@test.com', token: 'mock-token', exp: Math.floor(Date.now() / 1000) + 3600 });
     expect(guard.canActivate()).toBeFalse();
     expect(router.navigate).toHaveBeenCalledWith(['/projects']);
   });

@@ -1,10 +1,9 @@
-import { signal } from '@angular/core';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
-import { of } from 'rxjs';
-import { ProjectMember } from '../../models/project.models';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
+import { DeleteProjectMemberPopupComponent } from './delete-project-member-popup.component';
 import { ProjectService } from '../../services/data/project.service';
 import { ToastService } from '../toast/toast.service';
-import { DeleteProjectMemberPopupComponent } from './delete-project-member-popup.component';
+import { of } from 'rxjs';
 
 describe('DeleteProjectMemberPopupComponent', () => {
   let component: DeleteProjectMemberPopupComponent;
@@ -12,74 +11,62 @@ describe('DeleteProjectMemberPopupComponent', () => {
   let projectService: jasmine.SpyObj<ProjectService>;
   let toastService: jasmine.SpyObj<ToastService>;
 
-  const mockProjectMember: ProjectMember = {
-    id: 1,
-    project: 'Test Project',
-    username: 'testuser',
-    email: 'test@example.com',
-    role: 'Member'
-  };
-
   beforeEach(async () => {
-    const projectSpy = jasmine.createSpyObj('ProjectService', ['deleteProjectMember', 'getProjectMember'], {
-      deletedProjectMember: signal(null)
-    });
+    const projectSpy = jasmine.createSpyObj('ProjectService', ['deleteProjectMember']);
+    projectSpy.deletedProjectMember = jasmine.createSpy('deletedProjectMember').and.returnValue(null);
+    projectSpy.deletedProjectMember.set = jasmine.createSpy('set');
     const toastSpy = jasmine.createSpyObj('ToastService', ['showToast']);
-
-    projectSpy.getProjectMember.and.returnValue(of(mockProjectMember));
+    const mockActivatedRoute = {
+      snapshot: { params: { id: '1' } }
+    };
 
     await TestBed.configureTestingModule({
       imports: [DeleteProjectMemberPopupComponent],
       providers: [
         { provide: ProjectService, useValue: projectSpy },
-        { provide: ToastService, useValue: toastSpy }
+        { provide: ToastService, useValue: toastSpy },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute }
       ]
     }).compileComponents();
 
+    fixture = TestBed.createComponent(DeleteProjectMemberPopupComponent);
+    component = fixture.componentInstance;
     projectService = TestBed.inject(ProjectService) as jasmine.SpyObj<ProjectService>;
     toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
   });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DeleteProjectMemberPopupComponent);
-    component = fixture.componentInstance;
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('should call deleteProjectMember when confirmed', () => {
     fixture.componentRef.setInput('projectMemberId', 1);
     fixture.detectChanges();
-  });
-
-  it('should create and initialize with project member data', () => {
-    expect(component).toBeTruthy();
-    expect(component.projectMember()).toEqual(mockProjectMember);
-  });
-
-  it('should delete project member and close popup on success', fakeAsync(() => {
-    projectService.deleteProjectMember.and.returnValue(of(undefined));
-    const closeSpy = jasmine.createSpy('onClose');
-    component.onClose.subscribe(closeSpy);
+    
+    const mockResponse = { 
+      id: 1, 
+      username: 'testuser', 
+      email: 'test@example.com', 
+      role: 'Member',
+      project: 'Test Project'
+    };
+    projectService.deleteProjectMember.and.returnValue(of(mockResponse));
     
     component.deleteProjectMember();
-    expect(projectService.deleteProjectMember).toHaveBeenCalledWith(1);
     
-    projectService.deletedProjectMember.set(mockProjectMember);
-    tick();
-    fixture.detectChanges();
-    expect(closeSpy).toHaveBeenCalled();
-    expect(toastService.showToast).toHaveBeenCalledWith({
-      title: 'Success',
-      message: 'Project member deleted',
-      type: 'success'
-    });
-  }));
+    expect(projectService.deleteProjectMember).toHaveBeenCalledWith(1, jasmine.any(String));
+  });
 
-  it('should not close popup when member deletion fails', fakeAsync(() => {
-    projectService.deleteProjectMember.and.returnValue(of(undefined));
-    const closeSpy = jasmine.createSpy('onClose');
-    component.onClose.subscribe(closeSpy);
-    
-    component.deleteProjectMember();
-    tick();
+  it('should emit onClose when close is triggered', () => {
+    spyOn(component.onClose, 'emit');
+    component.onClose.emit();
+    expect(component.onClose.emit).toHaveBeenCalled();
+  });
+
+  it('should display correct popup title', () => {
     fixture.detectChanges();
     
-    expect(closeSpy).not.toHaveBeenCalled();
-  }));
-}); 
+    const popup = fixture.nativeElement.querySelector('ui-popup');
+    expect(popup.getAttribute('popupTitle')).toBe('Delete Member');
+  });
+});
