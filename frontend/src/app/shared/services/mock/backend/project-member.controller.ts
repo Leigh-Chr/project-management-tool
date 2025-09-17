@@ -9,6 +9,7 @@ import { of } from 'rxjs';
 import type { ProjectMemberEntity } from '../../../models/entities';
 import { DatabaseMockService } from '../database/database.service';
 import { AuthService } from './auth.service';
+import { RoleUtils } from '../../../utils/role.utils';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectMemberController {
@@ -78,7 +79,7 @@ export class ProjectMemberController {
 
     const { projectId } = projectMemberEntity;
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Admin') {
+    if (!RoleUtils.canManageMembers(myRole)) {
       return of(undefined);
     }
 
@@ -123,7 +124,7 @@ export class ProjectMemberController {
     roleId: number
   ): Observable<PostProjectMemberResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Admin') {
+    if (!RoleUtils.canManageMembers(myRole)) {
       return of(undefined);
     }
 

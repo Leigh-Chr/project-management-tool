@@ -20,6 +20,7 @@ import { DeleteTaskPopupComponent } from '../../shared/components/popups/delete-
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { AuthService } from '../../shared/services/auth.service';
 import { ProjectService } from '../../shared/services/data/project.service';
+import { RoleUtils } from '../../shared/utils/role.utils';
 
 type PopupType =
   | 'deleteProject'
@@ -56,7 +57,7 @@ type PopupType =
               {{ project.description || 'No description provided.' }}
             </p>
           </div>
-          @if (isAdmin()) {
+          @if (RoleUtils.canDelete(project.myRole)) {
           <button
             class="btn btn--danger"
             (click)="showPopup('deleteProject', project.id)"
@@ -96,7 +97,7 @@ type PopupType =
           <section class="flex flex-col gap-4">
             <header class="flex gap-4">
               <h2>Members</h2>
-              @if (isAdmin()) {
+              @if (RoleUtils.canManageMembers(project.myRole)) {
               <button
                 class="btn btn--primary"
                 (click)="showPopup('addMember', project.id)"
@@ -128,7 +129,7 @@ type PopupType =
                   </p>
                 </div>
                 <footer class="flex gap-2">
-                  @if (isAdmin()) {
+                  @if (RoleUtils.canManageMembers(project.myRole)) {
                   <button
                     class="btn btn--danger w-full"
                     (click)="showPopup('deleteProjectMember', member.id)"
@@ -148,7 +149,7 @@ type PopupType =
           <section class="flex flex-col gap-4">
             <header class="flex gap-4">
               <h2>Tasks</h2>
-              @if (!isObserver()) {
+              @if (RoleUtils.canCreateTask(project.myRole)) {
               <button
                 class="btn btn--primary"
                 (click)="showPopup('addTask', project.id)"
@@ -202,7 +203,7 @@ type PopupType =
                       >
                         <i class="fi fi-rr-door-open"></i>
                       </button>
-                      @if (!isObserver()) {
+                      @if (RoleUtils.canModify(project.myRole)) {
                       <button
                         class="btn btn--danger w-full"
                         (click)="showPopup('deleteTask', task.id)"
@@ -260,9 +261,10 @@ export class ProjectDetailsComponent {
   readonly id: number = Number.parseInt(this.route.snapshot.params['id']);
   readonly project = signal<ProjectDetails | null>(null);
 
-  readonly isAdmin = computed(() => this.project()?.myRole === 'Admin');
-  readonly isObserver = computed(() => this.project()?.myRole === 'Observer');
   readonly currentUser = computed(() => this.authService.authUser()?.username);
+  
+  // Expose RoleUtils to template
+  readonly RoleUtils = RoleUtils;
   readonly taskStatuses = computed(() => {
     const statuses = new Set(
       this.project()

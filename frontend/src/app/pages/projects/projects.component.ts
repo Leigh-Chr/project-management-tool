@@ -14,6 +14,7 @@ import { AddProjectPopupComponent } from '../../shared/components/popups/add-pro
 import { DeleteProjectPopupComponent } from '../../shared/components/popups/delete-project-popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { ProjectService } from '../../shared/services/data/project.service';
+import { RoleUtils } from '../../shared/utils/role.utils';
 
 type PopupType = 'addProject' | 'deleteProject';
 
@@ -30,10 +31,12 @@ type PopupType = 'addProject' | 'deleteProject';
       <div class="flex flex-col gap-4">
         <div class="flex justify-between items-center">
           <h2>Projects</h2>
+          @if (RoleUtils.isAdminInAnyProject(projects())) {
           <button class="btn btn--primary" (click)="showPopup('addProject')">
             <i class="fi fi-rr-square-plus"></i>
             <span>Add Project</span>
           </button>
+          }
         </div>
 
         <div class="grid">
@@ -75,7 +78,7 @@ type PopupType = 'addProject' | 'deleteProject';
                   </div>
                 </div>
                 <div class="flex gap-2 mt-auto pt-2">
-                  @if (project.myRole === 'Admin') {
+                  @if (RoleUtils.canDelete(project.myRole)) {
                   <button
                     class="btn btn--danger w-full"
                     (click)="showPopup('deleteProject', project.id)"
@@ -112,6 +115,9 @@ type PopupType = 'addProject' | 'deleteProject';
 export class ProjectsComponent {
   private readonly router = inject(Router);
   private readonly projectService = inject(ProjectService);
+
+  // Expose RoleUtils to template
+  readonly RoleUtils = RoleUtils;
 
   readonly projects = signal<Project[]>([]);
   readonly projectStatuses = computed(() => {

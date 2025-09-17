@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 import type { ProjectEntity } from '../../../models/entities';
 import { DatabaseMockService } from '../database/database.service';
 import { AuthService } from './auth.service';
+import { RoleUtils } from '../../../utils/role.utils';
 
 @Injectable({ providedIn: 'root' })
 export class ProjectController {
@@ -79,7 +80,7 @@ export class ProjectController {
     projectId: number
   ): Observable<DeleteProjectResponse | undefined> {
     const myRole = this.authService.getRole(projectId);
-    if (myRole !== 'Admin') {
+    if (!RoleUtils.canDelete(myRole)) {
       return of(undefined);
     }
 

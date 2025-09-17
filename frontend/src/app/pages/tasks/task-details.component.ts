@@ -19,6 +19,7 @@ import { DeleteTaskPopupComponent } from '../../shared/components/popups/delete-
 import { PatchTaskPopupComponent } from '../../shared/components/popups/patch-task-popup.component';
 import { DefaultLayoutComponent } from '../../shared/layouts/default-layout.component';
 import { TaskService } from '../../shared/services/data/task.service';
+import { RoleUtils } from '../../shared/utils/role.utils';
 
 type PopupType = 'deleteTask' | 'patchTask';
 
@@ -46,7 +47,7 @@ type PopupType = 'deleteTask' | 'patchTask';
                 {{ task.description || 'No description provided.' }}
               </p>
             </div>
-            @if (!isObserver()) {
+            @if (RoleUtils.canModify(task.myRole)) {
             <button
               class="btn btn--danger"
               (click)="showPopup('deleteTask', task.id)"
@@ -205,8 +206,10 @@ export class TaskDetailsComponent {
   readonly id: number = Number.parseInt(this.route.snapshot.params['id']);
   readonly task = signal<TaskDetails | null>(null);
 
-  readonly isObserver = computed(() => this.task()?.myRole === 'Observer');
   readonly currentUser = computed(() => this.authService.authUser()?.username);
+  
+  // Expose RoleUtils to template
+  readonly RoleUtils = RoleUtils;
 
   readonly activeId = signal<number | null>(null);
   readonly activePopup = signal<PopupType | null>(null);

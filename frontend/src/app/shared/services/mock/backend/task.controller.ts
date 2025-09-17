@@ -15,6 +15,7 @@ import type {
 import type { ProjectMember } from '../../../models/project.models';
 import { DatabaseMockService } from '../database/database.service';
 import { AuthService } from './auth.service';
+import { RoleUtils } from '../../../utils/role.utils';
 
 @Injectable({ providedIn: 'root' })
 export class TaskController {
@@ -217,7 +218,7 @@ export class TaskController {
     }
 
     const myRole = this.authService.getRole(task.projectId);
-    if (myRole !== 'Admin' && myRole !== 'Member') {
+    if (!RoleUtils.canModify(myRole)) {
       return of(undefined);
     }
 
@@ -268,7 +269,7 @@ export class TaskController {
 
   addTask(task: PostTaskRequest): Observable<PostTaskResponse | undefined> {
     const myRole = this.authService.getRole(task.projectId);
-    if (!myRole || (myRole !== 'Admin' && myRole !== 'Member')) {
+    if (!RoleUtils.canCreateTask(myRole)) {
       return of(undefined);
     }
 
@@ -332,7 +333,7 @@ export class TaskController {
     }
 
     const myRole = this.authService.getRole(taskEntity.projectId);
-    if (!myRole || (myRole !== 'Admin' && myRole !== 'Member')) {
+    if (!RoleUtils.canModify(myRole)) {
       return of(undefined);
     }
 
