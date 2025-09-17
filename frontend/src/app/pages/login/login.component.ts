@@ -32,7 +32,7 @@ import { CommonModule } from '@angular/common';
       <div class="card">
         <h1 class="title">Login</h1>
         <form
-          [formGroup]="loginForm()"
+          [formGroup]="loginForm"
           (ngSubmit)="onSubmit()"
           class="form"
           novalidate
@@ -57,8 +57,8 @@ import { CommonModule } from '@angular/common';
 
           <div class="flex flex-col gap-2">
             <button
-              [disabled]="loginForm().invalid"
-              [class.btn--disabled]="loginForm().invalid"
+              [disabled]="loginForm.invalid"
+              [class.btn--disabled]="loginForm.invalid"
               class="btn btn--primary w-full"
               type="submit"
             >
@@ -82,26 +82,32 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
 
-  readonly loginForm = signal<FormGroup>(
-    this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-    })
-  );
+  readonly loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+  });
 
   readonly emailControl = computed(
-    () => this.loginForm().get('email') as FormControl
+    () => this.loginForm.get('email') as FormControl
   );
   readonly passwordControl = computed(
-    () => this.loginForm().get('password') as FormControl
+    () => this.loginForm.get('password') as FormControl
   );
 
   async onSubmit(): Promise<void> {
-    if (this.loginForm().invalid) {
+    if (this.loginForm.invalid) {
       return;
     }
 
-    const res = await this.authService.login(this.loginForm().value);
+    const formValue = this.loginForm.value;
+    if (!formValue.email || !formValue.password) {
+      return;
+    }
+
+    const res = await this.authService.login({
+      email: formValue.email,
+      password: formValue.password,
+    });
     if (!res) {
       this.toastService.showToast({
         title: 'Error',
