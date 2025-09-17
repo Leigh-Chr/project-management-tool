@@ -156,7 +156,7 @@ Le backend mock simule une API complète :
 
 - **Angular 19** : Optimisations natives
 - **TypeScript** : Compilation optimisée
-- **Tailwind CSS** : Purge automatique
+- **SCSS** : Système de styles personnalisé avec variables CSS
 - **Gzip** : Compression des assets
 
 ## Évolutivité

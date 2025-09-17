@@ -20,7 +20,7 @@
 - **Style** : SCSS ✅ (défini dans angular.json)
 
 ### Configuration
-- **API URL** : `http://localhost:8080/api` ✅ (défini dans environment.ts)
+- **API URL** : `/api` ✅ (défini dans environment.ts, utilise mock interceptor)
 - **Port Dev** : 4200 ✅ (port par défaut Angular)
 - **Port Docker** : 80 ✅ (configuré dans Dockerfile)
 
@@ -35,8 +35,8 @@
 - ✅ `npm run test -- --watch` (option Angular CLI)
 
 ### Scripts de Coverage
-- ❌ `npm run test:coverage` (n'existe pas)
-- ✅ `npm run test -- --coverage` (option Angular CLI)
+- ✅ `npm run test:coverage` (défini dans package.json)
+- ✅ `ng test --watch=false --code-coverage` (commande Angular CLI)
 
 ## 📋 Points de Vérification
 

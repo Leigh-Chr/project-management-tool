@@ -34,11 +34,11 @@ docker run -p 80:80 pmt-frontend
 - **Gestion des Projets** : Création, visualisation, gestion des membres
 - **Gestion des Tâches** : Création, assignation, suivi avec historique
 - **Rôles** : Admin, Member, Observer avec permissions différenciées
-- **Interface Moderne** : Design responsive avec Tailwind CSS
+- **Interface Moderne** : Design responsive avec SCSS personnalisé
 
 ## 🛠️ Technologies
 
-- **Frontend** : Angular 19, TypeScript, Tailwind CSS
+- **Frontend** : Angular 19, TypeScript, SCSS
 - **Backend** : Mock intégré (en attendant Spring Boot)
 - **Containerisation** : Docker, Nginx
 - **État** : Angular Signals

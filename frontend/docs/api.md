@@ -7,8 +7,10 @@ Le projet PMT utilise actuellement un backend mock intégré qui simule une API 
 ## Base URL
 
 ```
-http://localhost:8080/api
+/api
 ```
+
+**Note** : L'application utilise actuellement un backend mock intégré. L'URL `/api` est interceptée par le mock interceptor.
 
 ## Authentification
 
@@ -23,7 +25,8 @@ Content-Type: application/json
 
 - **Expiration** : 24 heures
 - **Format** : JWT avec hash SHA-256
-- **Stockage** : Cookies sécurisés côté client
+- **Stockage** : Cookies côté client + Bearer Token dans les headers
+- **Intercepteur** : Ajout automatique du token Bearer via `authInterceptor`
 
 ## Endpoints
 

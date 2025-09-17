@@ -8,12 +8,12 @@ Ce guide couvre les différentes méthodes de déploiement du projet PMT, de l'e
 
 ### Développement
 - **URL** : `http://localhost:4200`
-- **API** : `http://localhost:8080/api`
+- **API** : `/api` (mock interceptor)
 - **Mode** : Hot reload activé
 
 ### Production
 - **URL** : `https://your-domain.com`
-- **API** : `https://api.your-domain.com`
+- **API** : `/api` (backend réel)
 - **Mode** : Optimisé et minifié
 
 ## Déploiement Local

@@ -25,6 +25,20 @@ Bienvenue dans la documentation du projet **Project Management Tool (PMT)**.
 - Codes d'erreur et permissions
 - Données de test et migration
 
+### [API Contract](api-contract.md)
+- Contrat d'interface complet pour le backend
+- Spécifications détaillées des endpoints
+- Modèles de données et structures de réponse
+- Système de permissions et gestion d'erreurs
+- Considérations de sécurité et performance
+
+### [Data Model](data-model.md)
+- Modèle de données complet avec toutes les entités
+- Relations entre entités et contraintes d'intégrité
+- Diagrammes de relations et schémas de base de données
+- Scripts SQL de création et données de test
+- Index et optimisations de performance
+
 ### [Guide de Déploiement](deployment.md)
 - Déploiement local et Docker
 - Configuration Nginx et variables d'environnement
@@ -39,7 +53,7 @@ Pour commencer rapidement avec le projet :
 1. **Installation** : Consultez le [README](../README.md) pour l'installation
 2. **Développement** : Suivez le [Guide de Développement](development.md)
 3. **Architecture** : Comprenez l'[Architecture](architecture.md) du projet
-4. **API** : Explorez la [Documentation API](api.md)
+4. **API** : Explorez la [Documentation API](api.md) et le [Contrat API](api-contract.md)
 5. **Déploiement** : Consultez le [Guide de Déploiement](deployment.md)
 
 ## 📋 Étude de Cas
@@ -51,7 +65,7 @@ Ce projet fait partie d'une étude de cas pour le titre RNCP niveau 7 "Expert en
 
 ## 🛠️ Technologies
 
-- **Frontend** : Angular 19, TypeScript, Tailwind CSS
+- **Frontend** : Angular 19, TypeScript, SCSS
 - **Backend** : Mock intégré (Spring Boot prévu)
 - **Base de données** : Mock en mémoire (PostgreSQL prévu)
 - **Containerisation** : Docker, Nginx
