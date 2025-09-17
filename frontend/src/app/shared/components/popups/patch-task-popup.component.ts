@@ -43,7 +43,7 @@ import type { GetStatusesResponse } from '../../models/status.models';
       submitLabel="Save"
       cancelLabel="Cancel"
       (onSubmit)="submit()"
-      (onClose)="this.onClose.emit()"
+      (onClose)="onClose.emit()"
       id="patch-task-popup"
     >
       <form
@@ -173,6 +173,7 @@ export class PatchTaskPopupComponent implements OnInit {
     });
   }
 
+
   async ngOnInit(): Promise<void> {
     const task = this.task();
     if (!task) {return;}
@@ -201,15 +202,19 @@ export class PatchTaskPopupComponent implements OnInit {
       statusId: +this.statusId.value,
     };
 
-    const resSignal = toSignal(this.taskService.patchTask(this.task().id, updatedTask), {
-      injector: this.injector,
+    // Appel au service et fermeture immédiate du popup
+    this.taskService.patchTask(this.task().id, updatedTask).subscribe({
+      next: (_result) => {
+        // Fermer le popup immédiatement - l'UI sera mise à jour par les effects des composants parents
+        this.onClose.emit();
+      },
+      error: (_error) => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to update task',
+          type: 'error',
+        });
+      }
     });
-    if (!resSignal()) {
-      this.toastService.showToast({
-        title: 'Error',
-        message: 'Failed to update task',
-        type: 'error',
-      });
-    }
   }
 }

@@ -10,6 +10,7 @@ import { UserController } from '../services/mock/backend/user.controller';
 import { StatusController } from '../services/mock/backend/status.controller';
 import { RoleController } from '../services/mock/backend/role.controller';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mockInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: HttpHandlerFn) => {
   // Vérifier si on utilise le mock (URL commence par /api)
   if (!req.url.startsWith('/api')) {
@@ -79,7 +80,7 @@ export const mockInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
     );
   }
   if (url.includes('/projects') && method === 'DELETE') {
-    const projectId = parseInt(url.split('/')[2]);
+    const projectId = parseInt(url.split('/')[3]);
     return projectController.deleteProject(projectId).pipe(
       map(data => new HttpResponse({ body: data }))
     );
@@ -128,13 +129,13 @@ export const mockInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
     );
   }
   if (url.includes('/tasks') && method === 'PATCH') {
-    const taskId = parseInt(url.split('/')[2]);
+    const taskId = parseInt(url.split('/')[3]);
     return taskController.patchTask(taskId, req.body).pipe(
       map(data => new HttpResponse({ body: data }))
     );
   }
   if (url.includes('/tasks') && method === 'DELETE') {
-    const taskId = parseInt(url.split('/')[2]);
+    const taskId = parseInt(url.split('/')[3]);
     return taskController.deleteTask(taskId).pipe(
       map(data => new HttpResponse({ body: data }))
     );

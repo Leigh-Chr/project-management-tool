@@ -87,6 +87,7 @@ export class DeleteProjectPopupComponent implements OnInit {
     });
   }
 
+
   async ngOnInit(): Promise<void> {
     this.project = toSignal(this.projectService.getProject(this.projectId()), {
       injector: this.injector,
@@ -113,6 +114,21 @@ export class DeleteProjectPopupComponent implements OnInit {
   }
 
   deleteProject(): void {
-    this.projectService.deleteProject(this.projectId());
+    const projectId = this.projectId();
+    
+    // Appel au service et fermeture immédiate du popup
+    this.projectService.deleteProject(projectId).subscribe({
+      next: (_result) => {
+        // Fermer le popup immédiatement - l'UI sera mise à jour par les effects des composants parents
+        this.onClose.emit();
+      },
+      error: (_error) => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to delete project',
+          type: 'error',
+        });
+      }
+    });
   }
 }

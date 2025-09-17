@@ -223,40 +223,32 @@ export class TaskDetailsComponent {
       this.task.set(task() ?? null);
     });
 
+    // Effect combiné pour les opérations sur les tâches et projets - plus efficace
     effect(() => {
       const patchedTask = this.taskService.patchedTask();
-      if (!patchedTask) {
-        return;
-      }
-      this.task.set(patchedTask);
-    });
-
-    effect(() => {
       const deletedTask = this.taskService.deletedTask();
-      if (!deletedTask) {
-        return;
-      }
-
-      untracked(() => {
-        if (deletedTask === this.id) {
-          this.router.navigate(['/projects', this.task()?.project.id]);
-        }
-      });
-    });
-
-    effect(() => {
       const deletedProject = this.projectService.deletedProject();
-      if (!deletedProject) {
-        return;
-      }
-
+      
       untracked(() => {
-        const task = this.task();
-        if (!task) {
+        // Mise à jour de la tâche
+        if (patchedTask) {
+          this.task.set(patchedTask.task);
+          // Réinitialiser le signal immédiatement après la mise à jour
+          this.taskService.patchedTask.set(null);
+        }
+        
+        // Navigation si la tâche est supprimée
+        if (deletedTask && deletedTask.id === this.id) {
+          this.router.navigate(['/projects', this.task()?.project.id]);
           return;
         }
-        if (deletedProject === task.project.id) {
-          this.router.navigate(['/projects']);
+        
+        // Navigation si le projet est supprimé
+        if (deletedProject) {
+          const task = this.task();
+          if (task && deletedProject.id === task.project.id) {
+            this.router.navigate(['/projects']);
+          }
         }
       });
     });

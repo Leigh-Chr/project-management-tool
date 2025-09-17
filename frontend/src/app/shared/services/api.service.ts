@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -27,7 +27,7 @@ export class ApiService {
    * @param body Corps de la requête
    * @returns Observable de la réponse
    */
-  post<T>(path: string, body: any): Observable<T> {
+  post<T>(path: string, body: unknown): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${path}`, body);
   }
 
@@ -37,7 +37,7 @@ export class ApiService {
    * @param body Corps de la requête
    * @returns Observable de la réponse
    */
-  put<T>(path: string, body: any): Observable<T> {
+  put<T>(path: string, body: unknown): Observable<T> {
     return this.http.put<T>(`${this.baseUrl}${path}`, body);
   }
 
@@ -47,7 +47,7 @@ export class ApiService {
    * @param body Corps de la requête
    * @returns Observable de la réponse
    */
-  patch<T>(path: string, body: any): Observable<T> {
+  patch<T>(path: string, body: unknown): Observable<T> {
     return this.http.patch<T>(`${this.baseUrl}${path}`, body);
   }
 

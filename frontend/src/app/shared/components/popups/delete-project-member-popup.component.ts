@@ -94,6 +94,7 @@ export class DeleteProjectMemberPopupComponent implements OnInit {
     });
   }
 
+
   async ngOnInit(): Promise<void> {
     const projectId = this.activatedRoute.snapshot.params['id'];
     this.projectMember = toSignal(
@@ -113,6 +114,19 @@ export class DeleteProjectMemberPopupComponent implements OnInit {
 
   deleteProjectMember(): void {
     const projectId = this.activatedRoute.snapshot.params['id'];
-    this.projectService.deleteProjectMember(this.projectMemberId(), projectId);
+    // Appel au service et fermeture immédiate du popup
+    this.projectService.deleteProjectMember(this.projectMemberId(), projectId).subscribe({
+      next: (_result) => {
+        // Fermer le popup immédiatement - l'UI sera mise à jour par les effects des composants parents
+        this.onClose.emit();
+      },
+      error: (_error) => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to remove project member',
+          type: 'error',
+        });
+      }
+    });
   }
 }

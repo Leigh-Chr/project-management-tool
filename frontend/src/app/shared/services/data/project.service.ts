@@ -1,12 +1,9 @@
 import {
   Injectable,
   Injector,
-  effect,
   inject,
-  runInInjectionContext,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import type {
   DeleteProjectMemberResponse,
   DeleteProjectResponse,
@@ -23,6 +20,8 @@ import type {
 import type { Observable } from 'rxjs';
 import type { ProjectMemberEntity } from '../../models/entities';
 import { ApiService } from '../api.service';
+import { CrudUtils } from '../../utils/crud.utils';
+import { ToastService } from '../../components/toast/toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -30,12 +29,18 @@ import { ApiService } from '../api.service';
 export class ProjectService {
   private readonly apiService = inject(ApiService);
   private readonly injector = inject(Injector);
+  private readonly toastService = inject(ToastService);
 
-  readonly deletedProject = signal<number | null>(null);
-  readonly postedProject = signal<Project | null>(null);
+  private deleteCounter = 0;
+  private postCounter = 0;
+  private deleteMemberCounter = 0;
+  private postMemberCounter = 0;
 
-  readonly deletedProjectMember = signal<ProjectMember | null>(null);
-  readonly postedProjectMember = signal<ProjectMember | null>(null);
+  readonly deletedProject = signal<{id: number, counter: number} | null>(null);
+  readonly postedProject = signal<{project: Project, counter: number} | null>(null);
+
+  readonly deletedProjectMember = signal<{member: ProjectMember, counter: number} | null>(null);
+  readonly postedProjectMember = signal<{member: ProjectMember, counter: number} | null>(null);
 
   getProject(projectId: number): Observable<GetProjectResponse | undefined> {
     return this.apiService.get<GetProjectResponse>(`/projects/${projectId}`);
@@ -48,22 +53,25 @@ export class ProjectService {
   deleteProject(
     projectId: number
   ): Observable<DeleteProjectResponse | undefined> {
+    
     const deletedProjectObservable =
       this.apiService.delete<DeleteProjectResponse>(`/projects/${projectId}`);
 
-    const deletedProjectSignal = toSignal(deletedProjectObservable, {
-      injector: this.injector,
-    });
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const deletedProject = deletedProjectSignal();
-        if (!deletedProject) {return;}
-        this.deletedProject.set(projectId);
-      });
-    });
-
-    return deletedProjectObservable;
+    return CrudUtils.createCrudOperation(
+      deletedProjectObservable,
+      this.injector,
+      (_result) => {
+        this.deleteCounter++;
+        this.deletedProject.set({id: projectId, counter: this.deleteCounter});
+      },
+      (_error) => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to delete project',
+          type: 'error'
+        });
+      }
+    );
   }
 
   postProject(
@@ -71,19 +79,15 @@ export class ProjectService {
   ): Observable<PostProjectResponse | undefined> {
     const postedProjectObservable = this.apiService.post<PostProjectResponse>('/projects', project);
 
-    const postedProjectSignal = toSignal(postedProjectObservable, {
-      injector: this.injector,
-    });
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const postedProject = postedProjectSignal();
-        if (!postedProject) {return;}
-        this.postedProject.set(postedProject);
-      });
-    });
-
-    return postedProjectObservable;
+    return CrudUtils.createPostOperation(
+      postedProjectObservable,
+      this.injector,
+      (result) => {
+        this.postCounter++;
+        this.postedProject.set({project: result, counter: this.postCounter});
+      },
+      this.toastService
+    );
   }
 
   getProjectDetails(
@@ -112,19 +116,15 @@ export class ProjectService {
     const postedProjectMemberObservable =
       this.apiService.post<PostProjectMemberResponse>(`/projects/${projectId}/members`, requestBody);
 
-    const postedProjectMemberSignal = toSignal(postedProjectMemberObservable, {
-      injector: this.injector,
-    });
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const postedProjectMember = postedProjectMemberSignal();
-        if (!postedProjectMember) {return;}
-        this.postedProjectMember.set(postedProjectMember);
-      });
-    });
-
-    return postedProjectMemberObservable;
+    return CrudUtils.createPostOperation(
+      postedProjectMemberObservable,
+      this.injector,
+      (result) => {
+        this.postMemberCounter++;
+        this.postedProjectMember.set({member: result, counter: this.postMemberCounter});
+      },
+      this.toastService
+    );
   }
 
   deleteProjectMember(
@@ -134,21 +134,20 @@ export class ProjectService {
     const deletedProjectMemberObservable =
       this.apiService.delete<DeleteProjectMemberResponse>(`/projects/${projectId}/members/${projectMemberId}`);
 
-    const deletedProjectMemberSignal = toSignal(
+    return CrudUtils.createCrudOperation(
       deletedProjectMemberObservable,
-      {
-        injector: this.injector,
+      this.injector,
+      (result) => {
+        this.deleteMemberCounter++;
+        this.deletedProjectMember.set({member: result, counter: this.deleteMemberCounter});
+      },
+      () => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to remove project member',
+          type: 'error'
+        });
       }
     );
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const deletedProjectMember = deletedProjectMemberSignal();
-        if (!deletedProjectMember) {return;}
-        this.deletedProjectMember.set(deletedProjectMember);
-      });
-    });
-
-    return deletedProjectMemberObservable;
   }
 }

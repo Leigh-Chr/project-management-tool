@@ -303,90 +303,77 @@ export class ProjectDetailsComponent {
         if (!project) {
           return;
         }
-        if (deletedProject === project.id) {
+        if (deletedProject && deletedProject.id === project.id) {
           this.router.navigate(['/projects']);
         }
       });
     });
 
+    // Effect combiné pour toutes les opérations CRUD - plus efficace
     effect(() => {
       const postedProjectMember = this.projectService.postedProjectMember();
-      untracked(() => {
-        const project = this.project();
-        if (!project) {
-          return;
-        }
-        if (!postedProjectMember) {
-          return;
-        }
-        this.project.set({
-          ...project,
-          projectMembers: [...project.projectMembers, postedProjectMember],
-        });
-      });
-    });
-
-    effect(() => {
       const deletedProjectMember = this.projectService.deletedProjectMember();
+      const postedTask = this.taskService.postedTask();
+      const deletedTask = this.taskService.deletedTask();
+      
       untracked(() => {
         const project = this.project();
-        if (!project) {
-          return;
+        if (!project) return;
+        
+        const updatedProject = { ...project };
+        let shouldNavigate = false;
+
+      // Gestion des membres
+      if (postedProjectMember) {
+        updatedProject.projectMembers = [...updatedProject.projectMembers, postedProjectMember.member];
+      }
+      
+      if (deletedProjectMember) {
+        updatedProject.projectMembers = updatedProject.projectMembers.filter(
+          (pm) => pm.id !== deletedProjectMember.member.id
+        );
+        updatedProject.tasks = updatedProject.tasks.map((t) => ({
+          ...t,
+          assignee: t.assignee?.id !== deletedProjectMember.member.id ? t.assignee : undefined,
+        }));
+        
+        if (deletedProjectMember.member.username === this.currentUser()) {
+          shouldNavigate = true;
         }
-        if (!deletedProjectMember) {
-          return;
+      }
+
+      // Gestion des tâches
+      if (postedTask) {
+        updatedProject.tasks = [...updatedProject.tasks, postedTask.task];
+      }
+      
+      if (deletedTask) {
+        updatedProject.tasks = updatedProject.tasks.filter((task) => task.id !== deletedTask.id);
+      }
+
+        // Mise à jour une seule fois si nécessaire
+        if (postedProjectMember || deletedProjectMember || postedTask || deletedTask) {
+          this.project.set(updatedProject);
+          
+          // Réinitialiser les signaux immédiatement après la mise à jour
+          if (postedProjectMember) {
+            this.projectService.postedProjectMember.set(null);
+          }
+          if (deletedProjectMember) {
+            this.projectService.deletedProjectMember.set(null);
+          }
+          if (postedTask) {
+            this.taskService.postedTask.set(null);
+          }
+          if (deletedTask) {
+            this.taskService.deletedTask.set(null);
+          }
         }
-        this.project.set({
-          ...project,
-          projectMembers: project.projectMembers.filter(
-            (pm) => pm.id !== deletedProjectMember.id
-          ),
-          tasks: project.tasks.map((t) => ({
-            ...t,
-            assignee:
-              t.assignee?.id !== deletedProjectMember.id
-                ? t.assignee
-                : undefined,
-          })),
-        });
-        if (deletedProjectMember.username === this.currentUser()) {
+        
+        // Navigation après mise à jour
+        if (shouldNavigate) {
           this.router.navigate(['/projects']);
         }
-      });
-    });
-
-    effect(() => {
-      const postedTask = this.taskService.postedTask();
-      untracked(() => {
-        const project = this.project();
-        if (!project) {
-          return;
-        }
-        if (!postedTask) {
-          return;
-        }
-
-        this.project.set({
-          ...project,
-          tasks: [...project.tasks, postedTask],
-        });
-      });
-    });
-
-    effect(() => {
-      const deletedTask = this.taskService.deletedTask();
-      untracked(() => {
-        const project = this.project();
-        if (!project) {
-          return;
-        }
-        if (!deletedTask) {
-          return;
-        }
-        this.project.set({
-          ...project,
-          tasks: project.tasks.filter((task) => task.id !== deletedTask),
-        });
       });
     });
   }

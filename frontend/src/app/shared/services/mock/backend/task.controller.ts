@@ -379,8 +379,6 @@ export class TaskController {
       };
     }
 
-    console.log(taskEntity.dueDate);
-
     const initialTask: Task = {
       id: taskEntity.id,
       name: taskEntity.name,

@@ -41,7 +41,7 @@ import {
       submitLabel="Submit"
       cancelLabel="Cancel"
       (onSubmit)="submit()"
-      (onClose)="this.onClose.emit()"
+      (onClose)="onClose.emit()"
       id="add-task-popup"
     >
       <form
@@ -149,6 +149,7 @@ export class AddTaskPopupComponent {
     });
   }
 
+
   async submit(): Promise<void> {
     if (this.taskForm.invalid) {
       return;
@@ -164,15 +165,19 @@ export class AddTaskPopupComponent {
       statusId: +this.statusId.value,
     };
 
-    const resSignal = toSignal(this.taskService.addTask(newTask), {
-      injector: this.injector,
+    // Appel au service et fermeture immédiate du popup
+    this.taskService.addTask(newTask).subscribe({
+      next: (_result) => {
+        // Fermer le popup immédiatement - l'UI sera mise à jour par les effects des composants parents
+        this.onClose.emit();
+      },
+      error: (_error) => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to add task',
+          type: 'error',
+        });
+      }
     });
-    if (!resSignal()) {
-      this.toastService.showToast({
-        title: 'Error',
-        message: 'Failed to add task',
-        type: 'error',
-      });
-    }
   }
 }

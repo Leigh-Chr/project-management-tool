@@ -10,8 +10,6 @@ describe('RegisterComponent', () => {
   let component: RegisterComponent;
   let fixture: ComponentFixture<RegisterComponent>;
   let authService: jasmine.SpyObj<AuthService>;
-  let toastService: jasmine.SpyObj<ToastService>;
-
   beforeEach(async () => {
     const authSpy = jasmine.createSpyObj('AuthService', ['register']);
     const toastSpy = jasmine.createSpyObj('ToastService', ['showToast']);
@@ -30,7 +28,6 @@ describe('RegisterComponent', () => {
     }).compileComponents();
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    toastService = TestBed.inject(ToastService) as jasmine.SpyObj<ToastService>;
 
     fixture = TestBed.createComponent(RegisterComponent);
     component = fixture.componentInstance;

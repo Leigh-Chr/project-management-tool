@@ -138,26 +138,36 @@ export class ProjectsComponent {
       this.projects.set(projects() ?? []);
     });
 
+    // Effect combiné pour les opérations CRUD - plus efficace
     effect(() => {
       const deletedProject = this.projectService.deletedProject();
-      if (deletedProject !== null) {
-        untracked(() => {
-          this.projects.set(
-            this.projects()?.filter((p) => p.id !== deletedProject) ?? []
-          );
-        });
-      }
-    });
-
-    effect(() => {
       const postedProject = this.projectService.postedProject();
+      
+      
       untracked(() => {
+        // Gestion de la suppression
+        if (deletedProject !== null) {
+          
+          this.projects.update(projects => {
+            const filteredProjects = projects.filter(p => p.id !== deletedProject.id);
+            return filteredProjects;
+          });
+          
+          // Réinitialiser le signal immédiatement après la mise à jour
+          this.projectService.deletedProject.set(null);
+        }
+        
+        // Gestion de l'ajout
         if (postedProject !== null) {
-          // Vérifier si le projet n'est pas déjà dans la liste
-          const existingProject = this.projects().find(p => p.id === postedProject.id);
-          if (!existingProject) {
-            this.projects.set([...this.projects(), postedProject]);
-          }
+          
+          this.projects.update(projects => {
+            // Éviter les doublons
+            const exists = projects.some(p => p.id === postedProject.project.id);
+            return exists ? projects : [...projects, postedProject.project];
+          });
+          
+          // Réinitialiser le signal immédiatement après la mise à jour
+          this.projectService.postedProject.set(null);
         }
       });
     });

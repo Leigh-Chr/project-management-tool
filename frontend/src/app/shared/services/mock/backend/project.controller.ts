@@ -79,7 +79,9 @@ export class ProjectController {
   deleteProject(
     projectId: number
   ): Observable<DeleteProjectResponse | undefined> {
+    
     const myRole = this.authService.getRole(projectId);
+    
     if (!RoleUtils.canDelete(myRole)) {
       return of(undefined);
     }
@@ -87,6 +89,7 @@ export class ProjectController {
     const projectEntity = this.database.projects.find(
       (p) => p.id === projectId
     );
+    
     if (!projectEntity) {
       return of(undefined);
     }
@@ -131,12 +134,14 @@ export class ProjectController {
       return of(undefined);
     }
 
-    return of({
+    const response = {
       id: projectEntity.id,
       name: projectEntity.name,
       description: projectEntity.description,
       status: status.name,
-    });
+    };
+    
+    return of(response);
   }
 
   postProject(

@@ -88,6 +88,7 @@ export class DeleteTaskPopupComponent implements OnInit {
     });
   }
 
+
   async ngOnInit(): Promise<void> {
     this.task = toSignal(this.taskService.getTask(this.taskId()), {
       injector: this.injector,
@@ -104,6 +105,19 @@ export class DeleteTaskPopupComponent implements OnInit {
   }
 
   deleteTask(): void {
-    this.taskService.deleteTask(this.taskId());
+    // Appel au service et fermeture immédiate du popup
+    this.taskService.deleteTask(this.taskId()).subscribe({
+      next: (_result) => {
+        // Fermer le popup immédiatement - l'UI sera mise à jour par les effects des composants parents
+        this.onClose.emit();
+      },
+      error: (_error) => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to delete task',
+          type: 'error',
+        });
+      }
+    });
   }
 }

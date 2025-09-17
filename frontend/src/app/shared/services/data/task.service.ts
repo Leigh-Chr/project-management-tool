@@ -1,12 +1,9 @@
 import {
   Injectable,
   Injector,
-  effect,
   inject,
-  runInInjectionContext,
   signal,
 } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import type { Observable } from 'rxjs';
 import type {
   DeleteTaskResponse,
@@ -21,6 +18,8 @@ import type {
 } from '../../models/task.models';
 import type { ProjectMember } from '../../models/project.models';
 import { ApiService } from '../api.service';
+import { CrudUtils } from '../../utils/crud.utils';
+import { ToastService } from '../../components/toast/toast.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,49 +27,48 @@ import { ApiService } from '../api.service';
 export class TaskService {
   private readonly injector = inject(Injector);
   private readonly apiService = inject(ApiService);
+  private readonly toastService = inject(ToastService);
 
-  readonly deletedTask = signal<number | null>(null);
-  readonly postedTask = signal<Task | null>(null);
-  readonly patchedTask = signal<Task | null>(null);
+  private deleteCounter = 0;
+  private postCounter = 0;
+  private patchCounter = 0;
+
+  readonly deletedTask = signal<{id: number, counter: number} | null>(null);
+  readonly postedTask = signal<{task: Task, counter: number} | null>(null);
+  readonly patchedTask = signal<{task: Task, counter: number} | null>(null);
 
   deleteTask(taskId: number): Observable<DeleteTaskResponse | undefined> {
     const deletedTaskObservable = this.apiService.delete<DeleteTaskResponse>(`/tasks/${taskId}`);
 
-    const deletedTaskSignal = toSignal(deletedTaskObservable, {
-      injector: this.injector,
-    });
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const deletedTask = deletedTaskSignal();
-        if (!deletedTask) {
-          return;
-        }
-        this.deletedTask.set(deletedTask.id);
-      });
-    });
-
-    return deletedTaskObservable;
+    return CrudUtils.createCrudOperation(
+      deletedTaskObservable,
+      this.injector,
+      (_result) => {
+        this.deleteCounter++;
+        this.deletedTask.set({id: taskId, counter: this.deleteCounter});
+      },
+      (_error) => {
+        this.toastService.showToast({
+          title: 'Error',
+          message: 'Failed to delete task',
+          type: 'error'
+        });
+      }
+    );
   }
 
   addTask(task: PostTaskRequest): Observable<PostTaskResponse | undefined> {
     const addedTaskObservable = this.apiService.post<PostTaskResponse>('/tasks', task);
 
-    const addedTaskSignal = toSignal(addedTaskObservable, {
-      injector: this.injector,
-    });
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const addedTask = addedTaskSignal();
-        if (!addedTask) {
-          return;
-        }
-        this.postedTask.set(addedTask);
-      });
-    });
-
-    return addedTaskObservable;
+    return CrudUtils.createPostOperation(
+      addedTaskObservable,
+      this.injector,
+      (result) => {
+        this.postCounter++;
+        this.postedTask.set({task: result, counter: this.postCounter});
+      },
+      this.toastService
+    );
   }
 
   getTask(taskId: number): Observable<GetTaskResponse | undefined> {
@@ -97,20 +95,14 @@ export class TaskService {
   ): Observable<PatchTaskResponse | undefined> {
     const patchedTaskObservable = this.apiService.patch<PatchTaskResponse>(`/tasks/${taskId}`, task);
 
-    const patchedTaskSignal = toSignal(patchedTaskObservable, {
-      injector: this.injector,
-    });
-
-    runInInjectionContext(this.injector, () => {
-      effect(() => {
-        const patchedTask = patchedTaskSignal();
-        if (!patchedTask) {
-          return;
-        }
-        this.patchedTask.set(patchedTask);
-      });
-    });
-
-    return patchedTaskObservable;
+    return CrudUtils.createPatchOperation(
+      patchedTaskObservable,
+      this.injector,
+      (result) => {
+        this.patchCounter++;
+        this.patchedTask.set({task: result, counter: this.patchCounter});
+      },
+      this.toastService
+    );
   }
 }
