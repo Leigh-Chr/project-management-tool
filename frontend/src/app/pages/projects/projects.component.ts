@@ -147,7 +147,11 @@ export class ProjectsComponent {
       const postedProject = this.projectService.postedProject();
       untracked(() => {
         if (postedProject !== null) {
-          this.projects.set([...this.projects(), postedProject]);
+          // Vérifier si le projet n'est pas déjà dans la liste
+          const existingProject = this.projects().find(p => p.id === postedProject.id);
+          if (!existingProject) {
+            this.projects.set([...this.projects(), postedProject]);
+          }
         }
       });
     });

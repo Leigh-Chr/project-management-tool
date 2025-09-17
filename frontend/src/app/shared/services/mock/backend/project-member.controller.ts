@@ -55,7 +55,14 @@ export class ProjectMemberController {
     });
   }
 
-  getProjectMembers(): Observable<ProjectMemberEntity[]> {
+  getProjectMembers(projectId?: number): Observable<ProjectMemberEntity[]> {
+    if (projectId) {
+      const myRole = this.authService.getRole(projectId);
+      if (!myRole) {
+        return of([]);
+      }
+      return of(this.database.projectMembers.filter(pm => pm.projectId === projectId));
+    }
     return of(this.database.projectMembers);
   }
 

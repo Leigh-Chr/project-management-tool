@@ -1,130 +1,65 @@
-# Project Management Tool
+# Project Management Tool (PMT)
 
-Web application for project management developed with Angular 19.
+[![Angular](https://img.shields.io/badge/Angular-19.2.5-red.svg)](https://angular.io/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.2-blue.svg)](https://www.typescriptlang.org/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 
-## Features
+Une plateforme de gestion de projet collaborative développée avec Angular 19, destinée aux équipes de développement logiciel.
 
-- Secure authentication (login/register)
-- Complete project management
-  - Project creation and deletion
-  - Project details (dates, status, description)
-  - Member and role management
-- Task management
-  - Task creation and tracking
-  - Project association
-- Modern and responsive user interface
+## 🚀 Démarrage Rapide
 
-## Prerequisites
+### Prérequis
+- Node.js 20+
+- npm 10+
 
-- Node.js 20 (LTS version)
-- npm
-- Docker
-
-## Installation
-
-1. Clone the repository:
+### Installation
 ```bash
-git clone https://github.com/Leigh-Chr/project-management-tool
-cd project-management-tool
-```
-
-2. Install dependencies:
-```bash
+git clone <repository-url>
+cd project-management-tool/frontend
 npm install
-```
-
-3. Configure environment variables:
-```bash
-cp src/environments/environment.example.ts src/environments/environment.ts
-```
-
-4. Start the application:
-```bash
 npm start
 ```
 
-The application will be available at: `http://localhost:4200`
+L'application sera accessible sur `http://localhost:4200`
 
-## Demo Data
-
-The application comes pre-configured with demo data for testing purposes.
-
-### Available Users
-
-| Username | Email                 | Password   | Notes                     |
-|----------|----------------------|------------|---------------------------|
-| admin    | admin@example.com    | admin123   | Administrator on all projects |
-| alice    | alice@example.com    | alice123   | Member on E-commerce and Backend API |
-| bob      | bob@example.com      | bob123     | Member on E-commerce and Mobile App |
-| charlie  | charlie@example.com  | charlie123 | Member on Mobile App and Backend API |
-| diana    | diana@example.com    | diana123   | Observer on E-commerce and Backend API |
-
-### Demo Projects
-
-- **E-commerce Website**: Development of a modern e-commerce platform with payment integration
-- **Mobile App**: Cross-platform mobile application for iOS and Android
-- **Backend API**: RESTful API development with microservices architecture
-
-### Available Statuses
-
-- To Do
-- In Progress
-- Done
-
-### Available Roles
-
-- Admin
-- Member
-- Observer
-
-## Build & Deployment
-
-Build for production:
+### Avec Docker
 ```bash
-npm run build
+docker build -t pmt-frontend .
+docker run -p 80:80 pmt-frontend
 ```
 
-Deploy with Docker:
+## 📋 Fonctionnalités
+
+- **Authentification** : Inscription/Connexion avec JWT
+- **Gestion des Projets** : Création, visualisation, gestion des membres
+- **Gestion des Tâches** : Création, assignation, suivi avec historique
+- **Rôles** : Admin, Member, Observer avec permissions différenciées
+- **Interface Moderne** : Design responsive avec Tailwind CSS
+
+## 🛠️ Technologies
+
+- **Frontend** : Angular 19, TypeScript, Tailwind CSS
+- **Backend** : Mock intégré (en attendant Spring Boot)
+- **Containerisation** : Docker, Nginx
+- **État** : Angular Signals
+
+## 📚 Documentation
+
+Pour une documentation complète, consultez le dossier [`docs/`](docs/) :
+- [Architecture détaillée](docs/architecture.md)
+- [Guide de développement](docs/development.md)
+- [API Documentation](docs/api.md)
+- [Déploiement](docs/deployment.md)
+
+## 🔧 Scripts
+
 ```bash
-docker-compose up -d
+npm start          # Développement
+npm run build      # Production
+npm test           # Tests
+npm run lint       # Linting
 ```
 
-The application will be available at: `http://localhost:80`
+## 📄 Licence
 
-## Tests
-
-Run all tests:
-```bash
-npm run test
-```
-
-## Project Structure
-
-```
-frontend/
-├── src/
-│   ├── app/
-│   │   ├── pages/           # Application pages
-│   │   │   ├── home/       # Home page
-│   │   │   ├── login/      # Authentication
-│   │   │   ├── register/   # User registration
-│   │   │   ├── projects/   # Project management
-│   │   │   └── tasks/      # Task management
-│   │   ├── shared/         # Shared resources
-│   │   │   ├── components/ # Reusable components
-│   │   │   ├── guards/     # Route guards
-│   │   │   ├── interceptors/ # HTTP interceptors
-│   │   │   ├── layouts/    # Page layouts
-│   │   │   ├── models/     # TypeScript interfaces
-│   │   │   └── services/   # Shared services
-│   │   ├── styles/         # Global styles
-│   │   └── assets/         # Static assets
-│   ├── environments/       # Environment configuration
-│   └── index.html         # Entry point
-├── public/                # Static files
-├── docs/                 # Documentation
-├── Dockerfile           # Docker configuration
-├── docker-compose.yml   # Docker Compose configuration
-├── nginx.conf          # Nginx configuration
-└── [configuration files]
-```
+MIT License - voir [LICENSE](LICENSE) pour plus de détails.

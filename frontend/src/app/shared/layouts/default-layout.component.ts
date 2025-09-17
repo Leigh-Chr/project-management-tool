@@ -16,9 +16,14 @@ import { AuthService } from '../services/auth.service';
     <div class="layout">
       @if (user(); as user) {
       <nav class="nav card p-4 w-full flex justify-between">
-        <h1>
-          <a [routerLink]="['/']" class="link">Project Management Tool</a>
-        </h1>
+        <div class="flex items-center gap-8">
+          <h1>
+            <a [routerLink]="['/']" class="link">Project Management Tool</a>
+          </h1>
+          <div class="flex gap-4">
+            <a [routerLink]="['/projects']" class="link">Projects</a>
+          </div>
+        </div>
 
         <div class="flex items-center gap-4">
           <span class="flex items-center gap-2">

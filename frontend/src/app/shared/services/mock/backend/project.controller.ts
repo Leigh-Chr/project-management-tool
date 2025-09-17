@@ -151,6 +151,7 @@ export class ProjectController {
       name: project.name,
       description: project.description,
       startDate: project.startDate,
+      endDate: project.endDate,
       statusId: project.statusId,
     };
 
@@ -179,6 +180,8 @@ export class ProjectController {
       id: projectEntity.id,
       name: projectEntity.name,
       description: projectEntity.description,
+      startDate: projectEntity.startDate,
+      endDate: projectEntity.endDate,
       status: status.name,
       myRole: role.name,
     });

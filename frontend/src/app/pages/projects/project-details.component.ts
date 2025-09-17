@@ -279,12 +279,20 @@ export class ProjectDetailsComponent {
     const projectSignal = toSignal(
       this.projectService.getProjectDetails(this.id)
     );
-    const project = projectSignal();
-    if (!project) {
-      this.router.navigate(['/projects']);
-      return;
-    }
-    this.project.set(project);
+    
+    effect(() => {
+      const project = projectSignal();
+      if (project === undefined) {
+        // Still loading
+        return;
+      }
+      if (project === null) {
+        // Project not found or no access
+        this.router.navigate(['/projects']);
+        return;
+      }
+      this.project.set(project);
+    });
 
     effect(() => {
       const deletedProject = this.projectService.deletedProject();
