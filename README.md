@@ -8,6 +8,8 @@ Application de gestion de projet collaboratif développée avec **Angular** et *
 - **Java 17** (pour le développement)
 - **Node.js 20** (pour le développement)
 
+> **Note** : Node.js v21 fonctionne mais génère des warnings. Node.js v20 est recommandé.
+
 ## 🚀 Déploiement Simple
 
 ### 1. Cloner le projet
@@ -71,14 +73,16 @@ Les images sont automatiquement publiées sur Docker Hub :
 ## 🔧 Commandes utiles
 
 ```bash
-# Voir les logs
-docker-compose logs -f
+# Déploiement simple
+./deploy-simple.sh
 
 # Arrêter l'application
-docker-compose down
+./stop.sh
 
-# Redémarrer
-docker-compose restart
+# Avec Docker Compose
+docker-compose up -d
+docker-compose logs -f
+docker-compose down
 ```
 
 ## 📁 Structure du projet
