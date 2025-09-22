@@ -2,7 +2,7 @@ import { Environment } from './environment.interface';
 
 export const environment: Environment = {
   production: true,
-  apiUrl: 'https://pmt-backend-production.up.railway.app/api',
+  apiUrl: 'http://localhost:8080/api',
   logLevel: 'error',
   featureFlag: true,
 };

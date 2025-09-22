@@ -38,11 +38,11 @@ Bienvenue dans la documentation complète du **Project Management Tool**, une pl
 - Structures de requêtes et réponses
 - Système de permissions et authentification
 
-### [🐳 Déploiement Complet](deployment.md)
-- Déploiement local et Docker
-- Configuration des environnements
-- CI/CD et déploiement en production
-- Monitoring et maintenance
+### [🐳 Déploiement Docker](deployment.md)
+- Déploiement local avec Docker Compose
+- Scripts de déploiement automatisés
+- CI/CD avec GitHub Actions
+- Publication sur Docker Hub
 
 ## 🎨 Documentation Frontend
 
@@ -74,18 +74,14 @@ Documentation complète du backend Spring Boot
 
 ```bash
 # 1. Cloner le projet
-git clone <repository-url>
+git clone https://github.com/Leigh-Chr/project-management-tool.git
 cd project-management-tool
 
-# 2. Démarrer l'infrastructure complète
-./start-all.sh
+# 2. Déploiement simple
+./deploy-simple.sh
 
-# Ou manuellement :
-# Backend
-cd backend && ./start-dev.sh
-
-# Frontend (nouveau terminal)
-cd frontend && npm install && npm start
+# Ou avec Docker Compose
+docker-compose up -d
 ```
 
 ### Services Disponibles
@@ -94,7 +90,6 @@ cd frontend && npm install && npm start
 |---------|-----|-------------|
 | **Frontend** | http://localhost:4200 | Application Angular |
 | **Backend API** | http://localhost:8080 | API REST Spring Boot |
-| **PhpMyAdmin** | http://localhost:8081 | Interface MySQL |
 | **MySQL** | localhost:3306 | Base de données |
 
 ### Comptes de Test
@@ -115,10 +110,9 @@ cd frontend && npm install && npm start
 - **Variables** : baseUrl, authToken (auto-configurées)
 
 ### Scripts Utiles
-- **`start-all.sh`** : Démarrage complet (à créer)
-- **`stop-all.sh`** : Arrêt propre (à créer)
-- **`backend/start-dev.sh`** : Backend uniquement
-- **`health-check.sh`** : Vérification des services (à créer)
+- **`deploy-simple.sh`** : Déploiement complet avec Docker
+- **`stop.sh`** : Arrêt propre de l'application
+- **`docker-compose.yml`** : Configuration Docker Compose
 
 ## 🏗️ Architecture Globale
 

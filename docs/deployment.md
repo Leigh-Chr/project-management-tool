@@ -1,139 +1,121 @@
-# Guide de Déploiement Railway - Project Management Tool
+# 🚀 Guide de Déploiement - Project Management Tool
 
 ## Vue d'ensemble
 
-Ce guide couvre le déploiement automatique de l'application PMT sur Railway, incluant le frontend Angular et le backend Spring Boot.
+Ce guide couvre le déploiement de l'application PMT avec **Docker** et **GitHub Actions**.
 
-## 🚀 Déploiement Railway Monorepo
+## 🐳 Déploiement avec Docker
 
-### ⚠️ Configuration Monorepo
-
-Railway ne peut pas gérer automatiquement un monorepo. Il faut créer **2 projets Railway séparés** :
-
-#### **1️⃣ Service Backend**
-1. **Créer un nouveau projet Railway** : "PMT-Backend"
-2. **Connecter le repository** GitHub
-3. **Configurer le Root Directory** : `backend`
-4. **Railway détecte automatiquement** Maven via `pom.xml`
-5. **Ajouter MySQL** au projet Backend
-
-#### **2️⃣ Service Frontend**
-1. **Créer un nouveau projet Railway** : "PMT-Frontend"
-2. **Connecter le même repository** GitHub
-3. **Configurer le Root Directory** : `frontend`
-4. **Railway détecte automatiquement** npm via `package.json`
-
-### 🔧 Configuration Railway
-
-Les fichiers `railway.toml` sont déjà configurés :
-- **Root** : `railway.toml` (détection monorepo)
-- **Backend** : `backend/railway.toml` (Spring Boot)
-- **Frontend** : `frontend/railway.toml` (Angular)
-
-### Variables d'Environnement Railway
-
-#### **Backend Railway :**
-| Variable | Valeur | Description |
-|----------|--------|-------------|
-| `SPRING_PROFILES_ACTIVE` | `prod` | Profil Spring Boot |
-| `SPRING_DATASOURCE_URL` | `jdbc:mysql://[RAILWAY_MYSQL_URL]` | URL MySQL Railway |
-| `SPRING_DATASOURCE_USERNAME` | `[RAILWAY_MYSQL_USER]` | Utilisateur MySQL Railway |
-| `SPRING_DATASOURCE_PASSWORD` | `[RAILWAY_MYSQL_PASSWORD]` | Mot de passe MySQL Railway |
-| `JWT_SECRET` | `[GENERATE_SECRET_KEY]` | Clé secrète JWT (générer une clé forte) |
-
-#### **Frontend Railway :**
-| Variable | Valeur | Description |
-|----------|--------|-------------|
-| `NODE_ENV` | `production` | Environnement Node.js |
-| `API_URL` | `https://[BACKEND_RAILWAY_URL]/api` | URL de l'API Backend |
-
-## 🛠️ Démarrage Local (Développement)
-
-### Prérequis
-
-- **Node.js** 20+ et **npm**
-- **Java** 17+ et **Maven**
-- **MySQL** 8.0+
-
-### Démarrage
+### Déploiement Local
 
 ```bash
-# Terminal 1 : Backend
-cd backend
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+# 1. Cloner le projet
+git clone https://github.com/Leigh-Chr/project-management-tool.git
+cd project-management-tool
 
-# Terminal 2 : Frontend
-cd frontend
-npm install
-npm start
+# 2. Construire les images
+cd backend && ./mvnw clean package -DskipTests && cd ..
+cd frontend && npm ci && npm run build && cd ..
+
+# 3. Démarrer avec Docker Compose
+docker-compose up -d
 ```
 
-### Services Locaux
+### Déploiement avec Scripts
 
-| Service | URL | Port | Credentials |
+```bash
+# Déploiement simple
+./deploy-simple.sh
+
+# Arrêter l'application
+./stop.sh
+```
+
+## 🔄 CI/CD avec GitHub Actions
+
+### Configuration
+
+1. **Secrets GitHub** (Settings > Secrets and variables > Actions) :
+   - `DOCKER_USERNAME` : Votre nom d'utilisateur Docker Hub
+   - `DOCKER_PASSWORD` : Votre mot de passe Docker Hub
+
+2. **Pipeline automatique** :
+   - Build Backend (Maven)
+   - Build Frontend (npm)
+   - Push vers Docker Hub
+
+### Images Docker Hub
+
+- `leigh-chr/pmt-backend:latest`
+- `leigh-chr/pmt-frontend:latest`
+
+## 🌐 Accès à l'Application
+
+| Service | URL | Port | Description |
 |---------|-----|------|-------------|
-| **Frontend** | http://localhost:4200 | 4200 | - |
-| **Backend API** | http://localhost:8080 | 8080 | JWT Token |
-| **Database** | localhost:3306 | 3306 | root/root |
+| **Frontend** | http://localhost:4200 | 4200 | Interface Angular |
+| **Backend API** | http://localhost:8080 | 8080 | API Spring Boot |
+| **Database** | localhost:3306 | 3306 | MySQL |
 
-### Connexion par défaut
+## 👤 Comptes de Test
 
-- **Email** : alice@example.com
-- **Mot de passe** : alice123
+| Email | Password | Rôle |
+|-------|----------|------|
+| admin@example.com | admin123 | Admin |
+| alice@example.com | alice123 | Member |
+| bob@example.com | bob123 | Member |
 
-## 🧪 Tests de Configuration
-
-### Test de Configuration Railway
-
-```bash
-# Tester que la configuration Railway est prête
-./test-railway-config.sh
-```
-
-### Tests d'Intégration
+## 🔧 Commandes Utiles
 
 ```bash
-# Tester l'intégration complète
-./test-integration.sh
+# Voir les logs
+docker-compose logs -f
+
+# Redémarrer un service
+docker-compose restart backend
+
+# Arrêter l'application
+docker-compose down
+
+# Nettoyer (supprimer volumes)
+docker-compose down -v
 ```
-
-### Tests Manuels
-
-1. **Authentification** : Login avec alice@example.com
-2. **Projets** : Création et gestion des projets
-3. **Tâches** : Création et assignation des tâches
-4. **Membres** : Gestion des rôles et permissions
 
 ## 📋 Checklist de Déploiement
 
-### Avant Railway
-
-- [ ] Repository GitHub configuré
-- [ ] Variables d'environnement préparées
+### Avant Déploiement
+- [ ] Docker installé
+- [ ] Java 17 et Node.js 20
+- [ ] Variables d'environnement configurées
 - [ ] Tests locaux réussis
-- [ ] Documentation à jour
 
-### Après Railway
-
+### Après Déploiement
 - [ ] Application accessible
 - [ ] Base de données connectée
 - [ ] Authentification fonctionnelle
 - [ ] Tests d'intégration réussis
 
-## 🔧 Dépannage
+## 🛠️ Dépannage
 
 ### Problèmes Courants
 
-1. **Base de données** : Vérifier les variables d'environnement
-2. **CORS** : Configuration Spring Security
-3. **JWT** : Vérifier la clé secrète
+1. **Port déjà utilisé** : Changer les ports dans `docker-compose.yml`
+2. **Base de données** : Vérifier les variables d'environnement
+3. **CORS** : Configuration Spring Security
 4. **Build** : Vérifier les dépendances Maven/npm
 
-### Logs Railway
+### Logs
 
-- **Backend** : Logs Spring Boot dans Railway
-- **Frontend** : Logs npm dans Railway
-- **Base de données** : Logs MySQL dans Railway
+```bash
+# Logs backend
+docker logs pmt-backend
+
+# Logs frontend
+docker logs pmt-frontend
+
+# Logs base de données
+docker logs pmt-mysql
+```
 
 ## 📚 Documentation Complémentaire
 
