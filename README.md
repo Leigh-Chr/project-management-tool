@@ -18,6 +18,10 @@ Une plateforme de gestion de projet collaborative full-stack développée avec A
 # 🌐 Frontend:    http://localhost:4200
 # ⚙️ Backend API: http://localhost:8080  
 # 🗄️ PhpMyAdmin:  http://localhost:8081 (root/root)
+
+# Connexion par défaut :
+# Email: alice@example.com
+# Mot de passe: alice123
 ```
 
 ## 🏗️ Architecture

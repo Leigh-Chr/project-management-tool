@@ -1,6 +1,8 @@
-export const environment = {
+import { Environment } from './environment.interface';
+
+export const environment: Environment = {
   production: false,
-  apiUrl: '/api', // Utilise le mock local
+  apiUrl: 'http://localhost:8080/api',
   logLevel: 'debug',
   featureFlag: true,
 };

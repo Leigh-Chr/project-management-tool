@@ -5,7 +5,6 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './shared/interceptors/auth.interceptor';
-import { mockInterceptor } from './shared/interceptors/mock.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,7 +12,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(
-      withInterceptors([mockInterceptor, authInterceptor])
+      withInterceptors([authInterceptor])
     ),
   ],
 };

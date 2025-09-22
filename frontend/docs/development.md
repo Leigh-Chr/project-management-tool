@@ -8,6 +8,7 @@
 - **npm** : Version 10 ou supérieure
 - **Angular CLI** : Installé globalement
 - **Git** : Pour le contrôle de version
+- **Backend Spring Boot** : Doit être en cours d'exécution sur le port 8080
 
 ### Installation
 
@@ -21,6 +22,44 @@ npm install
 
 # Vérifier l'installation
 ng version
+```
+
+## Intégration avec le Backend
+
+### Prérequis Backend
+
+Le frontend Angular communique directement avec l'API Spring Boot. Assurez-vous que :
+
+1. **Le backend Spring Boot est démarré** sur le port 8080
+2. **La base de données MySQL** est accessible
+3. **L'API est fonctionnelle** (testez avec `curl http://localhost:8080/api/health`)
+
+### Configuration de l'API
+
+L'URL de l'API est configurée dans les fichiers d'environnement :
+
+```typescript
+// src/environments/environment.ts
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080/api',  // API Spring Boot
+  logLevel: 'debug',
+  featureFlag: true,
+};
+```
+
+### Démarrage Complet
+
+```bash
+# Terminal 1 : Backend Spring Boot
+cd backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Terminal 2 : Frontend Angular
+cd frontend
+npm start
+
+# L'application sera accessible sur http://localhost:4200
 ```
 
 ## Structure du Code
