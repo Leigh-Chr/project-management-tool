@@ -8,16 +8,20 @@
 
 Une plateforme de gestion de projet collaborative full-stack développée avec Angular 19 et Spring Boot 3, dans le cadre d'une étude de cas RNCP niveau 7 "Expert en Ingénierie du Logiciel".
 
-## 🚀 Démarrage Ultra-Rapide
+## 🚀 Démarrage Local
 
 ```bash
-# Démarrage complet en une commande
-./start-all.sh
+# Terminal 1 : Backend
+cd backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Terminal 2 : Frontend  
+cd frontend
+npm start
 
 # Services disponibles :
 # 🌐 Frontend:    http://localhost:4200
-# ⚙️ Backend API: http://localhost:8080  
-# 🗄️ PhpMyAdmin:  http://localhost:8081 (root/root)
+# ⚙️ Backend API: http://localhost:8080
 
 # Connexion par défaut :
 # Email: alice@example.com
@@ -51,7 +55,7 @@ Une plateforme de gestion de projet collaborative full-stack développée avec A
 - **Vue d'ensemble** : Architecture complète et contexte
 - **🗄️ [Modèle de Données](docs/data-model.md)** : Source de vérité des entités
 - **🌐 [Contrat API](docs/api-contract.md)** : Interface Frontend ↔ Backend
-- **🐳 [Déploiement](docs/deployment.md)** : Guide complet
+- **🚀 [Déploiement Railway](docs/deployment.md)** : Guide Railway
 - **📝 [Étude de Cas](docs/Enonce_Etude_de_cas_PMT.md)** : Contexte académique
 
 ### 🎨 [Documentation Frontend](frontend/docs/index.md)
@@ -149,12 +153,12 @@ cd backend
 - **Base de données** : MySQL avec données de test
 - **Tests** : Unitaires + API + Validation complète
 - **Documentation** : Organisée et complète
-- **Déploiement** : Docker + scripts automatisés
+- **Déploiement** : Railway + configuration automatique
 
 ### 🎯 Prêt pour
 - **Démonstration** : Application complètement fonctionnelle
 - **Développement** : Environment configuré
-- **Production** : Dockerisation et CI/CD préparés
+- **Production** : Railway déploiement automatique
 - **Évaluation** : Tous les livrables présents
 
 ## 📞 Support
