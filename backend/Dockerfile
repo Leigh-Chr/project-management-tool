@@ -1,45 +1,24 @@
-# Multi-stage build pour optimiser la taille de l'image
-FROM openjdk:17-jdk-slim AS build
-
-# Installer Maven
-RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
-
-# Définir le répertoire de travail
-WORKDIR /app
-
-# Copier les fichiers de configuration Maven
-COPY pom.xml .
-COPY mvnw .
-COPY .mvn .mvn
-
-# Télécharger les dépendances (cache layer)
-RUN ./mvnw dependency:go-offline -B
-
-# Copier le code source
-COPY src ./src
-
-# Construire l'application
-RUN ./mvnw clean package -DskipTests
-
-# Image de production
+# Dockerfile simple pour Spring Boot
 FROM openjdk:17-jdk-slim
 
-# Créer un utilisateur non-root pour la sécurité
+# Créer un utilisateur non-root
 RUN addgroup --system spring && adduser --system spring --ingroup spring
-USER spring:spring
 
 # Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le JAR depuis l'étape de build
-COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
+# Copier le JAR (construit localement ou par CI/CD)
+COPY target/backend-0.0.1-SNAPSHOT.jar app.jar
+
+# Changer le propriétaire
+RUN chown spring:spring app.jar
+USER spring:spring
 
 # Exposer le port
 EXPOSE 8080
 
-# Variables d'environnement par défaut
+# Variables d'environnement
 ENV SPRING_PROFILES_ACTIVE=prod
-ENV SERVER_PORT=8080
 
 # Commande de démarrage
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "app.jar"]

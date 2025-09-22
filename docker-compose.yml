@@ -6,21 +6,18 @@ services:
     image: mysql:8.0
     container_name: pmt-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: project_management
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: pmt_db
       MYSQL_USER: pmt_user
       MYSQL_PASSWORD: pmt_password
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./backend/src/main/resources/db/migration:/docker-entrypoint-initdb.d
-    networks:
-      - pmt-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      timeout: 10s
+      retries: 5
 
   # Backend Spring Boot
   backend:
@@ -28,25 +25,19 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: pmt-backend
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DATABASE_URL: jdbc:mysql://mysql:3306/project_management
-      DB_USERNAME: pmt_user
-      DB_PASSWORD: pmt_password
-      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-      CORS_ORIGINS: http://localhost:4200
     ports:
       - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/pmt_db?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: pmt_user
+      SPRING_DATASOURCE_PASSWORD: pmt_password
+      JWT_SECRET: yourVerySecretKeyThatIsAtLeast256BitsLongAndShouldBeStoredSecurely
     depends_on:
       mysql:
         condition: service_healthy
     networks:
       - pmt-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   # Frontend Angular
   frontend:
@@ -54,8 +45,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: pmt-frontend
-    environment:
-      API_URL: http://localhost:8080/api
     ports:
       - "4200:80"
     depends_on:

@@ -1,77 +1,83 @@
 #!/bin/bash
 
-echo "🐳 Déploiement Simple Project Management Tool"
-echo "============================================="
-
-# Couleurs pour les logs
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Fonction pour afficher les logs colorés
-log_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-log_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
+echo "🚀 Déploiement Simple PMT"
+echo "========================="
 
 # Arrêter les conteneurs existants
-log_info "Arrêt des conteneurs existants..."
-docker stop pmt-backend pmt-frontend 2>/dev/null || true
-docker rm pmt-backend pmt-frontend 2>/dev/null || true
+echo "🧹 Nettoyage..."
+docker stop pmt-frontend pmt-backend pmt-mysql 2>/dev/null || true
+docker rm pmt-frontend pmt-backend pmt-mysql 2>/dev/null || true
 
 # Créer le réseau
-log_info "Création du réseau Docker..."
+echo "🌐 Création du réseau..."
 docker network create pmt-network 2>/dev/null || true
 
-# Démarrer le backend avec H2 (base de données en mémoire)
-log_info "Démarrage du backend avec H2..."
+# Démarrer MySQL
+echo "🗄️ Démarrage MySQL..."
 docker run -d \
-    --name pmt-backend \
-    --network pmt-network \
-    -e SPRING_PROFILES_ACTIVE=dev \
-    -e SPRING_DATASOURCE_URL=jdbc:h2:mem:testdb \
-    -e SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.h2.Driver \
-    -e SPRING_DATASOURCE_USERNAME=sa \
-    -e SPRING_DATASOURCE_PASSWORD= \
-    -e SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.H2Dialect \
-    -e SPRING_H2_CONSOLE_ENABLED=true \
-    -e JWT_SECRET=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970 \
-    -e CORS_ORIGINS=http://localhost:4200 \
-    -p 8080:8080 \
-    pmt-backend-test
+  --name pmt-mysql \
+  --network pmt-network \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=root_password \
+  -e MYSQL_DATABASE=pmt_db \
+  -e MYSQL_USER=pmt_user \
+  -e MYSQL_PASSWORD=pmt_password \
+  mysql:8.0
 
-# Attendre que le backend soit prêt
-log_info "Attente du démarrage du backend..."
+# Attendre MySQL
+echo "⏳ Attente MySQL..."
 sleep 30
 
-# Démarrer le frontend
-log_info "Démarrage du frontend..."
-docker run -d \
-    --name pmt-frontend \
-    --network pmt-network \
-    -e API_URL=http://localhost:8080/api \
-    -p 4200:80 \
-    pmt-frontend-test
+# Construire et démarrer le backend
+echo "🔨 Construction Backend..."
+cd backend
+./mvnw clean package -DskipTests
+cd ..
 
-log_info "Déploiement terminé !"
+echo "🚀 Démarrage Backend..."
+docker run -d \
+  --name pmt-backend \
+  --network pmt-network \
+  -p 8080:8080 \
+  -e SPRING_PROFILES_ACTIVE=prod \
+  -e SPRING_DATASOURCE_URL=jdbc:mysql://pmt-mysql:3306/pmt_db?useSSL=false&allowPublicKeyRetrieval=true \
+  -e SPRING_DATASOURCE_USERNAME=pmt_user \
+  -e SPRING_DATASOURCE_PASSWORD=pmt_password \
+  -e JWT_SECRET=yourVerySecretKeyThatIsAtLeast256BitsLongAndShouldBeStoredSecurely \
+  -v $(pwd)/backend/target/backend-0.0.1-SNAPSHOT.jar:/app/app.jar \
+  openjdk:17-jdk-slim \
+  java -jar /app/app.jar
+
+# Attendre le backend
+echo "⏳ Attente Backend..."
+sleep 20
+
+# Construire et démarrer le frontend
+echo "🔨 Construction Frontend..."
+cd frontend
+npm ci
+npm run build
+cd ..
+
+echo "🚀 Démarrage Frontend..."
+docker run -d \
+  --name pmt-frontend \
+  --network pmt-network \
+  -p 4200:80 \
+  -v $(pwd)/frontend/dist/project-management-tool/browser:/usr/share/nginx/html \
+  nginx:alpine
+
 echo ""
-echo "🌐 Services disponibles :"
-echo "  Frontend:    http://localhost:4200"
-echo "  Backend API: http://localhost:8080"
-echo "  H2 Console:  http://localhost:8080/h2-console"
+echo "✅ Déploiement terminé !"
 echo ""
-echo "📋 Comptes de test :"
-echo "  Email: alice@example.com"
-echo "  Password: alice123"
+echo "🌐 Application disponible :"
+echo "  Frontend: http://localhost:4200"
+echo "  Backend:  http://localhost:8080"
+echo ""
+echo "📊 Comptes de test :"
+echo "  Email: admin@example.com"
+echo "  Password: admin123"
 echo ""
 echo "🔧 Commandes utiles :"
-echo "  Voir les logs: docker logs pmt-backend"
-echo "  Arrêter: ./stop.sh"
+echo "  Voir logs: docker logs pmt-backend"
+echo "  Arrêter:   ./stop.sh"
