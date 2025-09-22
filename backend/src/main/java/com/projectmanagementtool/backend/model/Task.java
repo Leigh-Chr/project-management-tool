@@ -37,7 +37,7 @@ public class Task {
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignee_id")
-    private ProjectMember assignee;
+    private User assignee;
 
     @ToString.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
@@ -73,7 +73,7 @@ public class Task {
         return priority;
     }
     
-    public ProjectMember getAssignee() {
+    public User getAssignee() {
         return assignee;
     }
     
@@ -110,7 +110,7 @@ public class Task {
         this.priority = priority;
     }
     
-    public void setAssignee(ProjectMember assignee) {
+    public void setAssignee(User assignee) {
         this.assignee = assignee;
     }
     

@@ -34,7 +34,5 @@ public interface UserService {
         return getAllUsers();
     }
     
-    default Optional<User> findById(Long id) {
-        throw new UnsupportedOperationException("Method not implemented");
-    }
+    Optional<User> findById(Long id);
 } 

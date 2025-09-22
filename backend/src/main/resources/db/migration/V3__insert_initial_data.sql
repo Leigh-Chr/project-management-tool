@@ -45,7 +45,7 @@ INSERT INTO project_members (id, project_id, user_id, role_id) VALUES
 (10, 3, 4, 2), -- Charlie - Member
 (11, 3, 5, 3); -- Diana - Observer
 
--- Tasks
+-- Tasks (assignee_id now references users.id directly)
 INSERT INTO tasks (id, project_id, name, description, due_date, priority, assignee_id, status_id) VALUES
 -- E-commerce Website tasks
 (1, 1, 'Design Homepage', 'Create wireframes and design for the homepage', '2024-01-15', 1, 2, 3),
@@ -53,13 +53,13 @@ INSERT INTO tasks (id, project_id, name, description, due_date, priority, assign
 (3, 1, 'Product Catalog', 'Develop product listing and filtering system', '2024-03-15', 2, 2, 1),
 
 -- Mobile App tasks
-(4, 2, 'Setup React Native', 'Configure development environment', '2024-03-10', 1, 6, 1),
-(5, 2, 'Design App UI', 'Create app screens and navigation flow', '2024-03-20', 1, 7, 1),
+(4, 2, 'Setup React Native', 'Configure development environment', '2024-03-10', 1, 3, 1),
+(5, 2, 'Design App UI', 'Create app screens and navigation flow', '2024-03-20', 1, 4, 1),
 
 -- Backend API tasks
-(6, 3, 'Design API Schema', 'Define endpoints and data structures', '2024-02-28', 1, 9, 3),
-(7, 3, 'Implement Authentication', 'Create JWT authentication system', '2024-03-15', 1, 10, 2),
-(8, 3, 'Database Setup', 'Configure PostgreSQL and migrations', '2024-03-01', 2, 9, 1);
+(6, 3, 'Design API Schema', 'Define endpoints and data structures', '2024-02-28', 1, 2, 3),
+(7, 3, 'Implement Authentication', 'Create JWT authentication system', '2024-03-15', 1, 4, 2),
+(8, 3, 'Database Setup', 'Configure PostgreSQL and migrations', '2024-03-01', 2, 2, 1);
 
 -- Task Events
 INSERT INTO task_events (id, task_id, description, date) VALUES

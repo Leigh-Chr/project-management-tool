@@ -1,84 +1,121 @@
-# Documentation PMT
+# Documentation Frontend PMT
 
-Bienvenue dans la documentation du projet **Project Management Tool (PMT)**.
+Bienvenue dans la documentation du **frontend Angular** du Project Management Tool (PMT).
 
-## 📚 Documentation Disponible
+## 📚 Documentation Frontend
 
-### [Architecture](architecture.md)
-- Vue d'ensemble de l'architecture du projet
+### [Architecture Frontend](architecture.md)
+- Vue d'ensemble de l'architecture Angular
 - Structure des composants et services
 - Gestion d'état avec Angular Signals
-- Flux de données et sécurité
-- Performance et évolutivité
+- Flux de données et réactivité
+- Performance et optimisations
 
-### [Guide de Développement](development.md)
-- Configuration de l'environnement de développement
+### [Guide de Développement Frontend](development.md)
+- Configuration de l'environnement Angular
 - Conventions de code et bonnes pratiques
 - Développement avec Angular Signals
 - Tests unitaires et d'intégration
 - Debugging et outils de développement
 
-### [API Documentation](api.md)
-- Documentation complète des endpoints
-- Authentification et autorisation
-- Modèles de données et relations
-- Codes d'erreur et permissions
-- Données de test et migration
+### [API Mock Frontend](api.md)
+- Documentation du backend mock intégré
+- Services de données simulées
+- Authentification mock avec JWT
+- Intercepteurs et gestion d'état
+- Migration vers le vrai backend
 
-### [API Contract](api-contract.md)
-- Contrat d'interface complet pour le backend
-- Spécifications détaillées des endpoints
-- Modèles de données et structures de réponse
-- Système de permissions et gestion d'erreurs
-- Considérations de sécurité et performance
+### [Vérification Frontend](verification.md)
+- Tests de validation du frontend
+- Contrôles qualité et conformité
+- Métriques de performance
+- Validation des fonctionnalités
 
-### [Data Model](data-model.md)
-- Modèle de données complet avec toutes les entités
-- Relations entre entités et contraintes d'intégrité
-- Diagrammes de relations et schémas de base de données
-- Scripts SQL de création et données de test
-- Index et optimisations de performance
+## 🔗 Documentation Globale
 
-### [Guide de Déploiement](deployment.md)
-- Déploiement local et Docker
-- Configuration Nginx et variables d'environnement
-- Déploiement sur Railway, AWS, Vercel
-- CI/CD avec GitHub Actions
-- Monitoring, sécurité et performance
+Pour la documentation transverse du projet :
 
-## 🚀 Démarrage Rapide
+### [📋 Index Global](../../docs/index.md)
+Vue d'ensemble complète du projet PMT
 
-Pour commencer rapidement avec le projet :
+### [🗄️ Modèle de Données](../../docs/data-model.md)
+Source de vérité pour les entités et relations (Frontend ↔ Backend)
 
-1. **Installation** : Consultez le [README](../README.md) pour l'installation
-2. **Développement** : Suivez le [Guide de Développement](development.md)
-3. **Architecture** : Comprenez l'[Architecture](architecture.md) du projet
-4. **API** : Explorez la [Documentation API](api.md) et le [Contrat API](api-contract.md)
-5. **Déploiement** : Consultez le [Guide de Déploiement](deployment.md)
+### [🌐 Contrat API](../../docs/api-contract.md)
+Interface partagée entre Frontend et Backend
 
-## 📋 Étude de Cas
+### [🐳 Déploiement Global](../../docs/deployment.md)
+Guide de déploiement complet (Frontend + Backend + Base de données)
 
-Ce projet fait partie d'une étude de cas pour le titre RNCP niveau 7 "Expert en Ingénierie du Logiciel". Consultez les documents originaux :
+### [📝 Étude de Cas](../../docs/Enonce_Etude_de_cas_PMT.md)
+Contexte et exigences du projet
 
-- [Énoncé de l'étude de cas](Enonce_Etude_de_cas_PMT.md)
-- [Feuille de travail](Feuille_de_travail_PMT.md)
+## 🔗 Documentation Backend
 
-## 🛠️ Technologies
+Pour la documentation spécifique au backend :
 
-- **Frontend** : Angular 19, TypeScript, SCSS
-- **Backend** : Mock intégré (Spring Boot prévu)
-- **Base de données** : Mock en mémoire (PostgreSQL prévu)
+### [⚙️ Backend Index](../../backend/docs/index.md)
+Documentation complète du backend Spring Boot
+
+### [🏗️ Backend Architecture](../../backend/docs/architecture.md)
+Architecture Spring Boot et patterns
+
+### [🌐 Backend API](../../backend/docs/api.md)
+Endpoints REST testés et validés
+
+### [🧪 Backend Testing](../../backend/docs/testing.md)
+Tests et validation du backend
+
+## 🚀 Démarrage Rapide Frontend
+
+### Prérequis
+- Node.js 20+
+- npm 10+
+
+### Installation
+```bash
+cd frontend
+npm install
+npm start
+```
+
+L'application sera accessible sur `http://localhost:4200`
+
+### Avec le Backend
+```bash
+# Terminal 1 : Backend
+cd backend && ./start-dev.sh
+
+# Terminal 2 : Frontend  
+cd frontend && npm start
+```
+
+## 🛠️ Technologies Frontend
+
+- **Framework** : Angular 19, TypeScript
+- **État** : Angular Signals
+- **Styling** : SCSS personnalisé
+- **Tests** : Jest, Angular Testing Utilities
+- **Build** : Angular CLI, Webpack
 - **Containerisation** : Docker, Nginx
-- **Déploiement** : Railway, AWS, Vercel
 
-## 📞 Support
+## 📊 Métriques Frontend
 
-Pour toute question ou problème :
+- **Bundle Size** : Optimisé avec tree-shaking
+- **Performance** : Core Web Vitals
+- **Tests** : Couverture avec Jest
+- **Linting** : ESLint avec règles strictes
 
-- **Issues** : Utilisez le système d'issues GitHub
-- **Documentation** : Consultez cette documentation
-- **Communauté** : Forum Angular officiel
+## 📞 Support Frontend
+
+Pour les questions spécifiques au frontend :
+
+- **Issues** : GitHub Issues avec label "frontend"
+- **Angular** : [Documentation officielle](https://angular.io/)
+- **Signals** : [Guide Angular Signals](https://angular.io/guide/signals)
+- **Testing** : [Angular Testing Guide](https://angular.io/guide/testing)
 
 ---
 
-**Dernière mise à jour** : Décembre 2024
+**Dernière mise à jour** : Septembre 2024  
+**Cohérence** : ✅ 100% avec backend et documentation globale

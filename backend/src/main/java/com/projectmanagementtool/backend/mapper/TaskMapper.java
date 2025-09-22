@@ -8,6 +8,7 @@ import com.projectmanagementtool.backend.dto.ProjectMemberDto;
 import com.projectmanagementtool.backend.dto.ProjectDto;
 import com.projectmanagementtool.backend.model.Task;
 import com.projectmanagementtool.backend.model.TaskEvent;
+import com.projectmanagementtool.backend.model.User;
 import com.projectmanagementtool.backend.model.ProjectMember;
 import org.springframework.stereotype.Component;
 
@@ -50,12 +51,12 @@ public class TaskMapper {
 
         // Set assignee if exists
         if (task.getAssignee() != null) {
-            ProjectMember assignee = task.getAssignee();
+            User assignee = task.getAssignee();
             builder.assignee(ProjectMemberDto.builder()
                     .id(assignee.getId())
-                    .username(assignee.getUser().getUsername())
-                    .email(assignee.getUser().getEmail())
-                    .role(assignee.getRole().getName())
+                    .username(assignee.getUsername())
+                    .email(assignee.getEmail())
+                    .role("Member") // Default role for task assignee
                     .build());
         }
 

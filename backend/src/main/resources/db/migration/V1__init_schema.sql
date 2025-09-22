@@ -57,7 +57,7 @@ CREATE TABLE tasks (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (project_id) REFERENCES projects(id),
-    FOREIGN KEY (assignee_id) REFERENCES project_members(id),
+    FOREIGN KEY (assignee_id) REFERENCES users(id) ON DELETE SET NULL,
     FOREIGN KEY (status_id) REFERENCES statuses(id)
 );
 

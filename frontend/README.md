@@ -45,11 +45,17 @@ docker run -p 80:80 pmt-frontend
 
 ## 📚 Documentation
 
-Pour une documentation complète, consultez le dossier [`docs/`](docs/) :
-- [Architecture détaillée](docs/architecture.md)
-- [Guide de développement](docs/development.md)
-- [API Documentation](docs/api.md)
-- [Déploiement](docs/deployment.md)
+### Documentation Globale
+- [**📋 Index Global**](../docs/index.md) - Vue d'ensemble complète du projet
+- [**🗄️ Modèle de Données**](../docs/data-model.md) - Source de vérité des entités
+- [**🌐 Contrat API**](../docs/api-contract.md) - Interface Frontend ↔ Backend
+- [**🐳 Déploiement**](../docs/deployment.md) - Guide complet Frontend + Backend
+
+### Documentation Frontend
+- [**📋 Frontend Index**](docs/index.md) - Documentation Angular complète
+- [**🏗️ Architecture**](docs/architecture.md) - Structure Angular et Signals
+- [**🛠️ Développement**](docs/development.md) - Guide de développement Angular
+- [**🔧 API Mock**](docs/api.md) - Backend mock intégré
 
 ## 🔧 Scripts
 

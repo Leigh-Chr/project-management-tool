@@ -20,6 +20,7 @@ import com.projectmanagementtool.backend.repository.TaskRepository;
 import com.projectmanagementtool.backend.security.SecurityUtils;
 import com.projectmanagementtool.backend.service.TaskService;
 import com.projectmanagementtool.backend.service.TaskEventService;
+import com.projectmanagementtool.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +37,7 @@ public class TaskServiceImpl implements TaskService {
     private final SecurityUtils securityUtils;
     private final ProjectRepository projectRepository;
     private final TaskEventRepository taskEventRepository;
+    private final UserService userService;
     private final ProjectMemberMapper projectMemberMapper;
     private final TaskEventService taskEventService;
 
@@ -159,12 +161,14 @@ public class TaskServiceImpl implements TaskService {
         TaskDetailsDto dto = taskMapper.toDetailsDto(task, myRole);
         if (dto != null) {
             // Set assignee details
-            ProjectMember assignee = task.getAssignee();
+            User assignee = task.getAssignee();
             if (assignee != null) {
-                ProjectMemberDto assigneeDto = projectMemberMapper.toDto(assignee);
-                assigneeDto.setUsername(assignee.getUser().getUsername());
-                assigneeDto.setEmail(assignee.getUser().getEmail());
-                assigneeDto.setRole(assignee.getRole().getName());
+                ProjectMemberDto assigneeDto = ProjectMemberDto.builder()
+                        .id(assignee.getId())
+                        .username(assignee.getUsername())
+                        .email(assignee.getEmail())
+                        .role("Member") // Default role for task assignee
+                        .build();
                 dto.setAssignee(assigneeDto);
             }
             
@@ -201,9 +205,7 @@ public class TaskServiceImpl implements TaskService {
         
         // Set assignee if provided
         if (request.getAssigneeId() != null) {
-            project.getMembers().stream()
-                .filter(member -> member.getId().equals(request.getAssigneeId()))
-                .findFirst()
+            userService.findById(request.getAssigneeId())
                 .ifPresent(task::setAssignee);
         }
         
