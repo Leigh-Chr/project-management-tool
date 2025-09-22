@@ -1,0 +1,19 @@
+# Configuration Railway pour Monorepo
+# Ce fichier indique à Railway qu'il s'agit d'un monorepo
+# Chaque service (backend/ et frontend/) a sa propre configuration
+
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "echo 'Monorepo detected - please configure services separately'"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+
+# IMPORTANT: Ce monorepo nécessite 2 services Railway séparés :
+# 1. Service Backend : Root Directory = "backend"
+# 2. Service Frontend : Root Directory = "frontend"
+# 
+# Voir docs/deployment.md pour les instructions complètes
+

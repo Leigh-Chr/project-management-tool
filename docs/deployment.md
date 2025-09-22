@@ -4,25 +4,48 @@
 
 Ce guide couvre le déploiement automatique de l'application PMT sur Railway, incluant le frontend Angular et le backend Spring Boot.
 
-## 🚀 Déploiement Railway
+## 🚀 Déploiement Railway Monorepo
 
-### Configuration Railway
+### ⚠️ Configuration Monorepo
 
-1. **Connecter le repository** à Railway
-2. **Railway détecte automatiquement** :
-   - Backend : Maven (`pom.xml`)
-   - Frontend : npm (`package.json`)
-   - Base de données : MySQL automatique
+Railway ne peut pas gérer automatiquement un monorepo. Il faut créer **2 projets Railway séparés** :
+
+#### **1️⃣ Service Backend**
+1. **Créer un nouveau projet Railway** : "PMT-Backend"
+2. **Connecter le repository** GitHub
+3. **Configurer le Root Directory** : `backend`
+4. **Railway détecte automatiquement** Maven via `pom.xml`
+5. **Ajouter MySQL** au projet Backend
+
+#### **2️⃣ Service Frontend**
+1. **Créer un nouveau projet Railway** : "PMT-Frontend"
+2. **Connecter le même repository** GitHub
+3. **Configurer le Root Directory** : `frontend`
+4. **Railway détecte automatiquement** npm via `package.json`
+
+### 🔧 Configuration Railway
+
+Les fichiers `railway.toml` sont déjà configurés :
+- **Root** : `railway.toml` (détection monorepo)
+- **Backend** : `backend/railway.toml` (Spring Boot)
+- **Frontend** : `frontend/railway.toml` (Angular)
 
 ### Variables d'Environnement Railway
 
+#### **Backend Railway :**
 | Variable | Valeur | Description |
 |----------|--------|-------------|
 | `SPRING_PROFILES_ACTIVE` | `prod` | Profil Spring Boot |
-| `SPRING_DATASOURCE_URL` | `jdbc:mysql://...` | URL MySQL Railway |
-| `SPRING_DATASOURCE_USERNAME` | `root` | Utilisateur MySQL |
-| `SPRING_DATASOURCE_PASSWORD` | `...` | Mot de passe MySQL |
-| `JWT_SECRET` | `...` | Clé secrète JWT |
+| `SPRING_DATASOURCE_URL` | `jdbc:mysql://[RAILWAY_MYSQL_URL]` | URL MySQL Railway |
+| `SPRING_DATASOURCE_USERNAME` | `[RAILWAY_MYSQL_USER]` | Utilisateur MySQL Railway |
+| `SPRING_DATASOURCE_PASSWORD` | `[RAILWAY_MYSQL_PASSWORD]` | Mot de passe MySQL Railway |
+| `JWT_SECRET` | `[GENERATE_SECRET_KEY]` | Clé secrète JWT (générer une clé forte) |
+
+#### **Frontend Railway :**
+| Variable | Valeur | Description |
+|----------|--------|-------------|
+| `NODE_ENV` | `production` | Environnement Node.js |
+| `API_URL` | `https://[BACKEND_RAILWAY_URL]/api` | URL de l'API Backend |
 
 ## 🛠️ Démarrage Local (Développement)
 
@@ -58,9 +81,16 @@ npm start
 - **Email** : alice@example.com
 - **Mot de passe** : alice123
 
-## 🧪 Tests d'Intégration
+## 🧪 Tests de Configuration
 
-### Script de Test
+### Test de Configuration Railway
+
+```bash
+# Tester que la configuration Railway est prête
+./test-railway-config.sh
+```
+
+### Tests d'Intégration
 
 ```bash
 # Tester l'intégration complète

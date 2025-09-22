@@ -28,6 +28,27 @@ npm start
 # Mot de passe: alice123
 ```
 
+## 🚀 Déploiement Railway
+
+### Configuration Prête ✅
+
+La configuration Railway est **PRÊTE** ! Tous les fichiers `railway.toml` sont configurés.
+
+### Déploiement Rapide
+
+```bash
+# 1. Tester la configuration
+./test-railway-config.sh
+
+# 2. Générer les variables d'environnement
+./generate-railway-env.sh
+
+# 3. Suivre le guide de déploiement
+# Voir RAILWAY_DEPLOYMENT_GUIDE.md
+```
+
+**📖 Guide complet** : [`RAILWAY_DEPLOYMENT_GUIDE.md`](RAILWAY_DEPLOYMENT_GUIDE.md)
+
 ## 🏗️ Architecture
 
 ```
