@@ -28,26 +28,49 @@ npm start
 # Mot de passe: alice123
 ```
 
-## 🚀 Déploiement Railway
+## 🐳 Déploiement Docker
 
 ### Configuration Prête ✅
 
-La configuration Railway est **PRÊTE** ! Tous les fichiers `railway.toml` sont configurés.
+L'application est **100% dockerisée** avec Docker Compose pour le développement et GitHub Actions pour la CI/CD.
 
-### Déploiement Rapide
+### 🚀 Déploiement Local (Docker Compose)
 
 ```bash
-# 1. Tester la configuration
-./test-railway-config.sh
+# Démarrage complet de l'application
+docker-compose up -d
 
-# 2. Générer les variables d'environnement
-./generate-railway-env.sh
+# Services disponibles :
+# 🌐 Frontend:    http://localhost:4200
+# ⚙️ Backend API: http://localhost:8080
+# 🗄️ Database:    localhost:3306
 
-# 3. Suivre le guide de déploiement
-# Voir RAILWAY_DEPLOYMENT_GUIDE.md
+# Arrêt de l'application
+docker-compose down
 ```
 
-**📖 Guide complet** : [`RAILWAY_DEPLOYMENT_GUIDE.md`](RAILWAY_DEPLOYMENT_GUIDE.md)
+### 🏭 Déploiement Production (Docker Hub)
+
+```bash
+# Build des images
+docker build -t pmt-backend ./backend
+docker build -t pmt-frontend ./frontend
+
+# Push vers Docker Hub
+docker tag pmt-backend your-username/pmt-backend:latest
+docker tag pmt-frontend your-username/pmt-frontend:latest
+docker push your-username/pmt-backend:latest
+docker push your-username/pmt-frontend:latest
+```
+
+### 🔄 CI/CD Automatique
+
+La pipeline GitHub Actions :
+- ✅ **Tests automatiques** : Frontend + Backend
+- ✅ **Build Docker** : Images optimisées
+- ✅ **Push Docker Hub** : Publication automatique
+- ✅ **Security Scan** : Analyse de vulnérabilités
+- ✅ **Coverage Reports** : Rapports de couverture
 
 ## 🏗️ Architecture
 
